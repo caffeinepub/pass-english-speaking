@@ -27,11 +27,11 @@ export function parseNewsFromGNews(jsonText: string): { parsedData: NewsItem[]; 
     // Try to parse as JSON
     const data: GNewsResponse = JSON.parse(jsonText);
 
-    // Check for API errors
+    // Check for API errors - return exact error message without prefix
     if (data.errors && data.errors.length > 0) {
       return {
         parsedData: [],
-        error: new Error(`GNews API error: ${data.errors.join(', ')}`),
+        error: new Error(data.errors.join(', ')),
       };
     }
 
@@ -84,17 +84,17 @@ export function parseNewsFromGNews(jsonText: string): { parsedData: NewsItem[]; 
 
     return { parsedData: newsItems, error: null };
   } catch (error) {
-    // If JSON parsing fails, check if it's an error message from backend
-    if (typeof jsonText === 'string' && jsonText.includes('error')) {
+    // If JSON parsing fails, return the exact error message
+    if (error instanceof Error) {
       return {
         parsedData: [],
-        error: new Error(jsonText),
+        error: new Error(error.message),
       };
     }
     
     return {
       parsedData: [],
-      error: new Error(`Failed to parse news data: ${error instanceof Error ? error.message : 'Unknown error'}`),
+      error: new Error('Failed to parse news data'),
     };
   }
 }

@@ -1,93 +1,138 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix independent regional news loading, India default ordering, and per-region empty states",
+  "title": "UPSC Interview Mic UI + Vibrant Glassmorphism Redesign",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove Israel-first gating so every region loads independently without lock messaging.",
+      "summary": "Make UPSC Interview mic controls prominent with a fixed bottom-center mic button and active green status indicator.",
       "acceptanceCriteria": [
-        "On the /news page, each region begins loading immediately and independently (no disabled/locked state tied to Israel).",
-        "No UI messaging remains that implies other regions are gated by Israel loading success.",
-        "Refreshing news does not require Israel to succeed for other regions to show results."
+        "On /pro-ai-interviewer during the 'interview' step, there is a large microphone control fixed to the bottom center of the viewport and it is visible without scrolling.",
+        "Clicking the large microphone control starts/stops speech recognition using the existing browser-only Web Speech API hook.",
+        "When recording is active, a green status indicator is visible (and not visible or clearly inactive when the mic is off).",
+        "The previous mic controls are not duplicated in a confusing way (either removed or visually demoted so the large mic is the primary control)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useRegionNews.ts",
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
           "operation": "modify",
-          "description": "Remove Israel verification/localStorage gating and ensure each region is always enabled for fetching when not in demo mode (no dependency on Israel success)."
+          "description": "Replace/demote the current inline mic Button in the interview step with a new primary fixed bottom-center microphone control that toggles the existing useSpeechToText hook; add a green status-light indicator that is clearly active only while listening; ensure no confusing duplication of mic controls remains. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/news/NewsSection.tsx",
-          "operation": "modify",
-          "description": "Remove the gated/locked UI state (Lock icon + message) so sections never appear locked based on Israel; ensure each region renders based only on its own loading/data state."
+          "path": "frontend/src/components/proInterviewer/BottomMicControl.tsx",
+          "operation": "create",
+          "description": "Create a dedicated fixed-position mic control component (large colorful mic button + active green status-light indicator) designed to be the primary control on the interview step and to call a provided toggle handler. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Make India the first/default region displayed on the News page by reordering regions.",
+      "summary": "Show a 'Listening...' animated wave state and live interim speech-to-text in a chat bubble during UPSC Interview recording.",
       "acceptanceCriteria": [
-        "India appears as the first region section in the /news page list.",
-        "Other regions (Dubai, West Bengal, Israel) still appear on the page after India."
+        "When the mic is active on the interview step, a 'Listening...' indicator with an animated wave effect is shown.",
+        "As the user speaks, their recognized words appear in a chat-bubble style element in the interview UI (not only inside the textarea).",
+        "Interim speech recognition results update the chat bubble in near real-time; final results are preserved/committed to the answer state.",
+        "If speech recognition is unsupported or permission is denied, the UI shows an error via the existing toast behavior and the mic UI returns to an inactive state."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/news/regionConfig.ts",
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
           "operation": "modify",
-          "description": "Reorder the exported REGIONS array so India is first, followed by Dubai, West Bengal, and Israel (or the exact remaining order required), without changing region IDs."
+          "description": "Extend the interview step to track and render interim transcript text separately from the committed answer: update the existing useSpeechToText onTranscript handler to set interim text when isFinal=false and commit/append when isFinal=true; show a chat-bubble UI that updates in near real-time; show a 'Listening...' wave animation when isListening; on onError (unsupported/permission denied), keep the existing toast behavior and ensure interim state is cleared and the UI returns to an inactive mic state. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/NewsPage.tsx",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Confirm the page renders regions using the REGIONS order (no extra sorting that could override India-first ordering)."
+          "description": "Add/adjust global utility styles needed for the interview 'Listening...' wave visual (if not fully handled via Tailwind keyframes), keeping styling consistent and user-facing text in English."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Add Tailwind keyframes/animation utilities for the 'Listening...' wave effect used near the mic control (and any small helper animation classes needed), without changing immutable paths."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a clearly labeled AI 'Speak' control to play the current UPSC panel question via browser-only TTS.",
+      "acceptanceCriteria": [
+        "On the interview step, there is a clearly labeled control with user-facing text 'Speak' (or 'Speak Question') that plays the current question via text-to-speech.",
+        "While TTS playback is active, the UI reflects the speaking state (e.g., disabled button and/or 'Speaking...' label) without hiding the mic button.",
+        "TTS uses the existing speakText/stopSpeaking utilities and remains browser-only (no external requests)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "operation": "modify",
+          "description": "Update the interview step controls to include a clearly labeled 'Speak Question' button that calls existing speakText/stopSpeaking and reflects isSpeaking state (disabled and/or label change) while keeping the new bottom mic button visible and usable. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Update region news fetching to call backend methods (non-demo), parse GNews JSON, and render independent per-region results.",
+      "summary": "Redesign the Home dashboard with a vibrant glassmorphism theme and update the six primary buttons with specified emoji icons and color palette.",
       "acceptanceCriteria": [
-        "With NEWS_DATA_SOURCE set to 'backend', the India region displays parsed headlines when the backend returns a valid GNews response.",
-        "Dubai, West Bengal, and Israel sections do not remain permanently empty solely due to frontend stubs returning empty strings (the frontend must call the backend for region data).",
-        "Each region’s loading spinner, success display, and empty-state display operate per-region (one region’s state changes do not block others)."
+        "The HomePage background uses a light-blue to soft-purple gradient and the button cards use a glassmorphism look (blurred/translucent surface, subtle border, soft shadow).",
+        "Each of the 6 dashboard buttons displays the specified emoji icon and uses a distinct, vibrant color style consistent with the requested palette.",
+        "Button click behavior still navigates to the existing routes: /news, /chat-with-friend, /day1-learn, /day1-test, /my-progress, /pro-ai-interviewer.",
+        "All user-facing text remains English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/HomePage.tsx",
           "operation": "modify",
-          "description": "Implement real region query behavior when NEWS_DATA_SOURCE is 'backend': call backend actor methods instead of returning an empty string (use getIndiaNews for India; use getNews for other regions until/if dedicated methods exist), maintaining per-region query keys for independent loading/caching."
-        },
-        {
-          "path": "frontend/src/hooks/useRegionNews.ts",
-          "operation": "modify",
-          "description": "When not in demo mode, parse each region’s returned JSON text via parseNewsFromGNews and return parsed items + parse errors per region (instead of hardcoded empty arrays), while preserving independent region state."
-        },
-        {
-          "path": "frontend/src/lib/news/parseNews.ts",
-          "operation": "modify",
-          "description": "Harden parsing behavior for backend-returned values relevant to regional fetching (e.g., gracefully treat empty/whitespace responses as empty-state without throwing) so regions don’t fail due to non-JSON empty responses."
+          "description": "Apply a light-blue to soft-purple gradient background and glassmorphism styling for the six primary dashboard buttons; replace the current icon rendering for these six entries with the specified emoji icons (📰 🤖 📚 🏆 📈 🏛️) and apply per-button vibrant color styling while preserving existing English labels and navigation routes; keep Settings navigation working. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Ensure per-region failures show an empty state only for that region while others continue loading/rendering.",
+      "summary": "Update global typography to use a bold, rounded font (Poppins or Montserrat) across the app.",
       "acceptanceCriteria": [
-        "If one region’s fetch fails, only that region shows an empty-state message (and other regions continue to show loading/success normally).",
-        "A failing Israel request does not prevent India/Dubai/West Bengal from showing news.",
-        "If a region returns no articles, that region shows an empty-state message and other regions remain unaffected."
+        "The app loads and applies Poppins or Montserrat as the primary sans-serif font (with sensible system fallbacks).",
+        "Headings and primary UI text render using the updated font across major pages (Home, Test, Progress, UPSC Interview)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useRegionNews.ts",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Adjust the region hook contract to support per-region empty-state on failures (network/backend/parse errors) without propagating a global failure that could block other regions’ queries."
+          "description": "Load the selected font (Poppins or Montserrat) via a standard web font include so it is available globally, without changing app behavior."
         },
         {
-          "path": "frontend/src/components/news/NewsSection.tsx",
+          "path": "frontend/tailwind.config.js",
           "operation": "modify",
-          "description": "Change error rendering so a region with an error shows an English empty-state message (non-destructive) rather than a blocking error UI, and ensure other regions are unaffected and continue to display their own loading/success/empty states."
+          "description": "Update Tailwind fontFamily.sans to prioritize the new rounded font (Poppins or Montserrat) with sensible fallbacks."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Ensure the global body/base typography uses the updated font consistently (and remains English), aligning with the Tailwind font family configuration."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add confetti on perfect 200/200 test results and a gentle red shake effect on failures.",
+      "acceptanceCriteria": [
+        "After submitting the Day 1 test, if score === 200, a confetti animation appears automatically and is clearly visible.",
+        "After submitting the Day 1 test, if score < 200, the screen (or main container) performs a gentle red shake animation when the result is shown.",
+        "Animations do not block navigation or prevent clicking the next actions (View Progress / Try Again)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Day1TestPage.tsx",
+          "operation": "modify",
+          "description": "Trigger a confetti celebration when a submitted result is a perfect score (200) and trigger a gentle red shake animation when the result is a fail (<200); ensure effects occur upon result display and do not block the existing navigation/actions (View Progress / Try Again). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/test/ResultEffects.tsx",
+          "operation": "create",
+          "description": "Implement a lightweight, browser-only visual effects helper component that can render a temporary confetti animation overlay when enabled and exposes a non-blocking API for the test page to trigger effects. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Add Tailwind keyframes/animation utilities for a gentle shake (and any small helper transitions) used by the test result failure state."
         }
       ]
     }

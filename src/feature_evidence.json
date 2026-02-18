@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-israel-first-gating-so-that-all-supported-regions-india-dubai-west-bengal-israel-can-load-news-independently-without-requiring-israel-news-to-load-successfully-first",
-      "featureTitle": "Remove the Israel-first gating so that all supported regions (India, Dubai, West Bengal, Israel) can load news independently without requiring Israel news to load successfully first.",
+      "featureId": "feature-fix-the-upsc-interview-button-6-interview-step-ui-so-microphone-and-speaking-controls-are-clearly-visible-and-usable-add-a-large-prominent-colorful-microphone-button-fixed-at-the-bottom-center-of-the-interview-screen-clicking-it-toggles-voice-recording-show-a-small-green-status-light-indicator-when-the-microphone-is-active-ready",
+      "featureTitle": "Fix the UPSC Interview (Button 6) interview step UI so microphone and speaking controls are clearly visible and usable: add a large, prominent, colorful microphone button fixed at the bottom center of the interview screen; clicking it toggles voice recording; show a small green status-light indicator when the microphone is active/ready.",
       "files": [
-        "frontend/src/components/news/NewsSection.tsx",
-        "frontend/src/hooks/useRegionNews.ts"
+        "frontend/src/components/proInterviewer/BottomMicControl.tsx",
+        "frontend/src/pages/ProAIInterviewerPage.tsx"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -14,7 +14,8 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
         "REQ-1"
@@ -22,10 +23,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-set-india-as-the-primary-default-news-region-in-the-news-page-ui-by-ordering-india-first-among-regions-shown",
-      "featureTitle": "Set India as the primary/default news region in the News page UI by ordering India first among regions shown.",
+      "featureId": "feature-add-a-visible-listening-state-to-the-upsc-interview-microphone-interaction-while-the-mic-is-active-show-a-listening-animation-resembling-moving-waves-near-the-mic-control-and-show-live-speech-to-text-on-screen-in-a-chat-bubble-as-the-user-speaks-including-interim-partial-speech-updates",
+      "featureTitle": "Add a visible 'Listening...' state to the UPSC Interview microphone interaction: while the mic is active, show a 'Listening...' animation resembling moving waves near the mic control, and show live speech-to-text on screen in a chat bubble as the user speaks (including interim/partial speech updates).",
       "files": [
-        "frontend/src/lib/news/regionConfig.ts"
+        "frontend/src/index.css",
+        "frontend/src/pages/ProAIInterviewerPage.tsx",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -33,7 +36,8 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
         "REQ-2"
@@ -41,12 +45,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-frontend-region-news-query-pipeline-so-that-when-not-in-demo-mode-region-sections-fetch-their-region-data-from-the-backend-parse-the-gnews-response-and-display-results-for-each-region-independently",
-      "featureTitle": "Update the frontend region-news query pipeline so that, when not in demo mode, region sections fetch their region data from the backend, parse the GNews response, and display results for each region independently.",
+      "featureId": "feature-add-an-explicit-ai-speak-control-in-the-upsc-interview-flow-so-the-user-can-clearly-trigger-text-to-speech-playback-of-the-current-panel-question-separate-from-the-microphone-control-using-the-existing-browser-only-tts-utility",
+      "featureTitle": "Add an explicit AI 'Speak' control in the UPSC Interview flow so the user can clearly trigger text-to-speech playback of the current panel question (separate from the microphone control), using the existing browser-only TTS utility.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/hooks/useRegionNews.ts",
-        "frontend/src/lib/news/parseNews.ts"
+        "frontend/src/pages/ProAIInterviewerPage.tsx"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -54,7 +56,28 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-redesign-the-home-dashboard-to-a-modern-colorful-vibrant-glassmorphism-theme-with-a-soft-gradient-background-from-light-blue-to-soft-purple-and-update-the-six-primary-dashboard-buttons-to-use-the-specified-per-button-color-palette-and-emoji-icons-while-keeping-their-existing-routes-and-labels-in-english",
+      "featureTitle": "Redesign the Home dashboard to a modern, colorful, vibrant Glassmorphism theme with a soft gradient background from Light Blue to Soft Purple, and update the six primary dashboard buttons to use the specified per-button color palette and emoji icons (📰 🤖 📚 🏆 📈 🏛️) while keeping their existing routes and labels in English.",
+      "files": [
+        "frontend/src/pages/HomePage.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
         "REQ-4"
@@ -62,11 +85,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-adjust-per-region-failure-behavior-so-that-if-one-region-fails-to-load-network-error-backend-error-parse-error-or-empty-response-that-region-shows-an-empty-state-while-other-regions-continue-to-load-and-render-successfully",
-      "featureTitle": "Adjust per-region failure behavior so that if one region fails to load (network error, backend error, parse error, or empty response), that region shows an empty state while other regions continue to load and render successfully.",
+      "featureId": "feature-update-global-typography-to-use-a-bold-rounded-font-such-as-poppins-or-montserrat-consistently-across-the-app-ui",
+      "featureTitle": "Update global typography to use a bold, rounded font such as Poppins or Montserrat consistently across the app UI.",
       "files": [
-        "frontend/src/components/news/NewsSection.tsx",
-        "frontend/src/hooks/useRegionNews.ts"
+        "frontend/index.html",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -74,10 +98,33 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
         "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-visual-feedback-animations-for-the-200-mark-test-result-when-the-user-passes-with-a-perfect-score-200-200-show-a-colorful-confetti-animation-when-the-user-fails-apply-a-gentle-red-shake-effect-to-the-page-or-main-test-container-upon-result-display",
+      "featureTitle": "Add visual feedback animations for the 200-mark test result: when the user passes with a perfect score (200/200), show a colorful confetti animation; when the user fails, apply a gentle red shake effect to the page (or main test container) upon result display.",
+      "files": [
+        "frontend/src/components/test/ResultEffects.tsx",
+        "frontend/src/pages/Day1TestPage.tsx",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

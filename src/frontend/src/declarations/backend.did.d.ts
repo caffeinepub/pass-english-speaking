@@ -10,6 +10,12 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface TestAttempt {
+  'completionTime' : Time,
+  'user' : Principal,
+  'score' : bigint,
+}
+export type Time = bigint;
 export interface TransformationInput {
   'context' : Uint8Array,
   'response' : http_request_result,
@@ -19,6 +25,10 @@ export interface TransformationOutput {
   'body' : Uint8Array,
   'headers' : Array<http_header>,
 }
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface http_header { 'value' : string, 'name' : string }
 export interface http_request_result {
   'status' : bigint,
@@ -26,11 +36,33 @@ export interface http_request_result {
   'headers' : Array<http_header>,
 }
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'forceRefreshIndiaNews' : ActorMethod<[], string>,
   'forceRefreshNews' : ActorMethod<[], string>,
+  'getAllCompletedDays' : ActorMethod<[], Array<bigint>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCompletedDaysCount' : ActorMethod<[], bigint>,
+  'getCourseProgress' : ActorMethod<[Principal], [bigint, bigint]>,
+  'getDay1TestAttempts' : ActorMethod<[Principal], Array<TestAttempt>>,
   'getIndiaNews' : ActorMethod<[], string>,
   'getNews' : ActorMethod<[], string>,
+  'getUnlockedDaysCount' : ActorMethod<[], bigint>,
+  'getUserHighScore' : ActorMethod<[Principal], [] | [bigint]>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'handleDayPassed' : ActorMethod<[bigint, bigint], undefined>,
+  'handleScore' : ActorMethod<[bigint], string>,
+  'hasTestPassed' : ActorMethod<[bigint], boolean>,
+  'hasUserPassedTest' : ActorMethod<[bigint], boolean>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isDayLocked' : ActorMethod<[bigint], boolean>,
+  'isDayUnlocked' : ActorMethod<[Principal, bigint], boolean>,
+  'isFutureDayLocked' : ActorMethod<[Principal], bigint>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+  'unlockDayForUser' : ActorMethod<[Principal], undefined>,
+  'updateCourseProgress' : ActorMethod<[], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -1,93 +1,110 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T01:47:42.657Z",
+  "generatedAt": "2026-02-18T08:01:10.469Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 4,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove the Israel-first gating so that all supported regions (India, Dubai, West Bengal, Israel) can load news independently without requiring Israel news to load successfully first.",
+        "summary": "Fix the UPSC Interview (Button 6) interview step UI so microphone and speaking controls are clearly visible and usable: add a large, prominent, colorful microphone button fixed at the bottom center of the interview screen; clicking it toggles voice recording; show a small green status-light indicator when the microphone is active/ready.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useRegionNews.ts",
-          "frontend/src/components/news/NewsSection.tsx"
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/components/proInterviewer/BottomMicControl.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useRegionNews.ts",
-          "frontend/src/components/news/NewsSection.tsx"
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/components/proInterviewer/BottomMicControl.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Set India as the primary/default news region in the News page UI by ordering India first among regions shown.",
+        "summary": "Add a visible 'Listening...' state to the UPSC Interview microphone interaction: while the mic is active, show a 'Listening...' animation resembling moving waves near the mic control, and show live speech-to-text on screen in a chat bubble as the user speaks (including interim/partial speech updates).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/lib/news/regionConfig.ts",
-          "frontend/src/pages/NewsPage.tsx"
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js"
         ],
         "matchedFiles": [
-          "frontend/src/lib/news/regionConfig.ts"
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Implement backend support to fetch and cache India top headlines using the exact GNews endpoint provided by the user, and expose it via a region-specific backend method that the frontend can call without embedding the API key in the client.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Add an explicit AI 'Speak' control in the UPSC Interview flow so the user can clearly trigger text-to-speech playback of the current panel question (separate from the microphone control), using the existing browser-only TTS utility.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ProAIInterviewerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ProAIInterviewerPage.tsx"
+        ]
       },
       {
         "id": "REQ-4",
-        "summary": "Update the frontend region-news query pipeline so that, when not in demo mode, region sections fetch their region data from the backend, parse the GNews response, and display results for each region independently.",
+        "summary": "Redesign the Home dashboard to a modern, colorful, vibrant Glassmorphism theme with a soft gradient background from Light Blue to Soft Purple, and update the six primary dashboard buttons to use the specified per-button color palette and emoji icons (📰 🤖 📚 🏆 📈 🏛️) while keeping their existing routes and labels in English.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/hooks/useRegionNews.ts",
-          "frontend/src/lib/news/parseNews.ts"
+          "frontend/src/pages/HomePage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/hooks/useRegionNews.ts",
-          "frontend/src/lib/news/parseNews.ts"
+          "frontend/src/pages/HomePage.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Adjust per-region failure behavior so that if one region fails to load (network error, backend error, parse error, or empty response), that region shows an empty state while other regions continue to load and render successfully.",
+        "summary": "Update global typography to use a bold, rounded font such as Poppins or Montserrat consistently across the app UI.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useRegionNews.ts",
-          "frontend/src/components/news/NewsSection.tsx"
+          "frontend/index.html",
+          "frontend/tailwind.config.js",
+          "frontend/src/index.css"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useRegionNews.ts",
-          "frontend/src/components/news/NewsSection.tsx"
+          "frontend/index.html",
+          "frontend/tailwind.config.js",
+          "frontend/src/index.css"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add visual feedback animations for the 200-mark test result: when the user passes with a perfect score (200/200), show a colorful confetti animation; when the user fails, apply a gentle red shake effect to the page (or main test container) upon result display.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Day1TestPage.tsx",
+          "frontend/src/components/test/ResultEffects.tsx",
+          "frontend/tailwind.config.js"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Day1TestPage.tsx",
+          "frontend/src/components/test/ResultEffects.tsx",
+          "frontend/tailwind.config.js"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/news/NewsSection.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useRegionNews.ts",
-    "frontend/src/lib/news/parseNews.ts",
-    "frontend/src/lib/news/regionConfig.ts",
+    "frontend/index.html",
+    "frontend/src/components/proInterviewer/BottomMicControl.tsx",
+    "frontend/src/components/test/ResultEffects.tsx",
+    "frontend/src/index.css",
+    "frontend/src/pages/Day1TestPage.tsx",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/ProAIInterviewerPage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -8,6 +8,18 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const Time = IDL.Int;
+export const TestAttempt = IDL.Record({
+  'completionTime' : Time,
+  'user' : IDL.Principal,
+  'score' : IDL.Nat,
+});
 export const http_header = IDL.Record({
   'value' : IDL.Text,
   'name' : IDL.Text,
@@ -28,20 +40,66 @@ export const TransformationOutput = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'forceRefreshIndiaNews' : IDL.Func([], [IDL.Text], []),
   'forceRefreshNews' : IDL.Func([], [IDL.Text], []),
+  'getAllCompletedDays' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getCompletedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
+  'getCourseProgress' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Nat, IDL.Nat],
+      ['query'],
+    ),
+  'getDay1TestAttempts' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(TestAttempt)],
+      ['query'],
+    ),
   'getIndiaNews' : IDL.Func([], [IDL.Text], []),
   'getNews' : IDL.Func([], [IDL.Text], []),
+  'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
+  'getUserHighScore' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'handleDayPassed' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
+  'handleScore' : IDL.Func([IDL.Nat], [IDL.Text], []),
+  'hasTestPassed' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
+  'hasUserPassedTest' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isDayLocked' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
+  'isDayUnlocked' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], ['query']),
+  'isFutureDayLocked' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'transform' : IDL.Func(
       [TransformationInput],
       [TransformationOutput],
       ['query'],
     ),
+  'unlockDayForUser' : IDL.Func([IDL.Principal], [], []),
+  'updateCourseProgress' : IDL.Func([], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const Time = IDL.Int;
+  const TestAttempt = IDL.Record({
+    'completionTime' : Time,
+    'user' : IDL.Principal,
+    'score' : IDL.Nat,
+  });
   const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const http_request_result = IDL.Record({
     'status' : IDL.Nat,
@@ -59,15 +117,53 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'forceRefreshIndiaNews' : IDL.Func([], [IDL.Text], []),
     'forceRefreshNews' : IDL.Func([], [IDL.Text], []),
+    'getAllCompletedDays' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getCompletedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'getCourseProgress' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Nat, IDL.Nat],
+        ['query'],
+      ),
+    'getDay1TestAttempts' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(TestAttempt)],
+        ['query'],
+      ),
     'getIndiaNews' : IDL.Func([], [IDL.Text], []),
     'getNews' : IDL.Func([], [IDL.Text], []),
+    'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'getUserHighScore' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Nat)],
+        ['query'],
+      ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'handleDayPassed' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
+    'handleScore' : IDL.Func([IDL.Nat], [IDL.Text], []),
+    'hasTestPassed' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
+    'hasUserPassedTest' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isDayLocked' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
+    'isDayUnlocked' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], ['query']),
+    'isFutureDayLocked' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'transform' : IDL.Func(
         [TransformationInput],
         [TransformationOutput],
         ['query'],
       ),
+    'unlockDayForUser' : IDL.Func([IDL.Principal], [], []),
+    'updateCourseProgress' : IDL.Func([], [], []),
   });
 };
 

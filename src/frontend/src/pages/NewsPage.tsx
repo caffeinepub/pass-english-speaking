@@ -29,10 +29,10 @@ export default function NewsPage() {
               </Button>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                  World News
+                  News Hub
                 </h1>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  Top headlines from around the globe
+                  Daily English news with text-to-speech
                 </p>
               </div>
             </div>

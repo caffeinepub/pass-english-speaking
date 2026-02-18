@@ -1,45 +1,58 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "News app that fetches and displays regional headlines from the GNews API, with independent region loading and per-region error handling.",
-  "architectural_notes": [
-    "Load each region's feed independently (no cross-region blocking).",
-    "Isolate failures per region; render empty-state per region without impacting others."
-  ],
+  "summary": "UPSC prep app with a dashboard and an 'UPSC Interview' flow; user requests UI fixes for missing Mic/Speaking features and a modern colorful glassmorphism redesign with feedback animations and updated typography.",
+  "architectural_notes": [],
   "known_issues": [
-    "News app stuck due to region loading dependency (Israel feed must load before other regions enable)."
+    "Button 6 (UPSC Interview) UI missing/hidden 'Speaking' and 'Mic' features"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-remove-the-israel-first-gating-so-that-all-supported-regions-india-dubai-west-bengal-israel-can-load-news-independently-without-requiring-israel-news-to-load-successfully-first",
-      "title": "Remove the Israel-first gating so that all supported regions (India, Dubai, West Bengal, Israel) can load news independently without requiring Israel news to load successfully first.",
+      "id": "feature-fix-the-upsc-interview-button-6-interview-step-ui-so-microphone-and-speaking-controls-are-clearly-visible-and-usable-add-a-large-prominent-colorful-microphone-button-fixed-at-the-bottom-center-of-the-interview-screen-clicking-it-toggles-voice-recording-show-a-small-green-status-light-indicator-when-the-microphone-is-active-ready",
+      "title": "Fix the UPSC Interview (Button 6) interview step UI so microphone and speaking controls are clearly visible and usable: add a large, prominent, colorful microphone button fixed at the bottom center of the interview screen; clicking it toggles voice recording; show a small green status-light indicator when the microphone is active/ready.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-set-india-as-the-primary-default-news-region-in-the-news-page-ui-by-ordering-india-first-among-regions-shown",
-      "title": "Set India as the primary/default news region in the News page UI by ordering India first among regions shown.",
+      "id": "feature-add-a-visible-listening-state-to-the-upsc-interview-microphone-interaction-while-the-mic-is-active-show-a-listening-animation-resembling-moving-waves-near-the-mic-control-and-show-live-speech-to-text-on-screen-in-a-chat-bubble-as-the-user-speaks-including-interim-partial-speech-updates",
+      "title": "Add a visible 'Listening...' state to the UPSC Interview microphone interaction: while the mic is active, show a 'Listening...' animation resembling moving waves near the mic control, and show live speech-to-text on screen in a chat bubble as the user speaks (including interim/partial speech updates).",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-frontend-region-news-query-pipeline-so-that-when-not-in-demo-mode-region-sections-fetch-their-region-data-from-the-backend-parse-the-gnews-response-and-display-results-for-each-region-independently",
-      "title": "Update the frontend region-news query pipeline so that, when not in demo mode, region sections fetch their region data from the backend, parse the GNews response, and display results for each region independently.",
+      "id": "feature-add-an-explicit-ai-speak-control-in-the-upsc-interview-flow-so-the-user-can-clearly-trigger-text-to-speech-playback-of-the-current-panel-question-separate-from-the-microphone-control-using-the-existing-browser-only-tts-utility",
+      "title": "Add an explicit AI 'Speak' control in the UPSC Interview flow so the user can clearly trigger text-to-speech playback of the current panel question (separate from the microphone control), using the existing browser-only TTS utility.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-home-dashboard-to-a-modern-colorful-vibrant-glassmorphism-theme-with-a-soft-gradient-background-from-light-blue-to-soft-purple-and-update-the-six-primary-dashboard-buttons-to-use-the-specified-per-button-color-palette-and-emoji-icons-while-keeping-their-existing-routes-and-labels-in-english",
+      "title": "Redesign the Home dashboard to a modern, colorful, vibrant Glassmorphism theme with a soft gradient background from Light Blue to Soft Purple, and update the six primary dashboard buttons to use the specified per-button color palette and emoji icons (📰 🤖 📚 🏆 📈 🏛️) while keeping their existing routes and labels in English.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-adjust-per-region-failure-behavior-so-that-if-one-region-fails-to-load-network-error-backend-error-parse-error-or-empty-response-that-region-shows-an-empty-state-while-other-regions-continue-to-load-and-render-successfully",
-      "title": "Adjust per-region failure behavior so that if one region fails to load (network error, backend error, parse error, or empty response), that region shows an empty state while other regions continue to load and render successfully.",
+      "id": "feature-update-global-typography-to-use-a-bold-rounded-font-such-as-poppins-or-montserrat-consistently-across-the-app-ui",
+      "title": "Update global typography to use a bold, rounded font such as Poppins or Montserrat consistently across the app UI.",
       "reqIds": [
         "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-visual-feedback-animations-for-the-200-mark-test-result-when-the-user-passes-with-a-perfect-score-200-200-show-a-colorful-confetti-animation-when-the-user-fails-apply-a-gentle-red-shake-effect-to-the-page-or-main-test-container-upon-result-display",
+      "title": "Add visual feedback animations for the 200-mark test result: when the user passes with a perfect score (200/200), show a colorful confetti animation; when the user fails, apply a gentle red shake effect to the page (or main test container) upon result display.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -47,34 +60,32 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Connect GNews top-headlines API to a News list view showing title, description, and image; open article url in a new browser tab on click",
+      "summary": "Fix Button 6 (UPSC Interview) UI: add large Mic button bottom-center, listening animation, AI 'Speak' button, live speech-to-text chat bubble, and mic active green status indicator",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Remove gating dependency so regions (India, Dubai, West Bengal, Israel) load independently (do not require Israel to load first)",
+      "summary": "Apply modern colorful UI redesign: glassmorphism dashboard with light blue→soft purple gradient background",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Set India as the default/primary news region and use GNews top-headlines endpoint with country=in for the main screen",
+      "summary": "Style dashboard buttons with specified colors and icons for Buttons 1–6 (News/AI Friend/Course/Test/Progress/UPSC)",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Implement per-region error handling: if one region fails or returns no news, show an empty state only for that region while others still load",
+      "summary": "Add visual feedback effects: confetti animation on perfect pass (200/200) and gentle red shake effect on fail",
       "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-7",
-      "summary": "Implement backend support to fetch and cache India top headlines using the exact GNews endpoint provided by the user, and expose it via a region-specific backend method that the frontend can call without embedding the API key in the client.",
-      "reqIds": [
-        "REQ-3"
-      ],
+      "id": "AR-5",
+      "summary": "Update typography to a bold rounded font such as Poppins or Montserrat",
+      "reqIds": [],
       "status": "pending"
     }
   ],

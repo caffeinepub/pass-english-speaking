@@ -3,7 +3,7 @@ import { useActor } from './useActor';
 import { isDemoMode } from '@/config/newsDataSource';
 
 export function useRegionNews(regionId: string, enabled: boolean = true) {
-  const { actor, isFetching } = useActor();
+  const { actor } = useActor();
 
   // In demo mode, disable backend queries
   const shouldFetch = !isDemoMode() && enabled;
@@ -22,7 +22,7 @@ export function useRegionNews(regionId: string, enabled: boolean = true) {
       // This allows the UI to show empty state instead of being blocked
       return '';
     },
-    enabled: !!actor && !isFetching && shouldFetch,
+    enabled: !!actor && shouldFetch,
     staleTime: 1000 * 60 * 60, // 1 hour
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
   });

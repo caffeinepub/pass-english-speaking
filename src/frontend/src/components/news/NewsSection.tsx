@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Info } from 'lucide-react';
+import { Clock, Info, AlertCircle } from 'lucide-react';
 import { NewsItemRow } from './NewsItemRow';
 import { useRegionNewsData } from '@/hooks/useRegionNews';
 import type { Region } from '@/lib/news/regionConfig';
@@ -52,10 +52,10 @@ export function NewsSection({ region }: NewsSectionProps) {
         )}
 
         {error && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              No news available for {region.name} at the moment. Please check back later.
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="font-mono text-sm">
+              {error.message}
             </AlertDescription>
           </Alert>
         )}
