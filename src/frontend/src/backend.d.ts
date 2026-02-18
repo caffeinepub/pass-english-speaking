@@ -61,19 +61,17 @@ export interface backendInterface {
     getInterviewAnalysis(user: Principal): Promise<Array<InterviewAnalysis>>;
     getMyProgressReport(): Promise<Array<InterviewAnalysis>>;
     getNews(): Promise<string>;
+    getNextLockedDay(user: Principal): Promise<bigint>;
     getUnlockedDaysCount(): Promise<bigint>;
     getUserHighScore(user: Principal): Promise<bigint | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
-    handleDayPassed(day: bigint, score: bigint): Promise<void>;
     handleScore(score: bigint): Promise<string>;
-    hasTestPassed(day: bigint): Promise<boolean>;
     hasUserPassedTest(day: bigint): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     isDayLocked(day: bigint): Promise<boolean>;
     isDayUnlocked(user: Principal, day: bigint): Promise<boolean>;
-    isFutureDayLocked(user: Principal): Promise<bigint>;
+    resetProgress(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
     unlockDayForUser(user: Principal): Promise<void>;
-    updateCourseProgress(): Promise<void>;
 }

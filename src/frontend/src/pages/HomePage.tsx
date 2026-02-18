@@ -36,7 +36,7 @@ export default function HomePage() {
       id: '200-mark-gate',
       label: 'The 200-Mark Gate',
       icon: Trophy,
-      description: 'Daily test with 200 questions - Score 200/200 to unlock Day 2',
+      description: 'Daily test with 180 questions + Essay - Score 150/200 to unlock next day',
       onClick: () => navigate({ to: '/day1-test' }),
       gradient: 'from-red-500 to-pink-500',
     },

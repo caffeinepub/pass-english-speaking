@@ -1,78 +1,72 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { day1TestQuestions } from '@/lib/course/day1TestQuestions';
+import { generateDay1TestQuestions } from '@/lib/course/dayWiseTestGenerator';
+import { scoreEssay } from '@/lib/course/essayScoring';
 import { useSubmitTestScore } from '@/hooks/useCourseProgress';
 import { ResultEffects } from '@/components/test/ResultEffects';
 
 export default function Day1TestPage() {
   const navigate = useNavigate();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [essayText, setEssayText] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const [essayScore, setEssayScore] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showShake, setShowShake] = useState(false);
 
   const submitScoreMutation = useSubmitTestScore();
+  const questions = generateDay1TestQuestions();
 
-  const currentQuestion = day1TestQuestions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / day1TestQuestions.length) * 100;
-
-  const handleAnswerSelect = (value: string) => {
+  const handleAnswerSelect = (questionIndex: number, value: string) => {
     setAnswers((prev) => ({
       ...prev,
-      [currentQuestionIndex]: value,
+      [questionIndex]: value,
     }));
   };
 
-  const handleNext = () => {
-    if (!answers[currentQuestionIndex]) {
-      toast.error('Please select an answer');
+  const handleSubmit = () => {
+    // Check if all questions are answered
+    const unansweredCount = questions.length - Object.keys(answers).length;
+    if (unansweredCount > 0) {
+      toast.error(`Please answer all questions. ${unansweredCount} questions remaining.`);
       return;
     }
 
-    if (currentQuestionIndex < day1TestQuestions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      handleSubmit();
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
-  };
-
-  const handleSubmit = () => {
+    // Score multiple choice questions (180 marks)
     let correctCount = 0;
-    day1TestQuestions.forEach((question, index) => {
+    questions.forEach((question, index) => {
       if (answers[index] === question.correctAnswer) {
         correctCount++;
       }
     });
 
-    const finalScore = correctCount;
+    // Score essay (20 marks)
+    const essayResult = scoreEssay(essayText);
+    const essayPoints = essayResult.score;
+
+    const finalScore = correctCount + essayPoints;
     setScore(finalScore);
+    setEssayScore(essayPoints);
     setShowResult(true);
 
     // Trigger effects
-    if (finalScore === 200) {
+    if (finalScore >= 150) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
-    } else {
+    } else if (finalScore < 50) {
       setShowShake(true);
       setTimeout(() => setShowShake(false), 600);
     }
 
-    // Submit to backend - convert to bigint
+    // Submit to backend
     submitScoreMutation.mutate(BigInt(finalScore), {
       onError: (error: any) => {
         toast.error(error.message || 'Failed to save score');
@@ -81,10 +75,12 @@ export default function Day1TestPage() {
   };
 
   const handleTryAgain = () => {
-    setCurrentQuestionIndex(0);
     setAnswers({});
+    setEssayText('');
     setShowResult(false);
     setScore(0);
+    setEssayScore(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleViewProgress = () => {
@@ -92,7 +88,8 @@ export default function Day1TestPage() {
   };
 
   if (showResult) {
-    const isPerfect = score === 200;
+    const isPassed = score >= 150;
+    const isFailed = score < 50;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
@@ -112,33 +109,44 @@ export default function Day1TestPage() {
           <Card className="border-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
-                {isPerfect ? (
+                {isPassed ? (
                   <>
                     <CheckCircle2 className="w-8 h-8 text-green-500" />
-                    Perfect Score!
+                    Test Passed
                   </>
-                ) : (
+                ) : isFailed ? (
                   <>
                     <XCircle className="w-8 h-8 text-red-500" />
                     Test Failed
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-8 h-8 text-orange-500" />
+                    Not Passed
                   </>
                 )}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center py-8">
-                <p className={`text-6xl font-bold mb-4 ${isPerfect ? 'text-green-500' : 'text-red-500'}`}>
+                <p className={`text-6xl font-bold mb-4 ${isPassed ? 'text-green-500' : isFailed ? 'text-red-500' : 'text-orange-500'}`}>
                   {score}/200
                 </p>
-                <p className="text-lg text-muted-foreground">
-                  {isPerfect
-                    ? '🎉 Congratulations! Day 2 is now unlocked!'
-                    : '❌ Failed! You need 200/200. Go back to Button 3 and study again!'}
+                <div className="text-sm text-muted-foreground mb-4">
+                  <p>Multiple Choice: {score - essayScore}/180</p>
+                  <p>Essay: {essayScore}/20</p>
+                </div>
+                <p className="text-lg text-foreground">
+                  {isPassed
+                    ? 'Success! Day 2 is now unlocked.'
+                    : isFailed
+                    ? 'Fail! Please review Day 1 stories again.'
+                    : 'You need 150/200 to pass. Keep practicing!'}
                 </p>
               </div>
 
               <div className="flex gap-4">
-                {!isPerfect && (
+                {!isPassed && (
                   <Button
                     onClick={handleTryAgain}
                     variant="outline"
@@ -181,7 +189,7 @@ export default function Day1TestPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
         <header className="mb-8">
           <Button
             variant="ghost"
@@ -195,64 +203,80 @@ export default function Day1TestPage() {
             Day 1 Test - The 200-Mark Gate
           </h1>
           <p className="text-muted-foreground">
-            Answer all 200 questions correctly to unlock Day 2
+            Score 150/200 or higher to unlock Day 2. Total: {questions.length} questions (180 marks) + Essay (20 marks)
           </p>
         </header>
 
-        <Card className="border-2 mb-6">
-          <CardHeader>
-            <div className="flex justify-between items-center mb-2">
-              <CardTitle className="text-lg">
-                Question {currentQuestionIndex + 1} of {day1TestQuestions.length}
-              </CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {Math.round(progress)}% Complete
-              </span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="bg-accent/20 p-6 rounded-lg">
-              <p className="text-lg font-semibold text-foreground mb-4">
-                {currentQuestion.question}
-              </p>
-              <RadioGroup
-                value={answers[currentQuestionIndex] || ''}
-                onValueChange={handleAnswerSelect}
-              >
-                {currentQuestion.options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-3 mb-3">
-                    <RadioGroupItem value={option} id={`option-${index}`} />
-                    <Label
-                      htmlFor={`option-${index}`}
-                      className="text-base cursor-pointer flex-1"
-                    >
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
+        <div className="space-y-6">
+          {/* Questions List */}
+          {questions.map((question, index) => (
+            <Card key={index} className="border">
+              <CardContent className="pt-6">
+                <div className="mb-3">
+                  <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
+                    [Topic: {question.topic}]
+                  </span>
+                </div>
+                <p className="text-base font-semibold text-foreground mb-4">
+                  {index + 1}. {question.question}
+                </p>
+                <RadioGroup
+                  value={answers[index] || ''}
+                  onValueChange={(value) => handleAnswerSelect(index, value)}
+                >
+                  {question.options.map((option, optIndex) => (
+                    <div key={optIndex} className="flex items-center space-x-3 mb-2">
+                      <RadioGroupItem value={option} id={`q${index}-opt${optIndex}`} />
+                      <Label
+                        htmlFor={`q${index}-opt${optIndex}`}
+                        className="text-base cursor-pointer flex-1"
+                      >
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </CardContent>
+            </Card>
+          ))}
 
-            <div className="flex gap-4">
-              <Button
-                onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
-                variant="outline"
-                className="flex-1"
-              >
-                Previous
-              </Button>
-              <Button
-                onClick={handleNext}
-                disabled={!answers[currentQuestionIndex]}
-                className="flex-1"
-              >
-                {currentQuestionIndex === day1TestQuestions.length - 1 ? 'Submit Test' : 'Next'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Essay Section */}
+          <Card className="border-2 border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
+                  [Topic: Essay Writing]
+                </span>
+              </CardTitle>
+              <p className="text-lg font-bold text-foreground mt-2">
+                Essay Writing (20 Marks)
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Write an essay on "My Self" (5-10 lines). Introduce yourself, mention your interests, family, and goals.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                value={essayText}
+                onChange={(e) => setEssayText(e.target.value)}
+                placeholder="Start writing your essay here..."
+                className="min-h-[200px] text-base"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
+          <div className="flex justify-center pt-4 pb-8">
+            <Button
+              onClick={handleSubmit}
+              size="lg"
+              className="w-full max-w-md"
+              disabled={submitScoreMutation.isPending}
+            >
+              {submitScoreMutation.isPending ? 'Submitting...' : 'Submit Test'}
+            </Button>
+          </div>
+        </div>
 
         <footer className="mt-12 text-center text-sm text-muted-foreground border-t border-border pt-8 pb-8">
           <p>

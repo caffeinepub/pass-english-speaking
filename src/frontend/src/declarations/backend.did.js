@@ -74,6 +74,7 @@ export const idlService = IDL.Service({
     ),
   'getMyProgressReport' : IDL.Func([], [IDL.Vec(InterviewAnalysis)], ['query']),
   'getNews' : IDL.Func([], [IDL.Text], []),
+  'getNextLockedDay' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
   'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
   'getUserHighScore' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
   'getUserProfile' : IDL.Func(
@@ -81,14 +82,12 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
-  'handleDayPassed' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
   'handleScore' : IDL.Func([IDL.Nat], [IDL.Text], []),
-  'hasTestPassed' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
   'hasUserPassedTest' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isDayLocked' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
   'isDayUnlocked' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], ['query']),
-  'isFutureDayLocked' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
+  'resetProgress' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'transform' : IDL.Func(
       [TransformationInput],
@@ -96,7 +95,6 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'unlockDayForUser' : IDL.Func([IDL.Principal], [], []),
-  'updateCourseProgress' : IDL.Func([], [], []),
 });
 
 export const idlInitArgs = [];
@@ -169,6 +167,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getNews' : IDL.Func([], [IDL.Text], []),
+    'getNextLockedDay' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
     'getUserHighScore' : IDL.Func(
         [IDL.Principal],
@@ -180,14 +179,12 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
-    'handleDayPassed' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
     'handleScore' : IDL.Func([IDL.Nat], [IDL.Text], []),
-    'hasTestPassed' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
     'hasUserPassedTest' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isDayLocked' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
     'isDayUnlocked' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], ['query']),
-    'isFutureDayLocked' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
+    'resetProgress' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'transform' : IDL.Func(
         [TransformationInput],
@@ -195,7 +192,6 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'unlockDayForUser' : IDL.Func([IDL.Principal], [], []),
-    'updateCourseProgress' : IDL.Func([], [], []),
   });
 };
 

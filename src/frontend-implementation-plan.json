@@ -1,149 +1,103 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "News empty-state in-app URL browser + Interview uploads, mic UI update, and saved reports in Progress",
+  "title": "Day-wise 200-Mark Gate (Day 1) list-based test with essay + updated passing rules",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Show a fallback URL input in empty News sections and open valid URLs inside the app.",
+      "summary": "Render Day 1 test as a strict but fair, scrollable list of in-place questions with visible topic labels.",
       "acceptanceCriteria": [
-        "In News sections where the list is empty, the UI includes a labeled URL input and an \"Open\" action.",
-        "Entering a valid http/https URL and clicking \"Open\" displays the target site inside the app (not via a new tab).",
-        "If the URL is invalid or empty, the user sees an English validation message and the in-app view is not opened.",
-        "The fallback UI does not appear while news is loading or when an error state is shown."
+        "The Day 1 test page shows all questions in a list layout with each question preceded by a topic label like \"[Topic: Grammar - Is/Am/Are]\".",
+        "The user can answer questions in-place within the list and submit the test from the bottom of the page."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/news/NewsSection.tsx",
+          "path": "frontend/src/pages/Day1TestPage.tsx",
           "operation": "modify",
-          "description": "Replace the current empty-state Alert with a fallback UI that includes a labeled URL input + Open action, and renders an embedded in-app web view (e.g., iframe) only when a valid http/https URL is provided; ensure it only appears when !isLoading && !error && data.length===0."
-        },
-        {
-          "path": "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-          "operation": "create",
-          "description": "Create a reusable empty-state component that renders the labeled URL input, validation messaging (English), an Open action, and an in-app embedded view with a Close action. Use existing shadcn-ui primitives (e.g., Input/Button/Label/Card/Alert) without modifying anything under frontend/src/components/ui. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/lib/news/validateHttpUrl.ts",
-          "operation": "create",
-          "description": "Add a small utility to validate and normalize user-entered URLs to http/https only (returning a user-friendly English error message when invalid) to keep validation consistent across News sections."
+          "description": "Replace the current one-question-per-page flow with a scrollable list layout that renders all generated questions at once, each preceded by a visible label formatted exactly like \"[Topic: …]\". Keep answers editable in-place and provide a single submit action at the bottom. Use existing shadcn-ui components (e.g., Card, Button, RadioGroup, Label) to compose the UI; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Persist the fallback News URL per region and restore it when returning to the News page.",
+      "summary": "Generate Button 4 Day 1 test questions only from that day’s Button 3 lesson topics (Day 1 learning hub content).",
       "acceptanceCriteria": [
-        "After a user enters a fallback URL for a region and navigates away/back, the input is pre-filled for that same region.",
-        "Changing the fallback URL updates the persisted value for that region only.",
-        "A user can clear the fallback URL for a region and it remains cleared on refresh."
+        "For Day 1, questions are generated only from Day 1 learning content topics (e.g., grammar Is/Am/Are and Day 1 vocabulary/essay content), and do not include unrelated topics (e.g., no A/An/The questions if not taught in Day 1 lessons).",
+        "Question generation is driven by day-specific lesson content rather than a hard-coded unrelated question bank."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
+          "path": "frontend/src/lib/course/dayWiseTestGenerator.ts",
           "operation": "create",
-          "description": "Implement localStorage helpers to get/set/clear a fallback URL keyed by region id (country/region section), handling storage failures gracefully."
+          "description": "Create a day-wise test generator that derives Day 1 questions strictly from frontend/src/lib/course/day1LessonContent.ts topics (Grammar: Is/Am/Are; Day 1 vocabulary words; Day 1 essay topic). Ensure the generated question objects include a topic string used for the \"[Topic: …]\" label and that the generated set totals 180 non-essay marks (to combine with the 20-mark essay for a 200-mark test)."
         },
         {
-          "path": "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+          "path": "frontend/src/pages/Day1TestPage.tsx",
           "operation": "modify",
-          "description": "Wire region-scoped persistence: on mount load the saved URL for that region into the input; on change persist updates for that region only; allow clearing and persist the cleared state."
+          "description": "Switch Day 1 test data source from the existing hard-coded day1TestQuestions bank to the new day-wise generator so Day 1 includes only Day 1-taught topics. Ensure no A/An/The or other untaught topics appear. Use existing shadcn-ui components for rendering; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/news/NewsSection.tsx",
+          "path": "frontend/src/lib/course/day1TestQuestions.ts",
           "operation": "modify",
-          "description": "Pass the current region id/name into the fallback browser component so persistence is scoped per region section."
+          "description": "Remove or clearly de-scope any Day 1 questions that cover untaught topics (e.g., A/An/The) so the repository no longer contains a misleading Day 1 test bank that violates day-wise rules. If this file remains for reference, align it strictly to Day 1 taught topics or make it an internal-only helper used by the day-wise generator."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Rename the Home tile and all feature labels from \"UPSC Interview\" to \"Interview\".",
+      "summary": "Add an Essay Writing section at the end of the Day 1 test with a large text area and score it as exactly 20 marks.",
       "acceptanceCriteria": [
-        "Home page navigation tile label reads \"Interview\".",
-        "The Interview page header/title and any navigation labels do not refer to \"UPSC Interview\" (unless it is part of the content being practiced); use \"Interview\" as the feature name."
+        "The test page ends with an \"Essay Writing\" section containing a large text area input.",
+        "The final test score calculation includes an essay component worth exactly 20 marks."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "modify",
-          "description": "Update Button 6 (currently labeled \"UPSC Interview\") to display \"Interview\" and ensure its description/user-facing text uses the \"Interview\" feature name."
+          "path": "frontend/src/lib/course/essayScoring.ts",
+          "operation": "create",
+          "description": "Implement a deterministic, on-device essay scoring helper that produces an integer score from 0 to 20 (exactly) using local checks (e.g., grammar/error heuristics based on existing utilities) and returns a breakdown suitable for UI display if needed. No external API/LLM calls."
         },
         {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "path": "frontend/src/pages/Day1TestPage.tsx",
           "operation": "modify",
-          "description": "Update the page title/header and any other user-facing feature labels from \"UPSC Interview\" terminology to \"Interview\" (keeping any UPSC-specific wording only where it is clearly practice content, not the feature name)."
+          "description": "Append an \"Essay Writing\" section after the last question with a large, clean text area input. Include the essay score (0–20) as a fixed 20-mark component of the final 200 mark total. Compose UI using existing components where available (e.g., Card, Label, Button, and a Textarea component if present); verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Support PDF/image uploads in Interview and use extracted text to generate questions with clear image-extraction fallback guidance.",
+      "summary": "Update total scoring to exactly 200 and apply new pass/fail feedback rules (pass >=150; special fail message for <50) with English-only UI text.",
       "acceptanceCriteria": [
-        "The Interview upload step accepts .pdf and image/* files.",
-        "For PDFs, extracted text is derived from the uploaded PDF and used to generate questions.",
-        "For images, the app attempts to extract text from the uploaded image and uses it to generate questions; if extraction fails, the UI clearly prompts the user (in English) to provide manual text as a fallback.",
-        "Generated questions are shown to the user before beginning the interview step."
+        "The computed total score is always presented out of 200.",
+        "Submitting a score >= 150 triggers an unlock of the next day in persisted course progress.",
+        "If score < 50, the results UI shows exactly: \"Fail! Please review Day 1 stories again.\" (for Day 1).",
+        "If score >= 150, the results UI shows exactly: \"Success! Day 2 is now unlocked.\" (for Day 1).",
+        "No non-English or emoji content is used in these feedback strings."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "path": "frontend/src/pages/Day1TestPage.tsx",
           "operation": "modify",
-          "description": "Ensure the upload step continues to accept .pdf and image/*; when an image upload extraction fails, show an in-page English prompt near the manual text input (not only a toast) guiding the user to paste/type their information; keep the existing flow that generates and displays questions in the review step before the interview begins."
-        },
-        {
-          "path": "frontend/src/lib/proInterviewer/extractTextFromImage.ts",
-          "operation": "modify",
-          "description": "Adjust the image-extraction result shape/messages (without adding third-party OCR) so the UI can reliably detect failure and display a clear manual-text fallback prompt (English)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Add/confirm typed answer box and update the Interview mic control to include an upload icon while supporting interim/final transcripts.",
-      "acceptanceCriteria": [
-        "The Interview step includes an answer text area for typed/pasted responses.",
-        "A mic control is present that visually includes an upload icon as requested, and toggling it starts/stops speech recognition.",
-        "Final speech transcripts are appended into the answer text box; interim transcripts are shown during recording.",
-        "All labels/placeholders/errors are in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-          "operation": "modify",
-          "description": "Update the mic button UI to visually include an upload icon alongside/overlaid with the mic icon while preserving the existing start/stop toggle behavior and English helper text. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "operation": "modify",
-          "description": "Confirm the interview step includes a typed answer Textarea with English placeholder; ensure interim transcripts remain visible during recording and final transcripts continue appending into the answer text box."
+          "description": "Update scoring so the final computed score is always out of 200 (180 marks from generated questions + exactly 20 from the essay). Update results UI logic: if total score < 50, display exactly \"Fail! Please review Day 1 stories again.\"; if total score >= 150, display exactly \"Success! Day 2 is now unlocked.\"; otherwise show an English-only neutral message indicating the user did not unlock the next day yet. Remove emoji and perfect-score-only logic, and ensure the submitted score sent via useSubmitTestScore() is the computed 0–200 total."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Save Interview performance analysis to Progress Reports (when logged in) and display saved reports on the Progress page.",
+      "summary": "Update Button 4 UI copy to reflect new passing criteria (150/200) and updated feedback behavior.",
       "acceptanceCriteria": [
-        "After completing an Interview session and generating the final performance analysis/report, the app saves that report to the backend under the authenticated user.",
-        "The Progress page displays the saved Interview performance analysis (at minimum: most recent report) in a dedicated section.",
-        "If the user is not logged in, the app does not attempt to save the report and shows an English message indicating login is required to save progress.",
-        "Backend exposes query/update methods needed to save and fetch Interview reports for the current caller, protected by existing authorization checks."
+        "Home page Button 4 description and the Day 1 test page header/description no longer claim 200/200 is required, and instead reflect 150/200 passing rules.",
+        "The results screen no longer shows \"Perfect Score!\" / \"Test Failed\" logic tied to 200/200; it reflects pass/fail based on >=150, <50 messaging, and an appropriate non-pass/non-<50 state."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useInterviewReports.ts",
-          "operation": "create",
-          "description": "Create React Query hooks that use the existing backend actor to (a) fetch the caller’s saved interview analyses for display in Progress and (b) submit new interview analysis entries after an interview completes. Leverage the existing authorization + Internet Identity flow so saves occur only when authenticated. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Update the Button 4 (\"The 200-Mark Gate\") description copy to reflect the new passing criteria: score 150/200 (not 200/200) to unlock the next day. Ensure English-only wording and no emoji."
         },
         {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "path": "frontend/src/pages/Day1TestPage.tsx",
           "operation": "modify",
-          "description": "After generating the final report, if the user is authenticated, submit the interview analysis/report to the backend via the actor (e.g., saving at least the most recent/overall report, and/or per-question feedback) and show an English confirmation/failure message; if not authenticated, do not save and show an English message indicating login is required to save progress (use the existing authorization/Internet Identity state; verify the component's usage instructions before implementing)."
-        },
-        {
-          "path": "frontend/src/pages/MyProgressPage.tsx",
-          "operation": "modify",
-          "description": "Add a dedicated \"Interview Reports\" section that loads and displays the most recent saved interview performance analysis for the current authenticated user (including question/answer/feedback as available), with appropriate loading/empty/error states in English."
+          "description": "Update the Day 1 test header/description and results headings so they no longer imply a perfect-score requirement. Ensure displayed guidance reflects pass >= 150/200, the <50 fail instruction message rule, and English-only user-facing text."
         }
       ]
     }

@@ -58,21 +58,19 @@ export interface _SERVICE {
   'getInterviewAnalysis' : ActorMethod<[Principal], Array<InterviewAnalysis>>,
   'getMyProgressReport' : ActorMethod<[], Array<InterviewAnalysis>>,
   'getNews' : ActorMethod<[], string>,
+  'getNextLockedDay' : ActorMethod<[Principal], bigint>,
   'getUnlockedDaysCount' : ActorMethod<[], bigint>,
   'getUserHighScore' : ActorMethod<[Principal], [] | [bigint]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
-  'handleDayPassed' : ActorMethod<[bigint, bigint], undefined>,
   'handleScore' : ActorMethod<[bigint], string>,
-  'hasTestPassed' : ActorMethod<[bigint], boolean>,
   'hasUserPassedTest' : ActorMethod<[bigint], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isDayLocked' : ActorMethod<[bigint], boolean>,
   'isDayUnlocked' : ActorMethod<[Principal, bigint], boolean>,
-  'isFutureDayLocked' : ActorMethod<[Principal], bigint>,
+  'resetProgress' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
   'unlockDayForUser' : ActorMethod<[Principal], undefined>,
-  'updateCourseProgress' : ActorMethod<[], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -1,54 +1,46 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Configure app Buttons: Button 1 (News) to allow manual URL input when no country news is available, and Button 6 to become an Interview feature with file upload, AI question extraction, answer capture, and performance analysis sent to Progress Report.",
+  "summary": "Configure Button 4 as a strict but fair Testing System with day-wise topic-based question generation, labeled questions, an essay section, scoring/passing rules to unlock next day, and pass/fail feedback messaging.",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-when-a-news-region-has-no-available-news-items-i-e-the-news-section-is-in-its-empty-state-render-a-url-input-field-that-lets-the-user-paste-a-news-website-link-and-open-that-link-inside-the-app",
-      "title": "When a news region has no available news items (i.e., the News section is in its empty state), render a URL input field that lets the user paste a news website link and open that link inside the app.",
+      "id": "feature-update-the-day-1-test-button-4-route-day1-test-to-render-a-strict-but-fair-test-as-a-clear-scrollable-list-of-questions-not-one-question-per-page-where-every-question-includes-a-visible-topic-label-in-the-format-topic-e-g-topic-grammar-is-am-are",
+      "title": "Update the Day 1 test (Button 4 / route \"/day1-test\") to render a strict but fair test as a clear, scrollable list of questions (not one-question-per-page), where every question includes a visible topic label in the format \"[Topic: …]\" (e.g., \"[Topic: Grammar - Is/Am/Are]\").",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-persist-the-user-provided-fallback-news-url-per-region-country-region-section-so-that-returning-to-the-news-page-restores-the-previously-entered-url-for-that-region",
-      "title": "Persist the user-provided fallback news URL per region (country/region section) so that returning to the News page restores the previously entered URL for that region.",
+      "id": "feature-implement-day-wise-question-generation-for-button-4-such-that-the-test-questions-for-a-given-day-are-generated-only-from-the-topics-taught-in-button-3-for-that-same-day-starting-with-day-1-content-from-the-existing-day-1-learning-hub-content-the-question-set-must-not-include-topics-that-are-not-taught-on-that-day",
+      "title": "Implement day-wise question generation for Button 4 such that the test questions for a given day are generated ONLY from the topics taught in Button 3 for that same day (starting with Day 1 content from the existing Day 1 learning hub content). The question set must not include topics that are not taught on that day.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-rename-button-6-on-the-home-page-from-upsc-interview-to-interview-and-ensure-all-user-facing-text-for-this-feature-uses-interview-terminology",
-      "title": "Rename Button 6 on the Home page from \"UPSC Interview\" to \"Interview\" and ensure all user-facing text for this feature uses \"Interview\" terminology.",
+      "id": "feature-add-an-essay-writing-section-at-the-end-of-the-day-1-test-with-a-large-clean-text-area-for-the-user-to-type-their-essay-and-include-the-essay-as-part-of-scoring-worth-exactly-20-marks",
+      "title": "Add an \"Essay Writing\" section at the end of the Day 1 test with a large, clean text area for the user to type their essay, and include the essay as part of scoring worth exactly 20 marks.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-in-the-interview-feature-allow-uploading-pdf-and-image-files-and-extract-text-from-the-uploaded-file-to-generate-interview-questions-from-that-extracted-content",
-      "title": "In the Interview feature, allow uploading PDF and image files and extract text from the uploaded file to generate interview questions from that extracted content.",
+      "id": "feature-update-test-scoring-and-pass-fail-feedback-rules-for-button-4-total-marks-must-be-exactly-200-the-passing-threshold-must-be-150-200-to-unlock-the-next-day-if-the-user-scores-below-50-show-exactly-fail-please-review-day-current-day-stories-again-if-the-user-scores-150-show-exactly-success-day-next-day-is-now-unlocked-all-user-facing-text-must-be-in-english",
+      "title": "Update test scoring and pass/fail feedback rules for Button 4: Total Marks must be exactly 200; the passing threshold must be 150/200 to unlock the next day. If the user scores below 50, show exactly: \"Fail! Please review Day [Current Day] stories again.\" If the user scores 150+, show exactly: \"Success! Day [Next Day] is now unlocked.\" All user-facing text must be in English.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-in-the-interview-answering-step-provide-a-text-box-for-answers-and-a-microphone-button-that-includes-an-upload-icon-enabling-speech-to-text-capture-into-the-answer-text-box",
-      "title": "In the Interview answering step, provide a text box for answers and a microphone button that includes an upload icon, enabling speech-to-text capture into the answer text box.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-store-the-user-s-interview-performance-analysis-into-the-progress-report-area-so-the-user-can-review-it-later-from-the-progress-page",
-      "title": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page.",
+      "id": "feature-update-button-4-copy-and-ui-text-that-currently-indicates-perfect-score-rules-e-g-score-200-200-to-unlock-day-2-to-reflect-the-new-passing-criteria-150-200-and-new-feedback-behavior",
+      "title": "Update Button 4 copy and UI text that currently indicates perfect-score rules (e.g., \"Score 200/200 to unlock Day 2\") to reflect the new passing criteria (150/200) and new feedback behavior.",
       "reqIds": [
         "REQ-6"
       ],
@@ -58,26 +50,16 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Button 1 (News): when news is unavailable for a country, show a URL input box to paste a news site link and open it inside the app.",
+      "summary": "Configure Button 4 Testing System: day-wise topic-based questions from Button 3 topics, labeled questions, essay box (20 marks), total 200 marks with 150+ to unlock next day, feedback messages for <50 and >=150, and clear UI layout.",
       "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-2",
-      "summary": "Button 6: rename to 'Interview' and allow uploading PDFs/images; AI extracts interview questions from the uploaded file.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Interview (Button 6): provide a text box and a mic button (with upload icon) to submit user answers.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Interview (Button 6): generate performance analysis from user answers and send/store it in the Progress Report.",
-      "reqIds": [],
+      "id": "AR-6",
+      "summary": "Update the backend test submission and course progress logic so that passing is based on score >= 150 out of 200 (not perfect score), and so that the unlock behavior works for the current day (starting with Day 1 unlocking Day 2). Ensure existing persisted state is migrated safely if backend state structures change.",
+      "reqIds": [
+        "REQ-5"
+      ],
       "status": "pending"
     }
   ],

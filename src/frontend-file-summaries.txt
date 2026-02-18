@@ -1,6 +1,6 @@
 {
   "frontend/src/App.tsx": "Main application component with TanStack Router setup including new /pro-ai-interviewer route, maintaining OpenAI request blocker installation at app startup.",
-  "frontend/src/pages/HomePage.tsx": "Home dashboard with glassmorphism design, six navigation buttons including renamed \"Interview\" button (formerly \"UPSC Interview\"), and consistent visual theme.",
+  "frontend/src/pages/HomePage.tsx": "Home dashboard with glassmorphism design and six navigation buttons, with Button 4 description updated to reflect 150/200 passing criteria instead of 200/200.",
   "frontend/src/pages/NewsPage.tsx": "News Hub page displaying regional news sections with TTS-enabled news items and demo mode notice.",
   "frontend/src/pages/ComingSoonPage.tsx": "Placeholder page for features under development, showing a friendly \"Coming Soon\" message with navigation back to home.",
   "frontend/src/components/news/NewsSection.tsx": "Reusable news section component displaying region news with loading states, error alerts, and fallback URL input browser when no news is available.",
@@ -29,7 +29,7 @@
   "frontend/src/lib/security/noOpenAIPolicy.ts": "Developer-facing policy documentation module explaining why OpenAI/ChatGPT integration is prohibited on this platform and listing alternative approaches for AI functionality.",
   "frontend/src/components/friendChat/ChatGPTUnavailableNotice.tsx": "Alert component that conditionally displays Normal Mode or Power Mode status with appropriate messaging and icons based on usePowerMode state.",
   "frontend/src/pages/Day1LearningHubPage.tsx": "Day 1 learning page displaying Grammar and Vocabulary using Story Mode layout with narrative explanations instead of bullet lists, rendering each topic through StoryModeTopicCard component.",
-  "frontend/src/pages/Day1TestPage.tsx": "Day 1 test page with 200 questions requiring perfect score, triggering confetti animation on 200/200 success and red shake animation on failure, with correct import name and bigint conversion for backend submission.",
+  "frontend/src/pages/Day1TestPage.tsx": "Day 1 test page displaying all 180 questions in a scrollable list with topic labels, an essay writing section worth 20 marks, and updated passing rules (150/200 to pass, special feedback for <50).",
   "frontend/src/pages/MyProgressPage.tsx": "Progress dashboard with 60-day calendar grid, progress bar, Mistake Tracker section, and new Interview Reports section displaying saved performance analyses with Q&A and feedback.",
   "frontend/src/lib/course/day1LessonContent.ts": "Day 1 lesson content with Story Mode structure for Grammar (Is/Am/Are) and all 10 vocabulary words, each containing Short Story, Real-life Example, and How to use this word subsections, plus Essay Topic guide.",
   "frontend/src/lib/course/day1TestQuestions.ts": "Day 1 test question bank with exactly 200 multiple-choice questions (40 Is/Am/Are, 40 A/An/The, 40 vocabulary, 40 sentence structure, 40 reading comprehension) each worth 1 mark with correct answers defined.",
@@ -66,5 +66,7 @@
   "frontend/src/components/news/NewsFallbackInAppBrowser.tsx": "Empty-state component for news sections that renders a URL input with validation, persists URLs per region, and displays an embedded iframe browser for user-provided news links.",
   "frontend/src/lib/news/validateHttpUrl.ts": "URL validation utility that checks for valid http/https protocols, normalizes URLs, and returns user-friendly English error messages.",
   "frontend/src/lib/news/fallbackNewsUrlStorage.ts": "LocalStorage helpers for persisting, retrieving, and clearing fallback news URLs scoped by region ID.",
-  "frontend/src/hooks/useInterviewReports.ts": "React Query hooks for fetching and adding interview analysis reports to the backend, with automatic cache invalidation."
+  "frontend/src/hooks/useInterviewReports.ts": "React Query hooks for fetching and adding interview analysis reports to the backend, with automatic cache invalidation.",
+  "frontend/src/lib/course/dayWiseTestGenerator.ts": "Day-wise test generator that creates 180 questions (90 grammar Is/Am/Are + 90 vocabulary) strictly from Day 1 lesson content with topic labels and proper type property for each question.",
+  "frontend/src/lib/course/essayScoring.ts": "On-device essay scoring utility that evaluates essays on length, structure, capitalization, punctuation, and vocabulary diversity, returning a score from 0 to 20 with feedback."
 }

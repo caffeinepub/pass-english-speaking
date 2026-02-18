@@ -144,21 +144,19 @@ export interface backendInterface {
     getInterviewAnalysis(user: Principal): Promise<Array<InterviewAnalysis>>;
     getMyProgressReport(): Promise<Array<InterviewAnalysis>>;
     getNews(): Promise<string>;
+    getNextLockedDay(user: Principal): Promise<bigint>;
     getUnlockedDaysCount(): Promise<bigint>;
     getUserHighScore(user: Principal): Promise<bigint | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
-    handleDayPassed(day: bigint, score: bigint): Promise<void>;
     handleScore(score: bigint): Promise<string>;
-    hasTestPassed(day: bigint): Promise<boolean>;
     hasUserPassedTest(day: bigint): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     isDayLocked(day: bigint): Promise<boolean>;
     isDayUnlocked(user: Principal, day: bigint): Promise<boolean>;
-    isFutureDayLocked(user: Principal): Promise<bigint>;
+    resetProgress(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
     unlockDayForUser(user: Principal): Promise<void>;
-    updateCourseProgress(): Promise<void>;
 }
 import type { UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -393,6 +391,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getNextLockedDay(arg0: Principal): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getNextLockedDay(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getNextLockedDay(arg0);
+            return result;
+        }
+    }
     async getUnlockedDaysCount(): Promise<bigint> {
         if (this.processError) {
             try {
@@ -435,20 +447,6 @@ export class Backend implements backendInterface {
             return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
         }
     }
-    async handleDayPassed(arg0: bigint, arg1: bigint): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.handleDayPassed(arg0, arg1);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.handleDayPassed(arg0, arg1);
-            return result;
-        }
-    }
     async handleScore(arg0: bigint): Promise<string> {
         if (this.processError) {
             try {
@@ -460,20 +458,6 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.handleScore(arg0);
-            return result;
-        }
-    }
-    async hasTestPassed(arg0: bigint): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.hasTestPassed(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.hasTestPassed(arg0);
             return result;
         }
     }
@@ -533,17 +517,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async isFutureDayLocked(arg0: Principal): Promise<bigint> {
+    async resetProgress(): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.isFutureDayLocked(arg0);
+                const result = await this.actor.resetProgress();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.isFutureDayLocked(arg0);
+            const result = await this.actor.resetProgress();
             return result;
         }
     }
@@ -586,20 +570,6 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.unlockDayForUser(arg0);
-            return result;
-        }
-    }
-    async updateCourseProgress(): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateCourseProgress();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.updateCourseProgress();
             return result;
         }
     }

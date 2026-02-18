@@ -1,97 +1,82 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T10:05:46.565Z",
+  "generatedAt": "2026-02-18T10:17:43.278Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 6,
-    "implemented": 6,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "When a news region has no available news items (i.e., the News section is in its empty state), render a URL input field that lets the user paste a news website link and open that link inside the app.",
+        "summary": "Update the Day 1 test (Button 4 / route \"/day1-test\") to render a strict but fair test as a clear, scrollable list of questions (not one-question-per-page), where every question includes a visible topic label in the format \"[Topic: …]\" (e.g., \"[Topic: Grammar - Is/Am/Are]\").",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/news/NewsSection.tsx",
-          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-          "frontend/src/lib/news/validateHttpUrl.ts"
+          "frontend/src/pages/Day1TestPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/news/NewsSection.tsx",
-          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-          "frontend/src/lib/news/validateHttpUrl.ts"
+          "frontend/src/pages/Day1TestPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Persist the user-provided fallback news URL per region (country/region section) so that returning to the News page restores the previously entered URL for that region.",
+        "summary": "Implement day-wise question generation for Button 4 such that the test questions for a given day are generated ONLY from the topics taught in Button 3 for that same day (starting with Day 1 content from the existing Day 1 learning hub content). The question set must not include topics that are not taught on that day.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
-          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-          "frontend/src/components/news/NewsSection.tsx"
+          "frontend/src/lib/course/dayWiseTestGenerator.ts",
+          "frontend/src/pages/Day1TestPage.tsx",
+          "frontend/src/lib/course/day1TestQuestions.ts"
         ],
         "matchedFiles": [
-          "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
-          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-          "frontend/src/components/news/NewsSection.tsx"
+          "frontend/src/lib/course/dayWiseTestGenerator.ts",
+          "frontend/src/pages/Day1TestPage.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Rename Button 6 on the Home page from \"UPSC Interview\" to \"Interview\" and ensure all user-facing text for this feature uses \"Interview\" terminology.",
+        "summary": "Add an \"Essay Writing\" section at the end of the Day 1 test with a large, clean text area for the user to type their essay, and include the essay as part of scoring worth exactly 20 marks.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/pages/ProAIInterviewerPage.tsx"
+          "frontend/src/lib/course/essayScoring.ts",
+          "frontend/src/pages/Day1TestPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/pages/ProAIInterviewerPage.tsx"
+          "frontend/src/lib/course/essayScoring.ts",
+          "frontend/src/pages/Day1TestPage.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "In the Interview feature, allow uploading PDF and image files and extract text from the uploaded file to generate interview questions from that extracted content.",
+        "summary": "Update test scoring and pass/fail feedback rules for Button 4: Total Marks must be exactly 200; the passing threshold must be 150/200 to unlock the next day. If the user scores below 50, show exactly: \"Fail! Please review Day [Current Day] stories again.\" If the user scores 150+, show exactly: \"Success! Day [Next Day] is now unlocked.\" All user-facing text must be in English.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/lib/proInterviewer/extractTextFromImage.ts"
+          "frontend/src/pages/Day1TestPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/lib/proInterviewer/extractTextFromImage.ts"
+          "frontend/src/pages/Day1TestPage.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "In the Interview answering step, provide a text box for answers and a microphone button that includes an upload icon, enabling speech-to-text capture into the answer text box.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-          "frontend/src/pages/ProAIInterviewerPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-          "frontend/src/pages/ProAIInterviewerPage.tsx"
-        ]
+        "summary": "Update the backend test submission and course progress logic so that passing is based on score >= 150 out of 200 (not perfect score), and so that the unlock behavior works for the current day (starting with Day 1 unlocking Day 2). Ensure existing persisted state is migrated safely if backend state structures change.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-6",
-        "summary": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page.",
+        "summary": "Update Button 4 copy and UI text that currently indicates perfect-score rules (e.g., \"Score 200/200 to unlock Day 2\") to reflect the new passing criteria (150/200) and new feedback behavior.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useInterviewReports.ts",
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/pages/MyProgressPage.tsx"
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/Day1TestPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useInterviewReports.ts",
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/pages/MyProgressPage.tsx"
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/Day1TestPage.tsx"
         ]
       }
     ]
@@ -105,18 +90,12 @@
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-    "frontend/src/components/news/NewsSection.tsx",
-    "frontend/src/components/proInterviewer/BottomMicControl.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useInterviewReports.ts",
-    "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
-    "frontend/src/lib/news/validateHttpUrl.ts",
-    "frontend/src/lib/proInterviewer/extractTextFromImage.ts",
+    "frontend/src/lib/course/dayWiseTestGenerator.ts",
+    "frontend/src/lib/course/essayScoring.ts",
+    "frontend/src/pages/Day1TestPage.tsx",
     "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/MyProgressPage.tsx",
-    "frontend/src/pages/ProAIInterviewerPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

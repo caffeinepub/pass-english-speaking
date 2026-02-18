@@ -1,75 +1,87 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T10:05:46.561Z",
-  "summary": "REQ-1 and REQ-2 appear implemented via a per-region fallback URL input that opens an in-app iframe only in the empty-news state, with URL validation and localStorage persistence. REQ-3 appears implemented on the Home page by renaming the tile to “Interview”. REQ-4 and REQ-5 appear largely implemented in the ProAIInterviewer flow (PDF/image upload handling, question flow steps, speech-to-text with interim/final handling, and mic button with upload icon). REQ-6 cannot be fully verified from the provided diff summary because the backend methods and the login-gated save behavior are not shown; Progress page integration is only partially evidenced.",
+  "generatedAt": "2026-02-18T10:17:43.274Z",
+  "summary": "Core Day 1 testing system updates were added (new day-wise test generator, essay scoring utility, frontend Day1TestPage changes, backend score handling with unlock + migration). However, several acceptance-critical UI/feedback requirements are not fully met: the Day 1 test’s per-question topic label format is not evidenced, question generation appears hard-coded rather than derived from Day 1 lesson content, and the required exact pass/fail messages are not shown/returned exactly (backend message differs and frontend result UI uses different copy).",
   "missing_requirements": [
     {
-      "id": "REQ-6",
-      "requirement": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page (including backend save/fetch methods with auth checks, and a logged-out message + no-save behavior).",
-      "reason": "The frontend hook calls backend methods (getMyProgressReport, addInterviewAnalysis), and backend state/types for progressReports are added, but the diff excerpt for backend/main.mo is truncated before any addInterviewAnalysis/getMyProgressReport implementations or authorization protection are shown. Also, the ProAIInterviewer save behavior when not logged in (do not attempt save + show English message) is not evidenced in the truncated ProAIInterviewerPage.tsx snippet.",
+      "id": "REQ-1",
+      "requirement": "Render the Day 1 test as a scrollable list where every question includes a visible topic label in the format \"[Topic: …]\".",
+      "reason": "While the generator includes a `topic` field, the provided Day1TestPage diff excerpt does not show any rendering of a topic label, nor the required bracketed format \"[Topic: …]\" for each question.",
       "evidence": [
-        "frontend/src/hooks/useInterviewReports.ts",
-        "backend/main.mo (truncated excerpt does not show the required methods)",
-        "frontend/src/pages/ProAIInterviewerPage.tsx (truncated; no visible login-required gating/message)",
-        "frontend/src/pages/MyProgressPage.tsx (truncated; shows fetching but not the dedicated section rendering details)"
+        "frontend/src/pages/Day1TestPage.tsx",
+        "frontend/src/lib/course/dayWiseTestGenerator.ts"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Generate questions day-wise ONLY from topics taught in Button 3 for that day, driven by day-specific lesson content (not an unrelated hard-coded bank).",
+      "reason": "The generator imports `day1LessonContent` but the excerpt shows a large hard-coded question array (e.g., many \"Is/Am/Are\" items) rather than deriving questions from the lesson content structure. Evidence that vocabulary/essay topics are sourced strictly from Button 3 Day 1 content is not shown in the diff summary.",
+      "evidence": [
+        "frontend/src/lib/course/dayWiseTestGenerator.ts"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Use exact pass/fail feedback strings and 200-mark rules: if score < 50 show exactly \"Fail! Please review Day [Current Day] stories again.\"; if score >= 150 show exactly \"Success! Day [Next Day] is now unlocked.\"; total presented out of 200.",
+      "reason": "Backend success message includes extra text: \"Success! Day 2 is now unlocked. Please continue.\" which is not the exact required string. Frontend result UI excerpt shows headings like \"Test Passed\" rather than the exact required messages. The diff excerpt also does not show the UI presenting the score explicitly as \"/200\".",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/pages/Day1TestPage.tsx"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Update Button 4 UI/result copy to remove perfect-score rules and reflect new >=150, <50 messaging and an appropriate middle-state.",
+      "reason": "Home page Button 4 description is updated, but the Day1TestPage result UI excerpt still uses \"Test Passed\" (and likely other non-specified result copy) instead of the required exact strings/behavior described in REQ-4/REQ-6.",
+      "evidence": [
+        "frontend/src/pages/HomePage.tsx",
+        "frontend/src/pages/Day1TestPage.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added a backend stable-state migration module and wired it into the actor.",
-      "reason": "The BuildRequest did not ask for migration infrastructure; it only constrained the backend to remain a single Motoko actor and to add methods/state for interview reports.",
+      "description": "Broad News Hub / region news behavior changes (region ordering, demo/backend mode toggles, API signature changes, parser behavior changes) unrelated to configuring Button 4 day-wise testing.",
+      "reason": "BuildRequest is specific to Button 4 testing system changes and explicitly lists constraints/non-goals that do not include modifying the news system. The diff summary reports multiple news-related changes beyond the requested scope.",
       "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo (with migration = Migration.run)"
+        "frontend-file-summaries.txt",
+        "frontend/src/hooks/useRegionNews.ts",
+        "frontend/src/lib/news/regionConfig.ts",
+        "frontend/src/lib/news/parseNews.ts",
+        "frontend/src/config/newsDataSource.ts",
+        "frontend/src/hooks/useUSNews.ts",
+        "frontend/src/components/news/TopUSHeadlinesSection.tsx"
       ]
     },
     {
-      "description": "Introduced/modified additional News features and configuration beyond the fallback in-app browser (e.g., region ordering/definition changes, demo vs backend data mode changes, parsing behavior changes).",
-      "reason": "REQ-1/REQ-2 focus specifically on empty-state fallback URL input + per-region persistence, not on changing region config, demo mode toggles, or parser error formatting.",
+      "description": "AI Friend chat feature enhancements (offline tutor replies, personality mode switcher, inline grammar corrections) not requested.",
+      "reason": "BuildRequest is limited to Button 4 day-wise testing, scoring, unlock rules, and related copy; it does not request chat feature upgrades.",
       "evidence": [
-        "frontend-file-summaries.txt (regionConfig.ts changed; parseNews.ts changed; newsDataSource.ts set to backend; demoNewsData.ts added/changed)"
+        "frontend-file-summaries.txt",
+        "frontend/src/pages/FriendChatPage.tsx",
+        "frontend/src/lib/friendChat/types.ts"
       ]
     },
     {
-      "description": "Added a Home-screen “Top US Headlines” section.",
-      "reason": "The News requirements only mention empty-state fallback browsing within News sections; no request to add a new Home-page headlines section.",
+      "description": "Global styling/theme expansion (glassmorphism/neon theme, Tailwind tokens/animations) not requested.",
+      "reason": "BuildRequest does not request a redesign or new theme; these changes are outside the Button 4 testing requirements.",
       "evidence": [
-        "frontend/src/components/news/TopUSHeadlinesSection.tsx",
-        "frontend/src/pages/HomePage.tsx (imports TopUSHeadlinesSection)"
-      ]
-    },
-    {
-      "description": "Added/changed significant global styling/theme (glassmorphism/neon design tokens, fonts, animations).",
-      "reason": "No styling/theme overhaul was requested in the BuildRequest.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/index.css, frontend/tailwind.config.js)"
-      ]
-    },
-    {
-      "description": "Expanded/modified the AI Friend chat feature (personality modes, offline tutor replies, grammar corrections).",
-      "reason": "The BuildRequest non-goals and scope focus on News fallback browsing and Interview uploads/reports; no request to extend the chat feature.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/FriendChatPage.tsx changes)"
+        "frontend-file-summaries.txt",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
-    "frontend/src/components/news/NewsSection.tsx",
-    "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-    "frontend/src/hooks/useInterviewReports.ts",
-    "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
-    "frontend/src/lib/news/validateHttpUrl.ts",
-    "frontend/src/lib/proInterviewer/extractTextFromImage.ts",
+    "frontend/src/lib/course/dayWiseTestGenerator.ts",
+    "frontend/src/lib/course/essayScoring.ts",
+    "frontend/src/pages/Day1TestPage.tsx",
     "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/MyProgressPage.tsx",
-    "frontend/src/pages/ProAIInterviewerPage.tsx",
     "project_state.json"
   ]
 }

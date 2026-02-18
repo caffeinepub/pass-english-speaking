@@ -1,15 +1,11 @@
 import Map "mo:core/Map";
-import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
-import Time "mo:core/Time";
 
 module {
-  type UserProfile = { name : Text };
-
   type TestAttempt = {
-    user : Principal;
+    user : Principal.Principal;
     score : Nat;
-    completionTime : Time.Time;
+    completionTime : Int;
   };
 
   type CourseProgress = {
@@ -19,43 +15,43 @@ module {
 
   type NewsCache = {
     cachedData : Text;
-    lastUpdate : Time.Time;
+    lastUpdate : Int;
   };
 
-  // Old actor type (without InterviewAnalysis/ProgressReport)
-  type OldActor = {
-    userProfiles : Map.Map<Principal, UserProfile>;
-    day1TestAttempts : Map.Map<Principal, TestAttempt>;
-    courseProgress : Map.Map<Principal, CourseProgress>;
-    boolMap : Map.Map<Principal, Bool>;
-    newsCaches : Map.Map<Text, NewsCache>;
-  };
-
-  // New types for Progress Report feature
   type InterviewAnalysis = {
     question : Text;
     answer : Text;
     feedback : Text;
-    timestamp : Time.Time;
+    timestamp : Int;
   };
 
-  type ProgressReport = {
-    interviews : [InterviewAnalysis];
-  };
+  type ProgressReport = { interviews : [InterviewAnalysis] };
 
-  type NewActor = {
-    userProfiles : Map.Map<Principal, UserProfile>;
-    day1TestAttempts : Map.Map<Principal, TestAttempt>;
-    courseProgress : Map.Map<Principal, CourseProgress>;
-    boolMap : Map.Map<Principal, Bool>;
+  // Old actor state.
+  type OldActor = {
+    day1TestAttempts : Map.Map<Principal.Principal, TestAttempt>;
+    courseProgress : Map.Map<Principal.Principal, CourseProgress>;
+    boolMap : Map.Map<Principal.Principal, Bool>;
     newsCaches : Map.Map<Text, NewsCache>;
-    progressReports : Map.Map<Principal, ProgressReport>;
+    progressReports : Map.Map<Principal.Principal, ProgressReport>;
+    userProfiles : Map.Map<Principal.Principal, { name : Text }>;
   };
 
+  // New actor state.
+  type NewActor = {
+    day1TestAttempts : Map.Map<Principal.Principal, TestAttempt>;
+    courseProgress : Map.Map<Principal.Principal, CourseProgress>;
+    progressFlags : Map.Map<Principal.Principal, Bool>;
+    newsCaches : Map.Map<Text, NewsCache>;
+    progressReports : Map.Map<Principal.Principal, ProgressReport>;
+    userProfiles : Map.Map<Principal.Principal, { name : Text }>;
+  };
+
+  // Migration logic.
   public func run(old : OldActor) : NewActor {
     {
       old with
-      progressReports = Map.empty<Principal, ProgressReport>()
+      progressFlags = old.boolMap
     };
   };
 };

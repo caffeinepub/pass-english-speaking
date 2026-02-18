@@ -46,7 +46,7 @@ actor {
   var userProfiles = Map.empty<Principal, UserProfile>();
   var day1TestAttempts = Map.empty<Principal, TestAttempt>();
   var courseProgress = Map.empty<Principal, CourseProgress>();
-  var boolMap = Map.empty<Principal, Bool>();
+  var progressFlags = Map.empty<Principal, Bool>();
   var newsCaches = Map.empty<Text, NewsCache>();
   var progressReports = Map.empty<Principal, ProgressReport>();
 
@@ -83,34 +83,27 @@ actor {
     };
     day1TestAttempts.add(caller, attempt);
 
-    if (score == 200) {
-      _handleFullScore(caller);
-    } else {
-      if (score == 199) {
-        return "Close! But you need 100% accuracy. Try again!";
-      } else {
-        boolMap.add(caller, false);
-        return "❌ Failed! You need 200/200. Go back to Button 3 and study again!";
-      };
-    };
-  };
-
-  func _handleFullScore(user : Principal) : Text {
-    boolMap.add(user, true);
-    switch (courseProgress.get(user)) {
-      case (?progress) {
-        progress.currentUnlockedDay := 2;
-        progress.completedDays := 1;
-      };
-      case (null) {
-        let newProgress = {
-          var currentUnlockedDay = 2;
-          var completedDays = 1;
+    if (score >= 150 and score <= 200) {
+      progressFlags.add(caller, true);
+      switch (courseProgress.get(caller)) {
+        case (?progress) {
+          progress.currentUnlockedDay := 2;
+          progress.completedDays := 1;
         };
-        courseProgress.add(user, newProgress);
+        case (null) {
+          let newProgress = {
+            var currentUnlockedDay = 2;
+            var completedDays = 1;
+          };
+          courseProgress.add(caller, newProgress);
+        };
       };
+      "Success! Day 2 is now unlocked. Please continue.";
+    } else if (score < 50) {
+      "Fail! Please review Day 1 stories again.";
+    } else {
+      "Test incomplete. Score must be 150+ to pass. Try again.";
     };
-    "Congratulations! Day 2 is unlocked.";
   };
 
   // ===== Test Attempts Queries =====
@@ -165,7 +158,7 @@ actor {
     };
   };
 
-  public query ({ caller }) func isFutureDayLocked(user : Principal) : async Nat {
+  public query ({ caller }) func getNextLockedDay(user : Principal) : async Nat {
     _requireSelfOrAdmin(caller, user);
 
     switch (courseProgress.get(user)) {
@@ -178,7 +171,7 @@ actor {
     _requireUserRole(caller);
 
     if (day == 1) {
-      switch (boolMap.get(caller)) {
+      switch (progressFlags.get(caller)) {
         case (?state) { state };
         case (null) { false };
       };
@@ -235,10 +228,10 @@ actor {
     };
   };
 
-  public shared ({ caller }) func updateCourseProgress() : async () {
+  public shared ({ caller }) func resetProgress() : async () {
     _requireUserRole(caller);
 
-    boolMap.add(caller, false);
+    progressFlags.add(caller, false);
     let progress = {
       var currentUnlockedDay = 1;
       var completedDays = 0;
@@ -276,7 +269,6 @@ actor {
     };
   };
 
-  // News endpoints - accessible to all users (including guests)
   public shared ({ caller }) func getNews() : async Text {
     await getCachedOrFetch("us_general", usGeneralEndpoint);
   };
@@ -347,15 +339,6 @@ actor {
   public shared ({ caller }) func clearMyProgressReport() : async () {
     _requireUserRole(caller);
     progressReports.remove(caller);
-  };
-
-  // ===== Deprecated/Legacy Functions =====
-  public shared ({ caller }) func handleDayPassed(day : Nat, score : Nat) : async () {
-    Runtime.trap("Deprecated - functionality moved to handleScore");
-  };
-
-  public query ({ caller }) func hasTestPassed(day : Nat) : async Bool {
-    Runtime.trap("Deprecated - use hasUserPassedTest instead");
   };
 
   // ===== Access Control Utility Methods =====
