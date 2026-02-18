@@ -9,6 +9,8 @@ const STORAGE_KEYS = {
   GEMINI_KEY: 'settings_gemini_key',
   EXTERNAL_LINKS: 'settings_external_links',
   WEBSITE_API_KEYS: 'settings_website_api_keys',
+  OPENAI_ENABLED: 'settings_openai_enabled',
+  GEMINI_ENABLED: 'settings_gemini_enabled',
 };
 
 export interface LocalSettings {
@@ -16,6 +18,8 @@ export interface LocalSettings {
   geminiKey: string;
   externalLinks: string;
   websiteApiKeys: string;
+  openaiEnabled: boolean;
+  geminiEnabled: boolean;
 }
 
 export function getLocalSettings(): LocalSettings {
@@ -25,6 +29,8 @@ export function getLocalSettings(): LocalSettings {
       geminiKey: localStorage.getItem(STORAGE_KEYS.GEMINI_KEY) || '',
       externalLinks: localStorage.getItem(STORAGE_KEYS.EXTERNAL_LINKS) || '',
       websiteApiKeys: localStorage.getItem(STORAGE_KEYS.WEBSITE_API_KEYS) || '',
+      openaiEnabled: localStorage.getItem(STORAGE_KEYS.OPENAI_ENABLED) === 'true',
+      geminiEnabled: localStorage.getItem(STORAGE_KEYS.GEMINI_ENABLED) === 'true',
     };
   } catch (error) {
     console.error('Failed to read settings from storage:', error);
@@ -33,6 +39,8 @@ export function getLocalSettings(): LocalSettings {
       geminiKey: '',
       externalLinks: '',
       websiteApiKeys: '',
+      openaiEnabled: false,
+      geminiEnabled: false,
     };
   }
 }
@@ -66,6 +74,22 @@ export function setWebsiteApiKeys(keys: string): void {
     localStorage.setItem(STORAGE_KEYS.WEBSITE_API_KEYS, keys);
   } catch (error) {
     console.error('Failed to save website API keys:', error);
+  }
+}
+
+export function setOpenAIEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.OPENAI_ENABLED, enabled.toString());
+  } catch (error) {
+    console.error('Failed to save OpenAI enabled state:', error);
+  }
+}
+
+export function setGeminiEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.GEMINI_ENABLED, enabled.toString());
+  } catch (error) {
+    console.error('Failed to save Gemini enabled state:', error);
   }
 }
 

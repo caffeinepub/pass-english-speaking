@@ -1,138 +1,149 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "UPSC Interview Mic UI + Vibrant Glassmorphism Redesign",
+  "title": "News empty-state in-app URL browser + Interview uploads, mic UI update, and saved reports in Progress",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make UPSC Interview mic controls prominent with a fixed bottom-center mic button and active green status indicator.",
+      "summary": "Show a fallback URL input in empty News sections and open valid URLs inside the app.",
       "acceptanceCriteria": [
-        "On /pro-ai-interviewer during the 'interview' step, there is a large microphone control fixed to the bottom center of the viewport and it is visible without scrolling.",
-        "Clicking the large microphone control starts/stops speech recognition using the existing browser-only Web Speech API hook.",
-        "When recording is active, a green status indicator is visible (and not visible or clearly inactive when the mic is off).",
-        "The previous mic controls are not duplicated in a confusing way (either removed or visually demoted so the large mic is the primary control)."
+        "In News sections where the list is empty, the UI includes a labeled URL input and an \"Open\" action.",
+        "Entering a valid http/https URL and clicking \"Open\" displays the target site inside the app (not via a new tab).",
+        "If the URL is invalid or empty, the user sees an English validation message and the in-app view is not opened.",
+        "The fallback UI does not appear while news is loading or when an error state is shown."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "path": "frontend/src/components/news/NewsSection.tsx",
           "operation": "modify",
-          "description": "Replace/demote the current inline mic Button in the interview step with a new primary fixed bottom-center microphone control that toggles the existing useSpeechToText hook; add a green status-light indicator that is clearly active only while listening; ensure no confusing duplication of mic controls remains. Verify the component's usage instructions before implementing."
+          "description": "Replace the current empty-state Alert with a fallback UI that includes a labeled URL input + Open action, and renders an embedded in-app web view (e.g., iframe) only when a valid http/https URL is provided; ensure it only appears when !isLoading && !error && data.length===0."
         },
         {
-          "path": "frontend/src/components/proInterviewer/BottomMicControl.tsx",
+          "path": "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
           "operation": "create",
-          "description": "Create a dedicated fixed-position mic control component (large colorful mic button + active green status-light indicator) designed to be the primary control on the interview step and to call a provided toggle handler. Verify the component's usage instructions before implementing."
+          "description": "Create a reusable empty-state component that renders the labeled URL input, validation messaging (English), an Open action, and an in-app embedded view with a Close action. Use existing shadcn-ui primitives (e.g., Input/Button/Label/Card/Alert) without modifying anything under frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/news/validateHttpUrl.ts",
+          "operation": "create",
+          "description": "Add a small utility to validate and normalize user-entered URLs to http/https only (returning a user-friendly English error message when invalid) to keep validation consistent across News sections."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Show a 'Listening...' animated wave state and live interim speech-to-text in a chat bubble during UPSC Interview recording.",
+      "summary": "Persist the fallback News URL per region and restore it when returning to the News page.",
       "acceptanceCriteria": [
-        "When the mic is active on the interview step, a 'Listening...' indicator with an animated wave effect is shown.",
-        "As the user speaks, their recognized words appear in a chat-bubble style element in the interview UI (not only inside the textarea).",
-        "Interim speech recognition results update the chat bubble in near real-time; final results are preserved/committed to the answer state.",
-        "If speech recognition is unsupported or permission is denied, the UI shows an error via the existing toast behavior and the mic UI returns to an inactive state."
+        "After a user enters a fallback URL for a region and navigates away/back, the input is pre-filled for that same region.",
+        "Changing the fallback URL updates the persisted value for that region only.",
+        "A user can clear the fallback URL for a region and it remains cleared on refresh."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "operation": "modify",
-          "description": "Extend the interview step to track and render interim transcript text separately from the committed answer: update the existing useSpeechToText onTranscript handler to set interim text when isFinal=false and commit/append when isFinal=true; show a chat-bubble UI that updates in near real-time; show a 'Listening...' wave animation when isListening; on onError (unsupported/permission denied), keep the existing toast behavior and ensure interim state is cleared and the UI returns to an inactive mic state. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
+          "operation": "create",
+          "description": "Implement localStorage helpers to get/set/clear a fallback URL keyed by region id (country/region section), handling storage failures gracefully."
         },
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
           "operation": "modify",
-          "description": "Add/adjust global utility styles needed for the interview 'Listening...' wave visual (if not fully handled via Tailwind keyframes), keeping styling consistent and user-facing text in English."
+          "description": "Wire region-scoped persistence: on mount load the saved URL for that region into the input; on change persist updates for that region only; allow clearing and persist the cleared state."
         },
         {
-          "path": "frontend/tailwind.config.js",
+          "path": "frontend/src/components/news/NewsSection.tsx",
           "operation": "modify",
-          "description": "Add Tailwind keyframes/animation utilities for the 'Listening...' wave effect used near the mic control (and any small helper animation classes needed), without changing immutable paths."
+          "description": "Pass the current region id/name into the fallback browser component so persistence is scoped per region section."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add a clearly labeled AI 'Speak' control to play the current UPSC panel question via browser-only TTS.",
+      "summary": "Rename the Home tile and all feature labels from \"UPSC Interview\" to \"Interview\".",
       "acceptanceCriteria": [
-        "On the interview step, there is a clearly labeled control with user-facing text 'Speak' (or 'Speak Question') that plays the current question via text-to-speech.",
-        "While TTS playback is active, the UI reflects the speaking state (e.g., disabled button and/or 'Speaking...' label) without hiding the mic button.",
-        "TTS uses the existing speakText/stopSpeaking utilities and remains browser-only (no external requests)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "operation": "modify",
-          "description": "Update the interview step controls to include a clearly labeled 'Speak Question' button that calls existing speakText/stopSpeaking and reflects isSpeaking state (disabled and/or label change) while keeping the new bottom mic button visible and usable. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Redesign the Home dashboard with a vibrant glassmorphism theme and update the six primary buttons with specified emoji icons and color palette.",
-      "acceptanceCriteria": [
-        "The HomePage background uses a light-blue to soft-purple gradient and the button cards use a glassmorphism look (blurred/translucent surface, subtle border, soft shadow).",
-        "Each of the 6 dashboard buttons displays the specified emoji icon and uses a distinct, vibrant color style consistent with the requested palette.",
-        "Button click behavior still navigates to the existing routes: /news, /chat-with-friend, /day1-learn, /day1-test, /my-progress, /pro-ai-interviewer.",
-        "All user-facing text remains English."
+        "Home page navigation tile label reads \"Interview\".",
+        "The Interview page header/title and any navigation labels do not refer to \"UPSC Interview\" (unless it is part of the content being practiced); use \"Interview\" as the feature name."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/HomePage.tsx",
           "operation": "modify",
-          "description": "Apply a light-blue to soft-purple gradient background and glassmorphism styling for the six primary dashboard buttons; replace the current icon rendering for these six entries with the specified emoji icons (📰 🤖 📚 🏆 📈 🏛️) and apply per-button vibrant color styling while preserving existing English labels and navigation routes; keep Settings navigation working. Verify the component's usage instructions before implementing."
+          "description": "Update Button 6 (currently labeled \"UPSC Interview\") to display \"Interview\" and ensure its description/user-facing text uses the \"Interview\" feature name."
+        },
+        {
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "operation": "modify",
+          "description": "Update the page title/header and any other user-facing feature labels from \"UPSC Interview\" terminology to \"Interview\" (keeping any UPSC-specific wording only where it is clearly practice content, not the feature name)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Support PDF/image uploads in Interview and use extracted text to generate questions with clear image-extraction fallback guidance.",
+      "acceptanceCriteria": [
+        "The Interview upload step accepts .pdf and image/* files.",
+        "For PDFs, extracted text is derived from the uploaded PDF and used to generate questions.",
+        "For images, the app attempts to extract text from the uploaded image and uses it to generate questions; if extraction fails, the UI clearly prompts the user (in English) to provide manual text as a fallback.",
+        "Generated questions are shown to the user before beginning the interview step."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the upload step continues to accept .pdf and image/*; when an image upload extraction fails, show an in-page English prompt near the manual text input (not only a toast) guiding the user to paste/type their information; keep the existing flow that generates and displays questions in the review step before the interview begins."
+        },
+        {
+          "path": "frontend/src/lib/proInterviewer/extractTextFromImage.ts",
+          "operation": "modify",
+          "description": "Adjust the image-extraction result shape/messages (without adding third-party OCR) so the UI can reliably detect failure and display a clear manual-text fallback prompt (English)."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Update global typography to use a bold, rounded font (Poppins or Montserrat) across the app.",
+      "summary": "Add/confirm typed answer box and update the Interview mic control to include an upload icon while supporting interim/final transcripts.",
       "acceptanceCriteria": [
-        "The app loads and applies Poppins or Montserrat as the primary sans-serif font (with sensible system fallbacks).",
-        "Headings and primary UI text render using the updated font across major pages (Home, Test, Progress, UPSC Interview)."
+        "The Interview step includes an answer text area for typed/pasted responses.",
+        "A mic control is present that visually includes an upload icon as requested, and toggling it starts/stops speech recognition.",
+        "Final speech transcripts are appended into the answer text box; interim transcripts are shown during recording.",
+        "All labels/placeholders/errors are in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/components/proInterviewer/BottomMicControl.tsx",
           "operation": "modify",
-          "description": "Load the selected font (Poppins or Montserrat) via a standard web font include so it is available globally, without changing app behavior."
+          "description": "Update the mic button UI to visually include an upload icon alongside/overlaid with the mic icon while preserving the existing start/stop toggle behavior and English helper text. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/tailwind.config.js",
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
           "operation": "modify",
-          "description": "Update Tailwind fontFamily.sans to prioritize the new rounded font (Poppins or Montserrat) with sensible fallbacks."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Ensure the global body/base typography uses the updated font consistently (and remains English), aligning with the Tailwind font family configuration."
+          "description": "Confirm the interview step includes a typed answer Textarea with English placeholder; ensure interim transcripts remain visible during recording and final transcripts continue appending into the answer text box."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Add confetti on perfect 200/200 test results and a gentle red shake effect on failures.",
+      "summary": "Save Interview performance analysis to Progress Reports (when logged in) and display saved reports on the Progress page.",
       "acceptanceCriteria": [
-        "After submitting the Day 1 test, if score === 200, a confetti animation appears automatically and is clearly visible.",
-        "After submitting the Day 1 test, if score < 200, the screen (or main container) performs a gentle red shake animation when the result is shown.",
-        "Animations do not block navigation or prevent clicking the next actions (View Progress / Try Again)."
+        "After completing an Interview session and generating the final performance analysis/report, the app saves that report to the backend under the authenticated user.",
+        "The Progress page displays the saved Interview performance analysis (at minimum: most recent report) in a dedicated section.",
+        "If the user is not logged in, the app does not attempt to save the report and shows an English message indicating login is required to save progress.",
+        "Backend exposes query/update methods needed to save and fetch Interview reports for the current caller, protected by existing authorization checks."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Day1TestPage.tsx",
-          "operation": "modify",
-          "description": "Trigger a confetti celebration when a submitted result is a perfect score (200) and trigger a gentle red shake animation when the result is a fail (<200); ensure effects occur upon result display and do not block the existing navigation/actions (View Progress / Try Again). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/test/ResultEffects.tsx",
+          "path": "frontend/src/hooks/useInterviewReports.ts",
           "operation": "create",
-          "description": "Implement a lightweight, browser-only visual effects helper component that can render a temporary confetti animation overlay when enabled and exposes a non-blocking API for the test page to trigger effects. Verify the component's usage instructions before implementing."
+          "description": "Create React Query hooks that use the existing backend actor to (a) fetch the caller’s saved interview analyses for display in Progress and (b) submit new interview analysis entries after an interview completes. Leverage the existing authorization + Internet Identity flow so saves occur only when authenticated. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/tailwind.config.js",
+          "path": "frontend/src/pages/ProAIInterviewerPage.tsx",
           "operation": "modify",
-          "description": "Add Tailwind keyframes/animation utilities for a gentle shake (and any small helper transitions) used by the test result failure state."
+          "description": "After generating the final report, if the user is authenticated, submit the interview analysis/report to the backend via the actor (e.g., saving at least the most recent/overall report, and/or per-question feedback) and show an English confirmation/failure message; if not authenticated, do not save and show an English message indicating login is required to save progress (use the existing authorization/Internet Identity state; verify the component's usage instructions before implementing)."
+        },
+        {
+          "path": "frontend/src/pages/MyProgressPage.tsx",
+          "operation": "modify",
+          "description": "Add a dedicated \"Interview Reports\" section that loads and displays the most recent saved interview performance analysis for the current authenticated user (including question/answer/feedback as available), with appropriate loading/empty/error states in English."
         }
       ]
     }

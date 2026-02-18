@@ -1,138 +1,143 @@
 {
   "kind": "build_request",
-  "title": "UPSC Interview Mic/Speaking UI + Vibrant Glassmorphism Redesign",
+  "title": "Add News fallback in-app browser and Interview uploads with saved performance reports",
   "projectName": "Pass English Speaking",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the UPSC Interview (Button 6) interview step UI so microphone and speaking controls are clearly visible and usable: add a large, prominent, colorful microphone button fixed at the bottom center of the interview screen; clicking it toggles voice recording; show a small green status-light indicator when the microphone is active/ready.",
+      "text": "When a news region has no available news items (i.e., the News section is in its empty state), render a URL input field that lets the user paste a news website link and open that link inside the app.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Fix the UI for Button 6 (UPSC Interview). The 'Speaking' and 'Mic' features are currently missing or not visible.",
-          "Add a Large Mic Button: Place a prominent, colorful Microphone icon at the bottom center of the interview screen.",
-          "Voice Activation: When the user clicks the Mic, it should start recording",
-          "Status Indicator: Show a small green light icon when the Mic is active and ready."
+          "Button 1: If news is unavailable for a country, add a 'URL Input' box so I can paste a news website link to open inside the app."
         ]
       },
       "acceptanceCriteria": [
-        "On /pro-ai-interviewer during the 'interview' step, there is a large microphone control fixed to the bottom center of the viewport and it is visible without scrolling.",
-        "Clicking the large microphone control starts/stops speech recognition using the existing browser-only Web Speech API hook.",
-        "When recording is active, a green status indicator is visible (and not visible or clearly inactive when the mic is off).",
-        "The previous mic controls are not duplicated in a confusing way (either removed or visually demoted so the large mic is the primary control)."
+        "In News sections where the list is empty, the UI includes a labeled URL input and an \"Open\" action.",
+        "Entering a valid http/https URL and clicking \"Open\" displays the target site inside the app (not via a new tab).",
+        "If the URL is invalid or empty, the user sees an English validation message and the in-app view is not opened.",
+        "The fallback UI does not appear while news is loading or when an error state is shown."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a visible 'Listening...' state to the UPSC Interview microphone interaction: while the mic is active, show a 'Listening...' animation resembling moving waves near the mic control, and show live speech-to-text on screen in a chat bubble as the user speaks (including interim/partial speech updates).",
+      "text": "Persist the user-provided fallback news URL per region (country/region section) so that returning to the News page restores the previously entered URL for that region.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "When the user clicks the Mic, it should start recording and show a 'Listening...' animation (like moving waves).",
-          "Speech-to-Text Display: As the user speaks, their words should appear on the screen in a chat bubble so they can see what they are saying."
+          "If news is unavailable for a country, add a 'URL Input' box so I can paste a news website link to open inside the app."
         ]
       },
       "acceptanceCriteria": [
-        "When the mic is active on the interview step, a 'Listening...' indicator with an animated wave effect is shown.",
-        "As the user speaks, their recognized words appear in a chat-bubble style element in the interview UI (not only inside the textarea).",
-        "Interim speech recognition results update the chat bubble in near real-time; final results are preserved/committed to the answer state.",
-        "If speech recognition is unsupported or permission is denied, the UI shows an error via the existing toast behavior and the mic UI returns to an inactive state."
+        "After a user enters a fallback URL for a region and navigates away/back, the input is pre-filled for that same region.",
+        "Changing the fallback URL updates the persisted value for that region only.",
+        "A user can clear the fallback URL for a region and it remains cleared on refresh."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add an explicit AI 'Speak' control in the UPSC Interview flow so the user can clearly trigger text-to-speech playback of the current panel question (separate from the microphone control), using the existing browser-only TTS utility.",
+      "text": "Rename Button 6 on the Home page from \"UPSC Interview\" to \"Interview\" and ensure all user-facing text for this feature uses \"Interview\" terminology.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Real-time Speaking: Add a 'Speak' button for the AI so the user can hear the UPSC panel's questions clearly."
+          "Button 6: Rename to 'Interview'."
         ]
       },
       "acceptanceCriteria": [
-        "On the interview step, there is a clearly labeled control with user-facing text 'Speak' (or 'Speak Question') that plays the current question via text-to-speech.",
-        "While TTS playback is active, the UI reflects the speaking state (e.g., disabled button and/or 'Speaking...' label) without hiding the mic button.",
-        "TTS uses the existing speakText/stopSpeaking utilities and remains browser-only (no external requests)."
+        "Home page navigation tile label reads \"Interview\".",
+        "The Interview page header/title and any navigation labels do not refer to \"UPSC Interview\" (unless it is part of the content being practiced); use \"Interview\" as the feature name."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Redesign the Home dashboard to a modern, colorful, vibrant Glassmorphism theme with a soft gradient background from Light Blue to Soft Purple, and update the six primary dashboard buttons to use the specified per-button color palette and emoji icons (📰 🤖 📚 🏆 📈 🏛️) while keeping their existing routes and labels in English.",
+      "text": "In the Interview feature, allow uploading PDF and image files and extract text from the uploaded file to generate interview questions from that extracted content.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Give my app a modern, colorful, and vibrant look",
-          "Dashboard Theme: Use a clean Glassmorphism effect with a soft gradient background (Light Blue to Soft Purple).",
-          "Button Styling (Colorful Palette): Button 1 (News): Vibrant Ocean Blue with a 📰 icon. Button 2 (AI Friend): Bright Emerald Green with a 🤖 icon. Button 3 (Course): Energetic Sunset Orange with a 📚 icon. Button 4 (Test): Bold Royal Red with a 🏆 icon. Button 5 (Progress): Calming Teal with a 📈 icon. Button 6 (UPSC): Premium Golden/Deep Purple with a 🏛️ icon."
+          "Allow me to upload PDF/Images. The AI must extract questions from my file."
         ]
       },
       "acceptanceCriteria": [
-        "The HomePage background uses a light-blue to soft-purple gradient and the button cards use a glassmorphism look (blurred/translucent surface, subtle border, soft shadow).",
-        "Each of the 6 dashboard buttons displays the specified emoji icon and uses a distinct, vibrant color style consistent with the requested palette.",
-        "Button click behavior still navigates to the existing routes: /news, /chat-with-friend, /day1-learn, /day1-test, /my-progress, /pro-ai-interviewer.",
-        "All user-facing text remains English."
+        "The Interview upload step accepts .pdf and image/* files.",
+        "For PDFs, extracted text is derived from the uploaded PDF and used to generate questions.",
+        "For images, the app attempts to extract text from the uploaded image and uses it to generate questions; if extraction fails, the UI clearly prompts the user (in English) to provide manual text as a fallback.",
+        "Generated questions are shown to the user before beginning the interview step."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Update global typography to use a bold, rounded font such as Poppins or Montserrat consistently across the app UI.",
+      "text": "In the Interview answering step, provide a text box for answers and a microphone button that includes an upload icon, enabling speech-to-text capture into the answer text box.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Typography: Use a bold, rounded font like 'Poppins' or 'Montserrat' to make it look friendly and easy to read."
+          "Add a Text box and a Mic button (with an upload icon) for my answers."
         ]
       },
       "acceptanceCriteria": [
-        "The app loads and applies Poppins or Montserrat as the primary sans-serif font (with sensible system fallbacks).",
-        "Headings and primary UI text render using the updated font across major pages (Home, Test, Progress, UPSC Interview)."
+        "The Interview step includes an answer text area for typed/pasted responses.",
+        "A mic control is present that visually includes an upload icon as requested, and toggling it starts/stops speech recognition.",
+        "Final speech transcripts are appended into the answer text box; interim transcripts are shown during recording.",
+        "All labels/placeholders/errors are in English."
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Add visual feedback animations for the 200-mark test result: when the user passes with a perfect score (200/200), show a colorful confetti animation; when the user fails, apply a gentle red shake effect to the page (or main test container) upon result display.",
-      "target": "frontend",
+      "text": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page.",
+      "target": "both",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Visual Feedback: When a user Passes (200/200), show a Confetti Animation (colorful patakhe). When a user Fails, show a gentle Red Shake effect on the screen."
+          "Send my performance analysis to the Progress Report."
         ]
       },
       "acceptanceCriteria": [
-        "After submitting the Day 1 test, if score === 200, a confetti animation appears automatically and is clearly visible.",
-        "After submitting the Day 1 test, if score < 200, the screen (or main container) performs a gentle red shake animation when the result is shown.",
-        "Animations do not block navigation or prevent clicking the next actions (View Progress / Try Again)."
+        "After completing an Interview session and generating the final performance analysis/report, the app saves that report to the backend under the authenticated user.",
+        "The Progress page displays the saved Interview performance analysis (at minimum: most recent report) in a dedicated section.",
+        "If the user is not logged in, the app does not attempt to save the report and shows an English message indicating login is required to save progress.",
+        "Backend exposes query/update methods needed to save and fetch Interview reports for the current caller, protected by existing authorization checks."
       ]
     }
   ],
   "constraints": [
-    "Frontend immutable paths must not be edited: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Keep all user-facing text in English.",
-    "Speech-to-text and text-to-speech must remain browser-only (no external audio/transcript services)."
+    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
+    "Do not modify any files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Do not add or change backend canister APIs or persistence for microphone/audio features.",
-    "Do not introduce third-party auth beyond Internet Identity.",
-    "Do not add external real-time services (e.g., WebSockets) for interview interactions."
+    "Adding third-party LLM integrations or OpenAI/ChatGPT requests for question extraction/analysis.",
+    "Implementing real-time features (WebSockets) or push notifications.",
+    "Building a full web browser; only a simple in-app embedded view for a user-provided URL is required."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

@@ -2,12 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Info, AlertCircle } from 'lucide-react';
+import { Clock, AlertCircle } from 'lucide-react';
 import { NewsItemRow } from './NewsItemRow';
+import { NewsFallbackInAppBrowser } from './NewsFallbackInAppBrowser';
 import { useRegionNewsData } from '@/hooks/useRegionNews';
 import type { Region } from '@/lib/news/regionConfig';
 import { formatDistanceToNow } from 'date-fns';
-import { isDemoMode } from '@/config/newsDataSource';
 
 interface NewsSectionProps {
   region: Region;
@@ -15,8 +15,6 @@ interface NewsSectionProps {
 
 export function NewsSection({ region }: NewsSectionProps) {
   const { data, isLoading, error, lastUpdated } = useRegionNewsData(region.id);
-
-  const inDemoMode = isDemoMode();
 
   return (
     <Card className="border-2">
@@ -61,12 +59,7 @@ export function NewsSection({ region }: NewsSectionProps) {
         )}
 
         {!isLoading && !error && data && data.length === 0 && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              No news available for {region.name} at the moment.
-            </AlertDescription>
-          </Alert>
+          <NewsFallbackInAppBrowser regionId={region.id} regionName={region.name} />
         )}
 
         {!isLoading && !error && data && data.length > 0 && (

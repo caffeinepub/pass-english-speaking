@@ -27,6 +27,12 @@ export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
 }
+export interface InterviewAnalysis {
+    question: string;
+    feedback: string;
+    answer: string;
+    timestamp: Time;
+}
 export interface UserProfile {
     name: string;
 }
@@ -40,7 +46,9 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
+    addInterviewAnalysis(question: string, answer: string, feedback: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    clearMyProgressReport(): Promise<void>;
     forceRefreshIndiaNews(): Promise<string>;
     forceRefreshNews(): Promise<string>;
     getAllCompletedDays(): Promise<Array<bigint>>;
@@ -50,6 +58,8 @@ export interface backendInterface {
     getCourseProgress(user: Principal): Promise<[bigint, bigint]>;
     getDay1TestAttempts(user: Principal): Promise<Array<TestAttempt>>;
     getIndiaNews(): Promise<string>;
+    getInterviewAnalysis(user: Principal): Promise<Array<InterviewAnalysis>>;
+    getMyProgressReport(): Promise<Array<InterviewAnalysis>>;
     getNews(): Promise<string>;
     getUnlockedDaysCount(): Promise<bigint>;
     getUserHighScore(user: Principal): Promise<bigint | null>;

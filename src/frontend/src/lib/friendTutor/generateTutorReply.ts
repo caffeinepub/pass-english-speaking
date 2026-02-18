@@ -1,6 +1,8 @@
 import { detectAndCorrect } from './detectAndCorrect';
 import { MessageAnalysis } from './analyzeUserMessage';
 
+export type PersonalityMode = 'friend' | 'teacher' | 'ai';
+
 const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'];
 const farewells = ['bye', 'goodbye', 'see you', 'take care', 'later'];
 
@@ -27,7 +29,11 @@ function checkContentSafety(message: string): { isSafe: boolean; reason?: string
   return { isSafe: true };
 }
 
-export function generateTutorReply(userMessage: string, analysis?: MessageAnalysis): string {
+export function generateTutorReply(
+  userMessage: string, 
+  analysis?: MessageAnalysis,
+  personality: PersonalityMode = 'friend'
+): string {
   const lowerMessage = userMessage.toLowerCase().trim();
   
   // Safety check
@@ -40,50 +46,118 @@ export function generateTutorReply(userMessage: string, analysis?: MessageAnalys
 
   // Handle greetings
   if (greetings.some((greeting) => lowerMessage.includes(greeting))) {
-    reply = 'Hello! It\'s great to chat with you. What would you like to talk about today?';
+    if (personality === 'friend') {
+      reply = 'Hey there! 😊 So great to chat with you! What\'s on your mind today?';
+    } else if (personality === 'teacher') {
+      reply = 'Good day. I am pleased to assist you with your English learning. What would you like to discuss today?';
+    } else {
+      reply = 'Hello! It\'s great to chat with you. What would you like to talk about today?';
+    }
   }
   // Handle farewells
   else if (farewells.some((farewell) => lowerMessage.includes(farewell))) {
-    reply = 'Goodbye! It was nice talking to you. Keep practicing your English!';
+    if (personality === 'friend') {
+      reply = 'Bye! 👋 It was awesome talking to you! Keep practicing, you\'re doing great! 🌟';
+    } else if (personality === 'teacher') {
+      reply = 'Goodbye. It was a pleasure working with you today. Please continue to practice your English skills diligently.';
+    } else {
+      reply = 'Goodbye! It was nice talking to you. Keep practicing your English!';
+    }
   }
   // Handle "how are you" questions
   else if (lowerMessage.includes('how are you') || lowerMessage.includes('how r u')) {
-    reply = 'I\'m doing great, thank you for asking! How about you? How is your day going?';
+    if (personality === 'friend') {
+      reply = 'I\'m doing awesome, thanks for asking! 😄 How about you? How\'s your day going?';
+    } else if (personality === 'teacher') {
+      reply = 'I am functioning well, thank you for inquiring. How are you progressing with your studies today?';
+    } else {
+      reply = 'I\'m doing great, thank you for asking! How about you? How is your day going?';
+    }
   }
   // Handle questions about the tutor
   else if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you')) {
-    reply = 'I\'m your Chat Assistant! I\'m here to help you practice English in a fun and friendly way.';
+    if (personality === 'friend') {
+      reply = 'I\'m your buddy here to help you practice English! 🤖 Think of me as your friendly conversation partner!';
+    } else if (personality === 'teacher') {
+      reply = 'I am your English language instructor. My purpose is to guide you through proper English usage and correct any errors you may make.';
+    } else {
+      reply = 'I\'m your Chat Assistant! I\'m here to help you practice English in a fun and friendly way.';
+    }
   }
   // Handle "thank you"
   else if (lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
-    reply = 'You\'re welcome! I\'m happy to help you. Do you have any questions?';
+    if (personality === 'friend') {
+      reply = 'You\'re so welcome! 😊 Happy to help anytime! Got any other questions?';
+    } else if (personality === 'teacher') {
+      reply = 'You are welcome. It is my duty to assist you. Do you have any further questions?';
+    } else {
+      reply = 'You\'re welcome! I\'m happy to help you. Do you have any questions?';
+    }
   }
   // Handle questions (contains ?)
   else if (userMessage.includes('?')) {
-    reply = 'That\'s an interesting question! Can you tell me more about what you\'re thinking?';
+    if (personality === 'friend') {
+      reply = 'Ooh, interesting question! 🤔 Tell me more about what you\'re thinking!';
+    } else if (personality === 'teacher') {
+      reply = 'That is a valid question. Please elaborate on your inquiry so I may provide proper guidance.';
+    } else {
+      reply = 'That\'s an interesting question! Can you tell me more about what you\'re thinking?';
+    }
   }
   // Handle short responses
   else if (userMessage.split(' ').length <= 3) {
-    reply = 'I see! Can you tell me more about that?';
+    if (personality === 'friend') {
+      reply = 'Cool! 😎 Can you tell me more about that?';
+    } else if (personality === 'teacher') {
+      reply = 'I see. Please provide more details so we can have a more comprehensive discussion.';
+    } else {
+      reply = 'I see! Can you tell me more about that?';
+    }
   }
   // Handle longer messages
   else if (userMessage.split(' ').length > 10) {
-    reply = 'Thank you for sharing that with me! That\'s very interesting. What else would you like to talk about?';
+    if (personality === 'friend') {
+      reply = 'Wow, thanks for sharing all that! 🌟 That\'s really interesting! What else is on your mind?';
+    } else if (personality === 'teacher') {
+      reply = 'Thank you for that detailed response. I appreciate your effort in expressing yourself. What else would you like to discuss?';
+    } else {
+      reply = 'Thank you for sharing that with me! That\'s very interesting. What else would you like to talk about?';
+    }
   }
   // Default friendly response
   else {
-    const responses = [
-      'That sounds interesting! Tell me more.',
-      'I understand. What do you think about it?',
-      'That\'s nice! How do you feel about that?',
-      'Interesting! Can you explain a bit more?',
-      'I see what you mean. What happened next?',
-    ];
-    reply = responses[Math.floor(Math.random() * responses.length)];
+    if (personality === 'friend') {
+      const responses = [
+        'That sounds cool! 😊 Tell me more!',
+        'I hear you! What do you think about it? 🤔',
+        'Nice! How do you feel about that? 💭',
+        'Interesting! 🌟 Can you explain a bit more?',
+        'I see what you mean! What happened next? 👀',
+      ];
+      reply = responses[Math.floor(Math.random() * responses.length)];
+    } else if (personality === 'teacher') {
+      const responses = [
+        'That is noteworthy. Please elaborate further.',
+        'I understand. What is your perspective on this matter?',
+        'That is acceptable. How do you assess this situation?',
+        'Interesting observation. Can you provide additional details?',
+        'I comprehend your point. What occurred subsequently?',
+      ];
+      reply = responses[Math.floor(Math.random() * responses.length)];
+    } else {
+      const responses = [
+        'That sounds interesting! Tell me more.',
+        'I understand. What do you think about it?',
+        'That\'s nice! How do you feel about that?',
+        'Interesting! Can you explain a bit more?',
+        'I see what you mean. What happened next?',
+      ];
+      reply = responses[Math.floor(Math.random() * responses.length)];
+    }
   }
 
-  // Add gentle corrections and tips if provided
-  if (analysis) {
+  // Add gentle corrections and tips if provided (only for Friend and AI modes)
+  if (analysis && personality !== 'teacher') {
     const sections: string[] = [];
 
     // Grammar correction - gentle and concise

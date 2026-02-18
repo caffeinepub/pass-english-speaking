@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T08:01:10.469Z",
+  "generatedAt": "2026-02-18T10:05:46.565Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,99 +12,111 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the UPSC Interview (Button 6) interview step UI so microphone and speaking controls are clearly visible and usable: add a large, prominent, colorful microphone button fixed at the bottom center of the interview screen; clicking it toggles voice recording; show a small green status-light indicator when the microphone is active/ready.",
+        "summary": "When a news region has no available news items (i.e., the News section is in its empty state), render a URL input field that lets the user paste a news website link and open that link inside the app.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/components/proInterviewer/BottomMicControl.tsx"
+          "frontend/src/components/news/NewsSection.tsx",
+          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+          "frontend/src/lib/news/validateHttpUrl.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/components/proInterviewer/BottomMicControl.tsx"
+          "frontend/src/components/news/NewsSection.tsx",
+          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+          "frontend/src/lib/news/validateHttpUrl.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add a visible 'Listening...' state to the UPSC Interview microphone interaction: while the mic is active, show a 'Listening...' animation resembling moving waves near the mic control, and show live speech-to-text on screen in a chat bubble as the user speaks (including interim/partial speech updates).",
+        "summary": "Persist the user-provided fallback news URL per region (country/region section) so that returning to the News page restores the previously entered URL for that region.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/index.css",
-          "frontend/tailwind.config.js"
+          "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
+          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+          "frontend/src/components/news/NewsSection.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ProAIInterviewerPage.tsx",
-          "frontend/src/index.css",
-          "frontend/tailwind.config.js"
+          "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
+          "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+          "frontend/src/components/news/NewsSection.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add an explicit AI 'Speak' control in the UPSC Interview flow so the user can clearly trigger text-to-speech playback of the current panel question (separate from the microphone control), using the existing browser-only TTS utility.",
+        "summary": "Rename Button 6 on the Home page from \"UPSC Interview\" to \"Interview\" and ensure all user-facing text for this feature uses \"Interview\" terminology.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/pages/HomePage.tsx",
           "frontend/src/pages/ProAIInterviewerPage.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/pages/HomePage.tsx",
           "frontend/src/pages/ProAIInterviewerPage.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Redesign the Home dashboard to a modern, colorful, vibrant Glassmorphism theme with a soft gradient background from Light Blue to Soft Purple, and update the six primary dashboard buttons to use the specified per-button color palette and emoji icons (📰 🤖 📚 🏆 📈 🏛️) while keeping their existing routes and labels in English.",
+        "summary": "In the Interview feature, allow uploading PDF and image files and extract text from the uploaded file to generate interview questions from that extracted content.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/HomePage.tsx"
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/lib/proInterviewer/extractTextFromImage.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/HomePage.tsx"
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/lib/proInterviewer/extractTextFromImage.ts"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Update global typography to use a bold, rounded font such as Poppins or Montserrat consistently across the app UI.",
+        "summary": "In the Interview answering step, provide a text box for answers and a microphone button that includes an upload icon, enabling speech-to-text capture into the answer text box.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/index.html",
-          "frontend/tailwind.config.js",
-          "frontend/src/index.css"
+          "frontend/src/components/proInterviewer/BottomMicControl.tsx",
+          "frontend/src/pages/ProAIInterviewerPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/index.html",
-          "frontend/tailwind.config.js",
-          "frontend/src/index.css"
+          "frontend/src/components/proInterviewer/BottomMicControl.tsx",
+          "frontend/src/pages/ProAIInterviewerPage.tsx"
         ]
       },
       {
         "id": "REQ-6",
-        "summary": "Add visual feedback animations for the 200-mark test result: when the user passes with a perfect score (200/200), show a colorful confetti animation; when the user fails, apply a gentle red shake effect to the page (or main test container) upon result display.",
+        "summary": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Day1TestPage.tsx",
-          "frontend/src/components/test/ResultEffects.tsx",
-          "frontend/tailwind.config.js"
+          "frontend/src/hooks/useInterviewReports.ts",
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/pages/MyProgressPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Day1TestPage.tsx",
-          "frontend/src/components/test/ResultEffects.tsx",
-          "frontend/tailwind.config.js"
+          "frontend/src/hooks/useInterviewReports.ts",
+          "frontend/src/pages/ProAIInterviewerPage.tsx",
+          "frontend/src/pages/MyProgressPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+    "frontend/src/components/news/NewsSection.tsx",
     "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-    "frontend/src/components/test/ResultEffects.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/Day1TestPage.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useInterviewReports.ts",
+    "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
+    "frontend/src/lib/news/validateHttpUrl.ts",
+    "frontend/src/lib/proInterviewer/extractTextFromImage.ts",
     "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MyProgressPage.tsx",
     "frontend/src/pages/ProAIInterviewerPage.tsx",
-    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

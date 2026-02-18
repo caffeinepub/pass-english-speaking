@@ -5,8 +5,11 @@ import {
   setGeminiKey,
   setExternalLinks,
   setWebsiteApiKeys,
+  setOpenAIEnabled,
+  setGeminiEnabled,
   type LocalSettings,
 } from '@/lib/settings/localSettingsStorage';
+import { getOpenAIStatus, getGeminiStatus, type ProviderStatusInfo } from '@/lib/settings/providerStatus';
 
 /**
  * Hook for managing local settings stored in browser
@@ -18,6 +21,8 @@ export function useLocalSettings() {
     geminiKey: '',
     externalLinks: '',
     websiteApiKeys: '',
+    openaiEnabled: false,
+    geminiEnabled: false,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,6 +53,20 @@ export function useLocalSettings() {
     setSettings((prev) => ({ ...prev, websiteApiKeys: keys }));
   };
 
+  const updateOpenAIEnabled = (enabled: boolean) => {
+    setOpenAIEnabled(enabled);
+    setSettings((prev) => ({ ...prev, openaiEnabled: enabled }));
+  };
+
+  const updateGeminiEnabled = (enabled: boolean) => {
+    setGeminiEnabled(enabled);
+    setSettings((prev) => ({ ...prev, geminiEnabled: enabled }));
+  };
+
+  // Compute provider status
+  const openaiStatus: ProviderStatusInfo = getOpenAIStatus(settings.openaiEnabled, settings.openaiKey);
+  const geminiStatus: ProviderStatusInfo = getGeminiStatus(settings.geminiEnabled, settings.geminiKey);
+
   return {
     settings,
     isLoading,
@@ -55,5 +74,9 @@ export function useLocalSettings() {
     updateGeminiKey,
     updateExternalLinks,
     updateWebsiteApiKeys,
+    updateOpenAIEnabled,
+    updateGeminiEnabled,
+    openaiStatus,
+    geminiStatus,
   };
 }

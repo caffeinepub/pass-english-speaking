@@ -10,6 +10,12 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface InterviewAnalysis {
+  'question' : string,
+  'feedback' : string,
+  'answer' : string,
+  'timestamp' : Time,
+}
 export interface TestAttempt {
   'completionTime' : Time,
   'user' : Principal,
@@ -37,7 +43,9 @@ export interface http_request_result {
 }
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addInterviewAnalysis' : ActorMethod<[string, string, string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'clearMyProgressReport' : ActorMethod<[], undefined>,
   'forceRefreshIndiaNews' : ActorMethod<[], string>,
   'forceRefreshNews' : ActorMethod<[], string>,
   'getAllCompletedDays' : ActorMethod<[], Array<bigint>>,
@@ -47,6 +55,8 @@ export interface _SERVICE {
   'getCourseProgress' : ActorMethod<[Principal], [bigint, bigint]>,
   'getDay1TestAttempts' : ActorMethod<[Principal], Array<TestAttempt>>,
   'getIndiaNews' : ActorMethod<[], string>,
+  'getInterviewAnalysis' : ActorMethod<[Principal], Array<InterviewAnalysis>>,
+  'getMyProgressReport' : ActorMethod<[], Array<InterviewAnalysis>>,
   'getNews' : ActorMethod<[], string>,
   'getUnlockedDaysCount' : ActorMethod<[], bigint>,
   'getUserHighScore' : ActorMethod<[Principal], [] | [bigint]>,

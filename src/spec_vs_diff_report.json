@@ -1,84 +1,75 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T08:01:10.466Z",
-  "summary": "Implemented: global Poppins typography, vibrant glassmorphism Home dashboard with emoji buttons, new bottom-fixed large mic control component, and Day1 test result confetti/shake effects. Not fully evidenced: UPSC Interview 'Listening...' wave animation + live transcript chat bubble, and explicit 'Speak' control UI state. Diff also includes several unrequested news/backend-typing related changes.",
+  "generatedAt": "2026-02-18T10:05:46.561Z",
+  "summary": "REQ-1 and REQ-2 appear implemented via a per-region fallback URL input that opens an in-app iframe only in the empty-news state, with URL validation and localStorage persistence. REQ-3 appears implemented on the Home page by renaming the tile to “Interview”. REQ-4 and REQ-5 appear largely implemented in the ProAIInterviewer flow (PDF/image upload handling, question flow steps, speech-to-text with interim/final handling, and mic button with upload icon). REQ-6 cannot be fully verified from the provided diff summary because the backend methods and the login-gated save behavior are not shown; Progress page integration is only partially evidenced.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Show a visible 'Listening...' state with animated wave effect near the mic, and show live speech-to-text in a chat-bubble element with interim updates; errors should toast and return UI to inactive.",
-      "reason": "The new BottomMicControl shows a status pill ('Recording Active') and a mic button, but no 'Listening...' label, wave animation UI, or chat-bubble transcript UI is evidenced in the provided diffs. ProAIInterviewerPage stores interimTranscript, but the UI rendering of a chat bubble and wave animation is not shown in the truncated diff.",
+      "id": "REQ-6",
+      "requirement": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page (including backend save/fetch methods with auth checks, and a logged-out message + no-save behavior).",
+      "reason": "The frontend hook calls backend methods (getMyProgressReport, addInterviewAnalysis), and backend state/types for progressReports are added, but the diff excerpt for backend/main.mo is truncated before any addInterviewAnalysis/getMyProgressReport implementations or authorization protection are shown. Also, the ProAIInterviewer save behavior when not logged in (do not attempt save + show English message) is not evidenced in the truncated ProAIInterviewerPage.tsx snippet.",
       "evidence": [
-        "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-        "frontend/src/pages/ProAIInterviewerPage.tsx",
-        "frontend/src/index.css"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Add a clearly labeled 'Speak' (or 'Speak Question') control on the interview step to play the current question via existing TTS utilities, reflecting speaking state without hiding the mic.",
-      "reason": "ProAIInterviewerPage imports speakText/stopSpeaking and has isSpeaking state, but the diff excerpt does not show any rendered button/control labeled 'Speak' or 'Speak Question', nor the UI state changes during playback.",
-      "evidence": [
-        "frontend/src/pages/ProAIInterviewerPage.tsx"
-      ]
-    },
-    {
-      "id": "REQ-1",
-      "requirement": "Ensure previous mic controls are not duplicated/confusing and the large bottom-center mic is the primary control.",
-      "reason": "A new large fixed mic control is added, but the diff does not show removal/demotion of any prior mic controls in the interview UI (the relevant sections of ProAIInterviewerPage are truncated).",
-      "evidence": [
-        "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-        "frontend/src/pages/ProAIInterviewerPage.tsx"
+        "frontend/src/hooks/useInterviewReports.ts",
+        "backend/main.mo (truncated excerpt does not show the required methods)",
+        "frontend/src/pages/ProAIInterviewerPage.tsx (truncated; no visible login-required gating/message)",
+        "frontend/src/pages/MyProgressPage.tsx (truncated; shows fetching but not the dedicated section rendering details)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "News system changes: region ordering, enabling all regions, changing query behavior, parsing exact backend error messages, adding demo data, adding/altering US headlines section, and switching to backend mode.",
-      "reason": "The BuildRequest focuses on UPSC Interview mic/speaking UI, Home dashboard redesign, typography, and Day1 test result animations; it does not request changes to News fetching/parsing/regions or data source modes.",
+      "description": "Added a backend stable-state migration module and wired it into the actor.",
+      "reason": "The BuildRequest did not ask for migration infrastructure; it only constrained the backend to remain a single Motoko actor and to add methods/state for interview reports.",
       "evidence": [
-        "frontend-file-summaries.txt",
+        "backend/migration.mo",
+        "backend/main.mo (with migration = Migration.run)"
+      ]
+    },
+    {
+      "description": "Introduced/modified additional News features and configuration beyond the fallback in-app browser (e.g., region ordering/definition changes, demo vs backend data mode changes, parsing behavior changes).",
+      "reason": "REQ-1/REQ-2 focus specifically on empty-state fallback URL input + per-region persistence, not on changing region config, demo mode toggles, or parser error formatting.",
+      "evidence": [
+        "frontend-file-summaries.txt (regionConfig.ts changed; parseNews.ts changed; newsDataSource.ts set to backend; demoNewsData.ts added/changed)"
+      ]
+    },
+    {
+      "description": "Added a Home-screen “Top US Headlines” section.",
+      "reason": "The News requirements only mention empty-state fallback browsing within News sections; no request to add a new Home-page headlines section.",
+      "evidence": [
         "frontend/src/components/news/TopUSHeadlinesSection.tsx",
-        "frontend/src/hooks/useRegionNews.ts",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/lib/news/regionConfig.ts",
-        "frontend/src/lib/news/parseNews.ts",
-        "frontend/src/lib/news/demoNewsData.ts",
-        "frontend/src/config/newsDataSource.ts",
-        "frontend/src/hooks/useUSNews.ts",
-        "frontend/src/components/news/NewsSection.tsx",
-        "frontend/src/components/news/NewsItemRow.tsx",
-        "frontend/src/pages/NewsPage.tsx"
+        "frontend/src/pages/HomePage.tsx (imports TopUSHeadlinesSection)"
       ]
     },
     {
-      "description": "Backend canister TypeScript typing changes for getNews/forceRefreshNews signatures (removing apiKey parameter).",
-      "reason": "BuildRequest explicitly states not to add or change backend canister APIs; adjusting the generated/maintained canister interface typing suggests an API contract change that was not requested as part of the UI work.",
+      "description": "Added/changed significant global styling/theme (glassmorphism/neon design tokens, fonts, animations).",
+      "reason": "No styling/theme overhaul was requested in the BuildRequest.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/backend.d.ts"
+        "frontend-file-summaries.txt (frontend/src/index.css, frontend/tailwind.config.js)"
       ]
     },
     {
-      "description": "Added a generic 'Coming Soon' page.",
-      "reason": "Not requested by any requirement (REQ-1..REQ-6).",
+      "description": "Expanded/modified the AI Friend chat feature (personality modes, offline tutor replies, grammar corrections).",
+      "reason": "The BuildRequest non-goals and scope focus on News fallback browsing and Interview uploads/reports; no request to extend the chat feature.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/pages/ComingSoonPage.tsx"
+        "frontend-file-summaries.txt (frontend/src/pages/FriendChatPage.tsx changes)"
       ]
     }
   ],
-  "confidence": 0.66,
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.html",
+    "frontend/src/components/news/NewsFallbackInAppBrowser.tsx",
+    "frontend/src/components/news/NewsSection.tsx",
     "frontend/src/components/proInterviewer/BottomMicControl.tsx",
-    "frontend/src/components/test/ResultEffects.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/Day1TestPage.tsx",
+    "frontend/src/hooks/useInterviewReports.ts",
+    "frontend/src/lib/news/fallbackNewsUrlStorage.ts",
+    "frontend/src/lib/news/validateHttpUrl.ts",
+    "frontend/src/lib/proInterviewer/extractTextFromImage.ts",
     "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MyProgressPage.tsx",
     "frontend/src/pages/ProAIInterviewerPage.tsx",
-    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

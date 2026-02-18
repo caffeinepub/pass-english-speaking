@@ -1,8 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, PenTool, BookMarked, Library } from 'lucide-react';
+import { ArrowLeft, BookOpen, PenTool, Library } from 'lucide-react';
 import { day1LessonContent } from '@/lib/course/day1LessonContent';
+import { StoryModeTopicCard } from '@/components/course/StoryModeTopicCard';
 
 export default function Day1LearningHubPage() {
   const navigate = useNavigate();
@@ -24,90 +25,65 @@ export default function Day1LearningHubPage() {
             60-Day Course: Day 1
           </h1>
           <p className="text-muted-foreground">
-            Master the fundamentals of English grammar, vocabulary, and writing
+            Learn English through stories and real-life examples
           </p>
         </header>
 
         {/* Main Content */}
-        <main className="space-y-6">
-          {/* Grammar Section */}
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-primary" />
+        <main className="space-y-8">
+          {/* Grammar Section - Story Mode */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">
                 Grammar: Is/Am/Are
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Is/Am/Are */}
-              <div>
+              </h2>
+            </div>
+            <StoryModeTopicCard topic={day1LessonContent.grammar.isAmAre} />
+          </section>
+
+          {/* Vocabulary Section - Story Mode */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Library className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">
+                Vocabulary (10 Words)
+              </h2>
+            </div>
+            <div className="space-y-6">
+              {day1LessonContent.vocabulary.words.map((word, idx) => (
+                <StoryModeTopicCard key={idx} topic={word} />
+              ))}
+            </div>
+          </section>
+
+          {/* Essay Writing Section */}
+          <section>
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PenTool className="w-6 h-6 text-primary" />
+                  Essay Topic: My Self
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
                 <h3 className="text-xl font-semibold mb-3 text-foreground">
-                  {day1LessonContent.grammar.isAmAre.title}
+                  {day1LessonContent.essayWriting.title}
                 </h3>
-                <p className="text-muted-foreground mb-3">
-                  {day1LessonContent.grammar.isAmAre.explanation}
+                <p className="text-muted-foreground mb-4">
+                  {day1LessonContent.essayWriting.introduction}
                 </p>
-                <div className="bg-accent/20 p-4 rounded-lg space-y-2">
-                  <p className="font-medium text-foreground">Examples:</p>
-                  {day1LessonContent.grammar.isAmAre.examples.map((example, idx) => (
-                    <p key={idx} className="text-sm text-foreground">
-                      • {example}
+                <div className="bg-accent/20 p-4 rounded-lg space-y-3">
+                  <p className="font-medium text-foreground">Guide:</p>
+                  {day1LessonContent.essayWriting.guide.map((line, idx) => (
+                    <p key={idx} className="text-sm text-foreground leading-relaxed">
+                      {line}
                     </p>
                   ))}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Vocabulary Section */}
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Library className="w-6 h-6 text-primary" />
-                Vocabulary (10 Words)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {day1LessonContent.vocabulary.words.map((item, idx) => (
-                  <div key={idx} className="bg-accent/20 p-4 rounded-lg">
-                    <p className="font-semibold text-foreground text-lg mb-1">
-                      {idx + 1}. {item.word}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {item.meaning}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Essay Writing Section */}
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PenTool className="w-6 h-6 text-primary" />
-                Essay Topic: My Self
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">
-                {day1LessonContent.essayWriting.title}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                {day1LessonContent.essayWriting.introduction}
-              </p>
-              <div className="bg-accent/20 p-4 rounded-lg space-y-3">
-                <p className="font-medium text-foreground">Guide:</p>
-                {day1LessonContent.essayWriting.guide.map((line, idx) => (
-                  <p key={idx} className="text-sm text-foreground leading-relaxed">
-                    {line}
-                  </p>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </section>
 
           {/* Action Button */}
           <div className="flex justify-center pt-4">

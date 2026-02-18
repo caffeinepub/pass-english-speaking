@@ -109,6 +109,12 @@ export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
 }
+export interface InterviewAnalysis {
+    question: string;
+    feedback: string;
+    answer: string;
+    timestamp: Time;
+}
 export interface UserProfile {
     name: string;
 }
@@ -123,7 +129,9 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    addInterviewAnalysis(question: string, answer: string, feedback: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    clearMyProgressReport(): Promise<void>;
     forceRefreshIndiaNews(): Promise<string>;
     forceRefreshNews(): Promise<string>;
     getAllCompletedDays(): Promise<Array<bigint>>;
@@ -133,6 +141,8 @@ export interface backendInterface {
     getCourseProgress(user: Principal): Promise<[bigint, bigint]>;
     getDay1TestAttempts(user: Principal): Promise<Array<TestAttempt>>;
     getIndiaNews(): Promise<string>;
+    getInterviewAnalysis(user: Principal): Promise<Array<InterviewAnalysis>>;
+    getMyProgressReport(): Promise<Array<InterviewAnalysis>>;
     getNews(): Promise<string>;
     getUnlockedDaysCount(): Promise<bigint>;
     getUserHighScore(user: Principal): Promise<bigint | null>;
@@ -167,6 +177,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addInterviewAnalysis(arg0: string, arg1: string, arg2: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addInterviewAnalysis(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addInterviewAnalysis(arg0, arg1, arg2);
+            return result;
+        }
+    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
@@ -178,6 +202,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async clearMyProgressReport(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.clearMyProgressReport();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.clearMyProgressReport();
             return result;
         }
     }
@@ -310,6 +348,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getIndiaNews();
+            return result;
+        }
+    }
+    async getInterviewAnalysis(arg0: Principal): Promise<Array<InterviewAnalysis>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getInterviewAnalysis(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getInterviewAnalysis(arg0);
+            return result;
+        }
+    }
+    async getMyProgressReport(): Promise<Array<InterviewAnalysis>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyProgressReport();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyProgressReport();
             return result;
         }
     }

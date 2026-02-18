@@ -20,6 +20,12 @@ export const TestAttempt = IDL.Record({
   'user' : IDL.Principal,
   'score' : IDL.Nat,
 });
+export const InterviewAnalysis = IDL.Record({
+  'question' : IDL.Text,
+  'feedback' : IDL.Text,
+  'answer' : IDL.Text,
+  'timestamp' : Time,
+});
 export const http_header = IDL.Record({
   'value' : IDL.Text,
   'name' : IDL.Text,
@@ -41,7 +47,9 @@ export const TransformationOutput = IDL.Record({
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addInterviewAnalysis' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'clearMyProgressReport' : IDL.Func([], [], []),
   'forceRefreshIndiaNews' : IDL.Func([], [IDL.Text], []),
   'forceRefreshNews' : IDL.Func([], [IDL.Text], []),
   'getAllCompletedDays' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
@@ -59,6 +67,12 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getIndiaNews' : IDL.Func([], [IDL.Text], []),
+  'getInterviewAnalysis' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(InterviewAnalysis)],
+      ['query'],
+    ),
+  'getMyProgressReport' : IDL.Func([], [IDL.Vec(InterviewAnalysis)], ['query']),
   'getNews' : IDL.Func([], [IDL.Text], []),
   'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
   'getUserHighScore' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
@@ -100,6 +114,12 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Principal,
     'score' : IDL.Nat,
   });
+  const InterviewAnalysis = IDL.Record({
+    'question' : IDL.Text,
+    'feedback' : IDL.Text,
+    'answer' : IDL.Text,
+    'timestamp' : Time,
+  });
   const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const http_request_result = IDL.Record({
     'status' : IDL.Nat,
@@ -118,7 +138,9 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addInterviewAnalysis' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'clearMyProgressReport' : IDL.Func([], [], []),
     'forceRefreshIndiaNews' : IDL.Func([], [IDL.Text], []),
     'forceRefreshNews' : IDL.Func([], [IDL.Text], []),
     'getAllCompletedDays' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
@@ -136,6 +158,16 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getIndiaNews' : IDL.Func([], [IDL.Text], []),
+    'getInterviewAnalysis' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(InterviewAnalysis)],
+        ['query'],
+      ),
+    'getMyProgressReport' : IDL.Func(
+        [],
+        [IDL.Vec(InterviewAnalysis)],
+        ['query'],
+      ),
     'getNews' : IDL.Func([], [IDL.Text], []),
     'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
     'getUserHighScore' : IDL.Func(

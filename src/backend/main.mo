@@ -5,9 +5,9 @@ import Time "mo:core/Time";
 import OutCall "http-outcalls/outcall";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
-
-
+(with migration = Migration.run)
 actor {
   // Types
   public type UserProfile = { name : Text };
@@ -28,6 +28,17 @@ actor {
     lastUpdate : Time.Time;
   };
 
+  public type InterviewAnalysis = {
+    question : Text;
+    answer : Text;
+    feedback : Text;
+    timestamp : Time.Time;
+  };
+
+  public type ProgressReport = {
+    interviews : [InterviewAnalysis];
+  };
+
   // System State
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -37,6 +48,7 @@ actor {
   var courseProgress = Map.empty<Principal, CourseProgress>();
   var boolMap = Map.empty<Principal, Bool>();
   var newsCaches = Map.empty<Text, NewsCache>();
+  var progressReports = Map.empty<Principal, ProgressReport>();
 
   let oneDay = 24 * 60 * 60 * 1_000_000_000 : Int;
   let usGeneralEndpoint = "https://gnews.io/api/v4/top-headlines?category=general&country=us&lang=en&max=20&apikey=YOUR_API_KEY";
@@ -285,6 +297,56 @@ actor {
 
   public query ({ caller }) func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
     OutCall.transform(input);
+  };
+
+  // ===== Progress Report Functions (NEW) =====
+
+  public shared ({ caller }) func addInterviewAnalysis(question : Text, answer : Text, feedback : Text) : async () {
+    _requireUserRole(caller);
+
+    let newEntry : InterviewAnalysis = {
+      question;
+      answer;
+      feedback;
+      timestamp = Time.now();
+    };
+
+    switch (progressReports.get(caller)) {
+      case (null) {
+        let newReport : ProgressReport = {
+          interviews = [newEntry];
+        };
+        progressReports.add(caller, newReport);
+      };
+      case (?report) {
+        let updatedEntries = report.interviews.concat([newEntry]);
+        let updatedReport : ProgressReport = {
+          interviews = updatedEntries;
+        };
+        progressReports.add(caller, updatedReport);
+      };
+    };
+  };
+
+  public query ({ caller }) func getInterviewAnalysis(user : Principal) : async [InterviewAnalysis] {
+    _requireSelfOrAdmin(caller, user);
+    switch (progressReports.get(user)) {
+      case (null) { [] };
+      case (?report) { report.interviews };
+    };
+  };
+
+  public query ({ caller }) func getMyProgressReport() : async [InterviewAnalysis] {
+    _requireUserRole(caller);
+    switch (progressReports.get(caller)) {
+      case (null) { [] };
+      case (?report) { report.interviews };
+    };
+  };
+
+  public shared ({ caller }) func clearMyProgressReport() : async () {
+    _requireUserRole(caller);
+    progressReports.remove(caller);
   };
 
   // ===== Deprecated/Legacy Functions =====

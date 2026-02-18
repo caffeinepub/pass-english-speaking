@@ -1,65 +1,28 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Lock, CheckCircle, Circle } from 'lucide-react';
-import { useGetCourseProgress, useGetCompletedDaysCount, useGetUnlockedDaysCount } from '@/hooks/useCourseProgress';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, Calendar, Trophy, TrendingUp, AlertCircle, MessageSquare } from 'lucide-react';
+import { useGetCompletedDaysCount, useGetUnlockedDaysCount } from '@/hooks/useCourseProgress';
+import { useGetInterviewReports } from '@/hooks/useInterviewReports';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import { MistakeTracker } from '@/components/progress/MistakeTracker';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function MyProgressPage() {
   const navigate = useNavigate();
-  const { identity, login, loginStatus } = useInternetIdentity();
-  const { data: completedCount = 0 } = useGetCompletedDaysCount();
-  const { data: unlockedCount = 1 } = useGetUnlockedDaysCount();
+  const { identity } = useInternetIdentity();
+  
+  const { data: completedDays = 0, isLoading: loadingCompleted } = useGetCompletedDaysCount();
+  const { data: unlockedDays = 1, isLoading: loadingUnlocked } = useGetUnlockedDaysCount();
+  const { data: interviewReports = [], isLoading: loadingReports, error: reportsError } = useGetInterviewReports();
 
-  const isAuthenticated = !!identity;
+  const totalDays = 60;
+  const progressPercentage = (Number(completedDays) / totalDays) * 100;
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <CardTitle>Login Required</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Please login to view your progress.
-            </p>
-            <Button onClick={login} className="w-full" disabled={loginStatus === 'logging-in'}>
-              {loginStatus === 'logging-in' ? 'Logging in...' : 'Login'}
-            </Button>
-            <Button variant="outline" onClick={() => navigate({ to: '/' })} className="w-full">
-              Back to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const progressPercentage = (completedCount / 60) * 100;
-
-  // Generate 60-day grid
-  const days = Array.from({ length: 60 }, (_, i) => i + 1);
-
-  const getDayStatus = (day: number): 'completed' | 'unlocked' | 'locked' => {
-    if (day <= completedCount) return 'completed';
-    if (day <= unlockedCount) return 'unlocked';
-    return 'locked';
-  };
-
-  const getDayIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-5 h-5 text-primary" />;
-      case 'unlocked':
-        return <Circle className="w-5 h-5 text-muted-foreground" />;
-      case 'locked':
-        return <Lock className="w-4 h-4 text-muted-foreground" />;
-      default:
-        return null;
-    }
-  };
+  const isLoading = loadingCompleted || loadingUnlocked;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
@@ -74,42 +37,157 @@ export default function MyProgressPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            My Progress
-          </h1>
+          <h1 className="text-4xl font-bold text-foreground mb-2">My Progress</h1>
           <p className="text-muted-foreground">
             Track your 60-day English learning journey
           </p>
         </header>
 
-        {/* Progress Overview */}
-        <Card className="mb-8 border-2">
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="border-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                Completed Days
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-10 w-20" />
+              ) : (
+                <p className="text-4xl font-bold text-primary">{Number(completedDays)}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Unlocked Days
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-10 w-20" />
+              ) : (
+                <p className="text-4xl font-bold text-primary">{Number(unlockedDays)}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Overall Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-10 w-20" />
+              ) : (
+                <p className="text-4xl font-bold text-primary">{progressPercentage.toFixed(0)}%</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Progress Bar */}
+        <Card className="border-2 mb-8">
           <CardHeader>
-            <CardTitle>Overall Progress</CardTitle>
+            <CardTitle>60-Day Journey</CardTitle>
+            <CardDescription>
+              {Number(completedDays)} of {totalDays} days completed
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Days Completed</span>
-                <span className="font-semibold text-foreground">
-                  {completedCount} / 60
-                </span>
+          <CardContent>
+            <Progress value={progressPercentage} className="h-3" />
+          </CardContent>
+        </Card>
+
+        {/* Mistake Tracker */}
+        <div className="mb-8">
+          <MistakeTracker />
+        </div>
+
+        {/* Interview Reports Section */}
+        <Card className="border-2 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Interview Reports
+            </CardTitle>
+            <CardDescription>
+              Your saved interview performance analyses
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!identity && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Login to view your saved interview reports.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {identity && loadingReports && (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                ))}
               </div>
-              <Progress value={progressPercentage} className="h-3" />
-              <p className="text-xs text-muted-foreground text-center">
-                {progressPercentage.toFixed(1)}% Complete
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">{completedCount}</p>
-                <p className="text-sm text-muted-foreground">Completed</p>
+            )}
+
+            {identity && reportsError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Failed to load interview reports. Please try again later.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {identity && !loadingReports && !reportsError && interviewReports.length === 0 && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  No interview reports yet. Complete an interview session to see your performance analysis here.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {identity && !loadingReports && !reportsError && interviewReports.length > 0 && (
+              <div className="space-y-4">
+                {interviewReports.slice(-5).reverse().map((report, idx) => (
+                  <Card key={idx} className="p-4 bg-accent/5">
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          {formatDistanceToNow(Number(report.timestamp) / 1_000_000, { addSuffix: true })}
+                        </p>
+                        <p className="font-semibold text-sm mb-2">Q: {report.question}</p>
+                        <p className="text-sm text-muted-foreground mb-2">A: {report.answer}</p>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <p className="text-xs font-semibold text-primary mb-1">Feedback:</p>
+                        <p className="text-xs text-muted-foreground">{report.feedback}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {interviewReports.length > 5 && (
+                  <p className="text-xs text-center text-muted-foreground">
+                    Showing most recent 5 of {interviewReports.length} reports
+                  </p>
+                )}
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">{unlockedCount}</p>
-                <p className="text-sm text-muted-foreground">Unlocked</p>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -117,80 +195,59 @@ export default function MyProgressPage() {
         <Card className="border-2">
           <CardHeader>
             <CardTitle>60-Day Calendar</CardTitle>
+            <CardDescription>Your daily progress at a glance</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-3">
-              {days.map((day) => {
-                const status = getDayStatus(day);
+            <div className="grid grid-cols-10 gap-2">
+              {Array.from({ length: totalDays }, (_, i) => {
+                const day = i + 1;
+                const isCompleted = day <= Number(completedDays);
+                const isUnlocked = day <= Number(unlockedDays);
+                const isCurrent = day === Number(unlockedDays) && !isCompleted;
+
                 return (
                   <div
                     key={day}
                     className={`
-                      relative aspect-square rounded-lg border-2 flex flex-col items-center justify-center
+                      aspect-square rounded-lg flex items-center justify-center text-sm font-semibold
                       transition-all duration-200
                       ${
-                        status === 'completed'
-                          ? 'bg-primary/10 border-primary hover:bg-primary/20'
-                          : status === 'unlocked'
-                          ? 'bg-accent/50 border-accent hover:bg-accent cursor-pointer'
-                          : 'bg-muted border-muted-foreground/20'
+                        isCompleted
+                          ? 'bg-primary text-primary-foreground shadow-md'
+                          : isCurrent
+                          ? 'bg-accent text-accent-foreground border-2 border-primary'
+                          : isUnlocked
+                          ? 'bg-muted text-muted-foreground'
+                          : 'bg-muted/30 text-muted-foreground/30'
                       }
                     `}
-                    onClick={() => {
-                      if (status === 'unlocked' && day === 1) {
-                        navigate({ to: '/day1-learn' });
-                      }
-                    }}
                   >
-                    <div className="absolute top-1 right-1">
-                      {getDayIcon(status)}
-                    </div>
-                    <span
-                      className={`text-sm font-semibold ${
-                        status === 'locked' ? 'text-muted-foreground' : 'text-foreground'
-                      }`}
-                    >
-                      {day}
-                    </span>
+                    {day}
                   </div>
                 );
               })}
             </div>
 
-            {/* Legend */}
-            <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t justify-center">
+            <div className="flex items-center gap-6 mt-6 text-sm">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm text-muted-foreground">Completed</span>
+                <div className="w-4 h-4 rounded bg-primary" />
+                <span className="text-muted-foreground">Completed</span>
               </div>
               <div className="flex items-center gap-2">
-                <Circle className="w-5 h-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Unlocked</span>
+                <div className="w-4 h-4 rounded bg-accent border-2 border-primary" />
+                <span className="text-muted-foreground">Current</span>
               </div>
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Locked</span>
+                <div className="w-4 h-4 rounded bg-muted" />
+                <span className="text-muted-foreground">Unlocked</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-muted/30" />
+                <span className="text-muted-foreground">Locked</span>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-muted-foreground border-t border-border pt-8 pb-8">
-          <p>
-            © {new Date().getFullYear()} · Built with ❤️ using{' '}
-            <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
-                typeof window !== 'undefined' ? window.location.hostname : 'pass-english-speaking'
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
-            >
-              caffeine.ai
-            </a>
-          </p>
-        </footer>
       </div>
     </div>
   );

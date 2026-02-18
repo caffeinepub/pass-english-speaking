@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Upload, FileText, Volume2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Volume2, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { speakText, stopSpeaking } from '@/lib/tts/speakText';
@@ -19,6 +19,8 @@ import { coachAnswer } from '@/lib/proInterviewer/coachAnswer';
 import { computeMetrics, aggregateMetrics } from '@/lib/proInterviewer/metrics';
 import { generateSessionReport } from '@/lib/proInterviewer/sessionReport';
 import { useAiMode } from '@/hooks/useAiMode';
+import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import { useAddInterviewAnalysis } from '@/hooks/useInterviewReports';
 import { BottomMicControl } from '@/components/proInterviewer/BottomMicControl';
 import type { InterviewQuestion, CoachingFeedback, SessionReport, AnswerRecord, AnswerMetrics } from '@/lib/proInterviewer/documentTypes';
 
@@ -27,11 +29,14 @@ type FlowStep = 'upload' | 'review' | 'interview' | 'report';
 export default function ProAIInterviewerPage() {
   const navigate = useNavigate();
   const { shouldUseAIMode, connectionError } = useAiMode();
+  const { identity } = useInternetIdentity();
+  const addAnalysisMutation = useAddInterviewAnalysis();
 
   const [step, setStep] = useState<FlowStep>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState('');
   const [manualInfo, setManualInfo] = useState('');
+  const [imageExtractionFailed, setImageExtractionFailed] = useState(false);
   const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answerRecords, setAnswerRecords] = useState<AnswerRecord[]>([]);
@@ -65,6 +70,7 @@ export default function ProAIInterviewerPage() {
     if (!file) return;
 
     setUploadedFile(file);
+    setImageExtractionFailed(false);
 
     try {
       let text = '';
@@ -73,7 +79,12 @@ export default function ProAIInterviewerPage() {
         text = result.text;
       } else if (file.type.startsWith('image/')) {
         const result = await extractTextFromImage(file);
-        text = result.success ? result.text : '';
+        if (result.success) {
+          text = result.text;
+        } else {
+          setImageExtractionFailed(true);
+          toast.info('Could not extract text from image. Please use manual input below.');
+        }
       }
 
       setExtractedText(text);
@@ -155,12 +166,30 @@ export default function ProAIInterviewerPage() {
     }
   };
 
-  const generateFinalReport = (records: AnswerRecord[]) => {
+  const generateFinalReport = async (records: AnswerRecord[]) => {
     const allMetrics = records.map(r => r.metrics);
     const aggregated = aggregateMetrics(allMetrics);
     const report = generateSessionReport(records, aggregated);
     setSessionReport(report);
     setStep('report');
+
+    // Save to backend if authenticated
+    if (identity) {
+      try {
+        // Save each Q&A with feedback
+        for (const record of records) {
+          const feedbackText = `Correction: ${record.feedback.correction} | Pronunciation: ${record.feedback.pronunciation} | Pro Tip: ${record.feedback.proTip}`;
+          await addAnalysisMutation.mutateAsync({
+            question: record.question.text,
+            answer: record.answer,
+            feedback: feedbackText,
+          });
+        }
+        toast.success('Interview performance saved to Progress Report');
+      } catch (error: any) {
+        toast.error('Failed to save interview report: ' + (error.message || 'Unknown error'));
+      }
+    }
   };
 
   const handleReset = () => {
@@ -168,6 +197,7 @@ export default function ProAIInterviewerPage() {
     setUploadedFile(null);
     setExtractedText('');
     setManualInfo('');
+    setImageExtractionFailed(false);
     setQuestions([]);
     setCurrentQuestionIndex(0);
     setAnswerRecords([]);
@@ -191,7 +221,7 @@ export default function ProAIInterviewerPage() {
             Back to Home
           </Button>
           <h1 className="text-4xl font-bold text-foreground mb-2">
-            UPSC Interview Simulator
+            Interview Simulator
           </h1>
           <p className="text-muted-foreground">
             Professional interview practice with voice interaction and critical feedback
@@ -208,6 +238,16 @@ export default function ProAIInterviewerPage() {
           </Alert>
         )}
 
+        {/* Not Logged In Notice */}
+        {!identity && step === 'upload' && (
+          <Alert className="mb-6">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Login is required to save your interview performance to Progress Report.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Upload Step */}
         {step === 'upload' && (
           <Card className="border-2">
@@ -217,7 +257,7 @@ export default function ProAIInterviewerPage() {
                 Upload Document (Optional)
               </CardTitle>
               <CardDescription>
-                Upload your resume/PDF or enter information manually
+                Upload your resume/PDF or image, or enter information manually
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -236,6 +276,15 @@ export default function ProAIInterviewerPage() {
                   </div>
                 )}
               </div>
+
+              {imageExtractionFailed && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    Text extraction from the image failed. Please type or paste your information in the text box below.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -276,210 +325,192 @@ export default function ProAIInterviewerPage() {
             <CardHeader>
               <CardTitle>Interview Questions Ready</CardTitle>
               <CardDescription>
-                {questions.length} questions prepared based on your profile
+                {questions.length} questions prepared based on your information
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-accent/20 p-4 rounded-lg space-y-2">
-                {questions.slice(0, 3).map((q, idx) => (
-                  <p key={idx} className="text-sm text-foreground">
-                    {idx + 1}. {q.text}
-                  </p>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                {questions.map((q, idx) => (
+                  <Card key={idx} className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-primary">{idx + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-muted-foreground mb-1">
+                          {q.panelist} • {q.category}
+                        </p>
+                        <p className="text-foreground">{q.text}</p>
+                      </div>
+                    </div>
+                  </Card>
                 ))}
-                {questions.length > 3 && (
-                  <p className="text-sm text-muted-foreground italic">
-                    ...and {questions.length - 3} more questions
-                  </p>
-                )}
               </div>
 
-              <Alert>
-                <Volume2 className="h-4 w-4" />
-                <AlertDescription>
-                  Questions will be spoken aloud. Use the microphone to answer.
-                </AlertDescription>
-              </Alert>
-
-              <Button
-                onClick={handleBeginInterview}
-                className="w-full"
-                size="lg"
-              >
-                Begin Interview
-              </Button>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleReset} className="flex-1">
+                  Start Over
+                </Button>
+                <Button onClick={handleBeginInterview} className="flex-1">
+                  Begin Interview
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
 
         {/* Interview Step */}
         {step === 'interview' && (
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle>
-                Question {currentQuestionIndex + 1} of {questions.length}
-              </CardTitle>
-              <Progress
-                value={((currentQuestionIndex + 1) / questions.length) * 100}
-                className="mt-2"
-              />
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-accent/20 p-6 rounded-lg">
-                <p className="text-sm text-muted-foreground mb-2">
-                  {questions[currentQuestionIndex].panelist}
-                </p>
-                <p className="text-lg font-semibold text-foreground">
-                  {questions[currentQuestionIndex].text}
-                </p>
-              </div>
+          <div className="space-y-6">
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Question {currentQuestionIndex + 1} of {questions.length}</CardTitle>
+                  <Progress value={((currentQuestionIndex + 1) / questions.length) * 100} className="w-32" />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="p-6 bg-accent/10 rounded-lg border-2 border-accent/20">
+                  <p className="text-sm font-semibold text-muted-foreground mb-2">
+                    {questions[currentQuestionIndex].panelist} • {questions[currentQuestionIndex].category}
+                  </p>
+                  <p className="text-lg font-medium text-foreground">
+                    {questions[currentQuestionIndex].text}
+                  </p>
+                </div>
 
-              <div className="flex gap-2">
-                <Button
-                  onClick={speakCurrentQuestion}
-                  variant="outline"
-                  disabled={isSpeaking}
-                  className="gap-2"
-                >
-                  <Volume2 className="w-4 h-4" />
-                  {isSpeaking ? 'Speaking...' : 'Speak Question'}
-                </Button>
-              </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={speakCurrentQuestion}
+                    disabled={isSpeaking}
+                    className="flex-1"
+                  >
+                    <Volume2 className="w-4 h-4 mr-2" />
+                    {isSpeaking ? 'Speaking...' : 'Speak Question'}
+                  </Button>
+                </div>
 
-              {/* Live Speech Bubble */}
-              {(isListening || interimTranscript) && (
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-2xl p-4 min-h-[80px] relative">
-                  {isListening && !interimTranscript && (
-                    <div className="flex items-center gap-3">
-                      <div className="flex gap-1">
-                        <div className="w-1 h-8 bg-primary rounded-full animate-wave" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-1 h-8 bg-primary rounded-full animate-wave" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-1 h-8 bg-primary rounded-full animate-wave" style={{ animationDelay: '300ms' }}></div>
-                      </div>
-                      <p className="text-sm text-muted-foreground italic">Listening...</p>
-                    </div>
-                  )}
+                <div className="space-y-2">
+                  <Label htmlFor="answer-input">Your Answer</Label>
+                  <Textarea
+                    id="answer-input"
+                    placeholder="Type your answer or use the microphone below..."
+                    value={currentAnswer}
+                    onChange={(e) => setCurrentAnswer(e.target.value)}
+                    rows={6}
+                  />
                   {interimTranscript && (
-                    <p className="text-foreground">{interimTranscript}</p>
+                    <p className="text-sm text-muted-foreground italic">
+                      Listening: {interimTranscript}
+                    </p>
                   )}
                 </div>
-              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="answer">Your Answer</Label>
-                <Textarea
-                  id="answer"
-                  value={currentAnswer}
-                  onChange={(e) => setCurrentAnswer(e.target.value)}
-                  placeholder="Your spoken words will appear here..."
-                  rows={6}
-                  className="resize-none"
-                />
-              </div>
+                <Button
+                  onClick={handleSubmitAnswer}
+                  disabled={!currentAnswer.trim()}
+                  className="w-full"
+                  size="lg"
+                >
+                  Submit Answer
+                </Button>
+              </CardContent>
+            </Card>
 
-              <Button
-                onClick={handleSubmitAnswer}
-                disabled={!currentAnswer.trim()}
-                className="w-full"
-                size="lg"
-              >
-                Submit Answer
-              </Button>
-            </CardContent>
-          </Card>
+            {/* Live Speech Bubble */}
+            {isListening && (
+              <Card className="border-2 border-primary bg-primary/5 animate-pulse">
+                <CardContent className="py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <p className="text-sm font-medium text-primary">Listening...</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
 
         {/* Report Step */}
         {step === 'report' && sessionReport && (
-          <div className="space-y-6">
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-6 h-6 text-primary" />
-                  Interview Complete
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center py-6">
-                  <p className="text-5xl font-bold text-primary mb-2">
-                    {sessionReport.finalScore}/10
-                  </p>
-                  <p className="text-muted-foreground">Overall Score</p>
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle2 className="w-6 h-6 text-green-500" />
+                Interview Complete
+              </CardTitle>
+              <CardDescription>
+                Your performance analysis and feedback
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-6 bg-primary/5 rounded-lg border-2 border-primary/20">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-muted-foreground mb-2">Overall Score</p>
+                  <p className="text-5xl font-bold text-primary">{sessionReport.finalScore}/10</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Body Language & Tone</h3>
+                  <p className="text-sm text-muted-foreground">{sessionReport.bodyLanguage}</p>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-2">
-                      Body Language & Voice Tone
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {sessionReport.bodyLanguage}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-2">
-                      Logical Consistency
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {sessionReport.logicalConsistency}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-2">
-                      Areas for Improvement
-                    </h3>
-                    <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                      {sessionReport.areasOfImprovement}
-                    </div>
-                  </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Logical Consistency</h3>
+                  <p className="text-sm text-muted-foreground">{sessionReport.logicalConsistency}</p>
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    onClick={handleReset}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Start New Interview
-                  </Button>
-                  <Button
-                    onClick={() => navigate({ to: '/' })}
-                    className="flex-1"
-                  >
-                    Back to Home
-                  </Button>
+                <div>
+                  <h3 className="font-semibold mb-2">Areas for Improvement</h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-line">{sessionReport.areasOfImprovement}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+
+              {identity && (
+                <Alert>
+                  <CheckCircle2 className="h-4 w-4" />
+                  <AlertDescription>
+                    Your interview performance has been saved to your Progress Report.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {!identity && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    Login to save your interview performance to Progress Report.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => navigate({ to: '/my-progress' })} className="flex-1">
+                  View Progress
+                </Button>
+                <Button onClick={handleReset} className="flex-1">
+                  New Interview
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-muted-foreground border-t border-border pt-8 pb-8">
-          <p>
-            © {new Date().getFullYear()} · Built with ❤️ using{' '}
-            <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
-                typeof window !== 'undefined' ? window.location.hostname : 'pass-english-speaking'
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
-            >
-              caffeine.ai
-            </a>
-          </p>
-        </footer>
+        {/* Bottom Mic Control */}
+        {step === 'interview' && (
+          <BottomMicControl
+            isActive={isListening}
+            onToggle={toggleListening}
+          />
+        )}
       </div>
-
-      {/* Fixed Bottom Mic Control - Only visible during interview */}
-      {step === 'interview' && (
-        <BottomMicControl
-          isListening={isListening}
-          onToggle={toggleListening}
-        />
-      )}
     </div>
   );
 }

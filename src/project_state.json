@@ -1,56 +1,54 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "UPSC prep app with a dashboard and an 'UPSC Interview' flow; user requests UI fixes for missing Mic/Speaking features and a modern colorful glassmorphism redesign with feedback animations and updated typography.",
+  "summary": "Configure app Buttons: Button 1 (News) to allow manual URL input when no country news is available, and Button 6 to become an Interview feature with file upload, AI question extraction, answer capture, and performance analysis sent to Progress Report.",
   "architectural_notes": [],
-  "known_issues": [
-    "Button 6 (UPSC Interview) UI missing/hidden 'Speaking' and 'Mic' features"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-upsc-interview-button-6-interview-step-ui-so-microphone-and-speaking-controls-are-clearly-visible-and-usable-add-a-large-prominent-colorful-microphone-button-fixed-at-the-bottom-center-of-the-interview-screen-clicking-it-toggles-voice-recording-show-a-small-green-status-light-indicator-when-the-microphone-is-active-ready",
-      "title": "Fix the UPSC Interview (Button 6) interview step UI so microphone and speaking controls are clearly visible and usable: add a large, prominent, colorful microphone button fixed at the bottom center of the interview screen; clicking it toggles voice recording; show a small green status-light indicator when the microphone is active/ready.",
+      "id": "feature-when-a-news-region-has-no-available-news-items-i-e-the-news-section-is-in-its-empty-state-render-a-url-input-field-that-lets-the-user-paste-a-news-website-link-and-open-that-link-inside-the-app",
+      "title": "When a news region has no available news items (i.e., the News section is in its empty state), render a URL input field that lets the user paste a news website link and open that link inside the app.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-visible-listening-state-to-the-upsc-interview-microphone-interaction-while-the-mic-is-active-show-a-listening-animation-resembling-moving-waves-near-the-mic-control-and-show-live-speech-to-text-on-screen-in-a-chat-bubble-as-the-user-speaks-including-interim-partial-speech-updates",
-      "title": "Add a visible 'Listening...' state to the UPSC Interview microphone interaction: while the mic is active, show a 'Listening...' animation resembling moving waves near the mic control, and show live speech-to-text on screen in a chat bubble as the user speaks (including interim/partial speech updates).",
+      "id": "feature-persist-the-user-provided-fallback-news-url-per-region-country-region-section-so-that-returning-to-the-news-page-restores-the-previously-entered-url-for-that-region",
+      "title": "Persist the user-provided fallback news URL per region (country/region section) so that returning to the News page restores the previously entered URL for that region.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-an-explicit-ai-speak-control-in-the-upsc-interview-flow-so-the-user-can-clearly-trigger-text-to-speech-playback-of-the-current-panel-question-separate-from-the-microphone-control-using-the-existing-browser-only-tts-utility",
-      "title": "Add an explicit AI 'Speak' control in the UPSC Interview flow so the user can clearly trigger text-to-speech playback of the current panel question (separate from the microphone control), using the existing browser-only TTS utility.",
+      "id": "feature-rename-button-6-on-the-home-page-from-upsc-interview-to-interview-and-ensure-all-user-facing-text-for-this-feature-uses-interview-terminology",
+      "title": "Rename Button 6 on the Home page from \"UPSC Interview\" to \"Interview\" and ensure all user-facing text for this feature uses \"Interview\" terminology.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-redesign-the-home-dashboard-to-a-modern-colorful-vibrant-glassmorphism-theme-with-a-soft-gradient-background-from-light-blue-to-soft-purple-and-update-the-six-primary-dashboard-buttons-to-use-the-specified-per-button-color-palette-and-emoji-icons-while-keeping-their-existing-routes-and-labels-in-english",
-      "title": "Redesign the Home dashboard to a modern, colorful, vibrant Glassmorphism theme with a soft gradient background from Light Blue to Soft Purple, and update the six primary dashboard buttons to use the specified per-button color palette and emoji icons (📰 🤖 📚 🏆 📈 🏛️) while keeping their existing routes and labels in English.",
+      "id": "feature-in-the-interview-feature-allow-uploading-pdf-and-image-files-and-extract-text-from-the-uploaded-file-to-generate-interview-questions-from-that-extracted-content",
+      "title": "In the Interview feature, allow uploading PDF and image files and extract text from the uploaded file to generate interview questions from that extracted content.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-global-typography-to-use-a-bold-rounded-font-such-as-poppins-or-montserrat-consistently-across-the-app-ui",
-      "title": "Update global typography to use a bold, rounded font such as Poppins or Montserrat consistently across the app UI.",
+      "id": "feature-in-the-interview-answering-step-provide-a-text-box-for-answers-and-a-microphone-button-that-includes-an-upload-icon-enabling-speech-to-text-capture-into-the-answer-text-box",
+      "title": "In the Interview answering step, provide a text box for answers and a microphone button that includes an upload icon, enabling speech-to-text capture into the answer text box.",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-visual-feedback-animations-for-the-200-mark-test-result-when-the-user-passes-with-a-perfect-score-200-200-show-a-colorful-confetti-animation-when-the-user-fails-apply-a-gentle-red-shake-effect-to-the-page-or-main-test-container-upon-result-display",
-      "title": "Add visual feedback animations for the 200-mark test result: when the user passes with a perfect score (200/200), show a colorful confetti animation; when the user fails, apply a gentle red shake effect to the page (or main test container) upon result display.",
+      "id": "feature-store-the-user-s-interview-performance-analysis-into-the-progress-report-area-so-the-user-can-review-it-later-from-the-progress-page",
+      "title": "Store the user's Interview performance analysis into the Progress Report area so the user can review it later from the Progress page.",
       "reqIds": [
         "REQ-6"
       ],
@@ -60,31 +58,25 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix Button 6 (UPSC Interview) UI: add large Mic button bottom-center, listening animation, AI 'Speak' button, live speech-to-text chat bubble, and mic active green status indicator",
+      "summary": "Button 1 (News): when news is unavailable for a country, show a URL input box to paste a news site link and open it inside the app.",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Apply modern colorful UI redesign: glassmorphism dashboard with light blue→soft purple gradient background",
+      "summary": "Button 6: rename to 'Interview' and allow uploading PDFs/images; AI extracts interview questions from the uploaded file.",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Style dashboard buttons with specified colors and icons for Buttons 1–6 (News/AI Friend/Course/Test/Progress/UPSC)",
+      "summary": "Interview (Button 6): provide a text box and a mic button (with upload icon) to submit user answers.",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Add visual feedback effects: confetti animation on perfect pass (200/200) and gentle red shake effect on fail",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Update typography to a bold rounded font such as Poppins or Montserrat",
+      "summary": "Interview (Button 6): generate performance analysis from user answers and send/store it in the Progress Report.",
       "reqIds": [],
       "status": "pending"
     }

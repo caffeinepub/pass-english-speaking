@@ -52,6 +52,11 @@ export default {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
         },
+        neon: {
+          cyan: 'oklch(75% 0.15 195)',
+          purple: 'oklch(65% 0.20 290)',
+          pink: 'oklch(70% 0.18 340)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -60,6 +65,12 @@ export default {
       },
       fontFamily: {
         sans: ['Poppins', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+      },
+      boxShadow: {
+        'neon-cyan': '0 0 15px rgba(6, 182, 212, 0.6), 0 0 30px rgba(6, 182, 212, 0.4)',
+        'neon-purple': '0 0 15px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)',
+        'neon-pink': '0 0 15px rgba(236, 72, 153, 0.6), 0 0 30px rgba(236, 72, 153, 0.4)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
       },
       keyframes: {
         'accordion-down': {
@@ -87,6 +98,14 @@ export default {
           '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-10px)' },
           '20%, 40%, 60%, 80%': { transform: 'translateX(10px)' },
         },
+        'pulse-neon': {
+          '0%, 100%': { 
+            boxShadow: '0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 15px rgba(239, 68, 68, 0.3)' 
+          },
+          '50%': { 
+            boxShadow: '0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(239, 68, 68, 0.5)' 
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -95,6 +114,7 @@ export default {
         'pulse-slow': 'pulse-slow 2s ease-in-out infinite',
         'bounce-subtle': 'bounce-subtle 1s ease-in-out infinite',
         shake: 'shake 0.6s ease-in-out',
+        'pulse-neon': 'pulse-neon 1.5s ease-in-out infinite',
       },
     },
   },
