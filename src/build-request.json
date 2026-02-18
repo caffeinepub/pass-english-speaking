@@ -1,0 +1,24 @@
+{
+  "kind": "build_request",
+  "title": "Confirm News demo mode and API key security posture",
+  "projectName": "Pass English Speaking",
+  "priority": "normal",
+  "requirements": [],
+  "constraints": [
+    "Frontend must not request, store, or log any external news API keys; user-facing UI must not prompt for API keys.",
+    "Demo/placeholder News data must remain the default data source until explicitly switched via centralized frontend configuration.",
+    "Keep architecture modular so real news API integration can be enabled later via secure backend settings/integrations (no frontend-provided keys).",
+    "Respect Internet Computer single-actor backend architecture (all Motoko logic in backend/main.mo); only add backend/migration.mo if state migration is required.",
+    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose instead).",
+    "All user-facing text must be in English."
+  ],
+  "nonGoals": [
+    "Implementing or enabling real external news fetching in the UI right now (demo/placeholder only).",
+    "Adding any UI screens or prompts for entering API keys.",
+    "Introducing any external databases or third-party auth providers beyond Internet Identity."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

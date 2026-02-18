@@ -1,0 +1,17 @@
+{
+  "frontend/src/App.tsx": "Main application component with TanStack Router setup, defining routes for home, news, and coming-soon pages with proper navigation structure.",
+  "frontend/src/pages/HomePage.tsx": "Home screen displaying 4 large, mobile-friendly buttons (News, Vocabulary, Speaking Practice, Lessons) with icons, descriptions, and navigation to respective features.",
+  "frontend/src/pages/NewsPage.tsx": "News page displaying 4 regional news sections with an always-visible demo mode notice, conditional refresh button, and proper mobile-friendly layout.",
+  "frontend/src/pages/ComingSoonPage.tsx": "Placeholder page for features under development, showing a friendly \"Coming Soon\" message with navigation back to home.",
+  "frontend/src/components/news/NewsSection.tsx": "Reusable news section component displaying region news with loading states, error messages, and gated state alerts (suppressed in demo mode).",
+  "frontend/src/components/news/NewsItemRow.tsx": "Presentational component for a single news item displaying numbered headline and preview text with hover effects.",
+  "frontend/src/hooks/useQueries.ts": "React Query hook for fetching region-specific news from backend, now gated to disable backend calls when demo mode is enabled.",
+  "frontend/src/hooks/useRegionNews.ts": "Custom hook managing region-specific news that switches between demo data and backend data based on configuration, bypassing Israel verification in demo mode, with proper Error type handling for parse errors.",
+  "frontend/src/lib/news/regionConfig.ts": "Configuration defining the 4 news regions (Israel, Dubai, India, West Bengal) with display names and flag emojis.",
+  "frontend/src/lib/news/parseNews.ts": "GNews JSON parser that extracts up to 10 news items (headline + preview) from API responses, handles API errors gracefully, and returns structured error messages for display.",
+  "frontend/src/index.css": "Global styles with OKLCH color system using teal/cyan primary colors (avoiding blue/purple), configured for both light and dark modes with proper contrast.",
+  "frontend/tailwind.config.js": "Tailwind configuration extending the theme with custom colors, border radius, and design tokens matching the beginner-friendly aesthetic.",
+  "frontend/src/backend.d.ts": "TypeScript interface for backend canister methods where getNews and forceRefreshNews now accept only a region parameter (no apiKey) as the backend uses platform integrations for the GNews API key.",
+  "frontend/src/config/newsDataSource.ts": "Centralized configuration file that controls whether the app uses demo placeholder data or backend API data, with a single constant to toggle between modes.",
+  "frontend/src/lib/news/demoNewsData.ts": "Provides deterministic demo news data with exactly 10 sample news items for each of the 4 regions (Israel, Dubai, India, West Bengal), shaped to match the NewsItemRow component expectations."
+}

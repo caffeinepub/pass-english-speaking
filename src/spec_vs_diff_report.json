@@ -1,0 +1,48 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-17T15:08:37.893Z",
+  "summary": "The BuildRequest contains constraints about keeping News in demo mode and ensuring no frontend API key handling, but the only change is to `project_state.json`, adding/updating a project summary and feature list describing a mobile app UI, News regions content, and even \"GNews-backed\" refresh behavior. No concrete implementation evidence is present, but the modified state file introduces multiple unrequested features and requirements metadata not present in the BuildRequest.",
+  "missing_requirements": [],
+  "hallucinated_features": [
+    {
+      "description": "Mobile app UI scope (\"Pass English Speaking\" home screen with 4 main buttons) added to project summary/state.",
+      "reason": "BuildRequest is about confirming demo mode and API key security posture; it does not request implementing or defining a mobile app home screen UI.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "description": "News demo screen specification with 4 regions (Israel, Dubai, India, West Bengal) and 10 sample items per region recorded as an existing feature set.",
+      "reason": "BuildRequest does not request adding these UI/content requirements; it only constrains demo data to remain the default and forbids API key prompts/handling.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "description": "Daily auto-update/refresh semantics for news (refresh at least once every 24 hours per region) and manual refresh behavior recorded as existing features.",
+      "reason": "Not requested in the BuildRequest; additionally, the BuildRequest explicitly states non-goal of enabling real external news fetching in the UI right now.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "description": "References to \"GNews-backed regions\" and preserving auto-refresh semantics for them.",
+      "reason": "BuildRequest emphasizes demo/placeholder as default and avoiding real external fetching in the UI; mentioning a specific external news backend behavior is outside the stated request.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "description": "Introduction of REQ-1/REQ-2/REQ-3/REQ-5/REQ-6/REQ-7 requirement IDs and associated features in project state.",
+      "reason": "BuildRequest explicitly lists \"Requirements: none\"; adding requirement IDs/features is not requested.",
+      "evidence": [
+        "project_state.json"
+      ]
+    }
+  ],
+  "confidence": 0.68,
+  "changed_files": [
+    "project_state.json"
+  ]
+}
