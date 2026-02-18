@@ -11,6 +11,7 @@ const STORAGE_KEYS = {
   WEBSITE_API_KEYS: 'settings_website_api_keys',
   OPENAI_ENABLED: 'settings_openai_enabled',
   GEMINI_ENABLED: 'settings_gemini_enabled',
+  DAILY_REMINDER_ENABLED: 'settings_daily_reminder_enabled',
 };
 
 export interface LocalSettings {
@@ -20,6 +21,7 @@ export interface LocalSettings {
   websiteApiKeys: string;
   openaiEnabled: boolean;
   geminiEnabled: boolean;
+  dailyReminderEnabled: boolean;
 }
 
 export function getLocalSettings(): LocalSettings {
@@ -31,6 +33,7 @@ export function getLocalSettings(): LocalSettings {
       websiteApiKeys: localStorage.getItem(STORAGE_KEYS.WEBSITE_API_KEYS) || '',
       openaiEnabled: localStorage.getItem(STORAGE_KEYS.OPENAI_ENABLED) === 'true',
       geminiEnabled: localStorage.getItem(STORAGE_KEYS.GEMINI_ENABLED) === 'true',
+      dailyReminderEnabled: localStorage.getItem(STORAGE_KEYS.DAILY_REMINDER_ENABLED) === 'true',
     };
   } catch (error) {
     console.error('Failed to read settings from storage:', error);
@@ -41,6 +44,7 @@ export function getLocalSettings(): LocalSettings {
       websiteApiKeys: '',
       openaiEnabled: false,
       geminiEnabled: false,
+      dailyReminderEnabled: false,
     };
   }
 }
@@ -90,6 +94,14 @@ export function setGeminiEnabled(enabled: boolean): void {
     localStorage.setItem(STORAGE_KEYS.GEMINI_ENABLED, enabled.toString());
   } catch (error) {
     console.error('Failed to save Gemini enabled state:', error);
+  }
+}
+
+export function setDailyReminderEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.DAILY_REMINDER_ENABLED, enabled.toString());
+  } catch (error) {
+    console.error('Failed to save daily reminder enabled state:', error);
   }
 }
 

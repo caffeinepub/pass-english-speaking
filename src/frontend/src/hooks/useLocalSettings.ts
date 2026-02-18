@@ -7,6 +7,7 @@ import {
   setWebsiteApiKeys,
   setOpenAIEnabled,
   setGeminiEnabled,
+  setDailyReminderEnabled,
   type LocalSettings,
 } from '@/lib/settings/localSettingsStorage';
 import { getOpenAIStatus, getGeminiStatus, type ProviderStatusInfo } from '@/lib/settings/providerStatus';
@@ -23,6 +24,7 @@ export function useLocalSettings() {
     websiteApiKeys: '',
     openaiEnabled: false,
     geminiEnabled: false,
+    dailyReminderEnabled: false,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,6 +65,11 @@ export function useLocalSettings() {
     setSettings((prev) => ({ ...prev, geminiEnabled: enabled }));
   };
 
+  const updateDailyReminderEnabled = (enabled: boolean) => {
+    setDailyReminderEnabled(enabled);
+    setSettings((prev) => ({ ...prev, dailyReminderEnabled: enabled }));
+  };
+
   // Compute provider status
   const openaiStatus: ProviderStatusInfo = getOpenAIStatus(settings.openaiEnabled, settings.openaiKey);
   const geminiStatus: ProviderStatusInfo = getGeminiStatus(settings.geminiEnabled, settings.geminiKey);
@@ -76,6 +83,7 @@ export function useLocalSettings() {
     updateWebsiteApiKeys,
     updateOpenAIEnabled,
     updateGeminiEnabled,
+    updateDailyReminderEnabled,
     openaiStatus,
     geminiStatus,
   };

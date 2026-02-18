@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw, Info } from 'lucide-react';
 import { NewsSection } from '@/components/news/NewsSection';
+import { NewsPasteLinkInAppBrowser } from '@/components/news/NewsPasteLinkInAppBrowser';
 import { useRegionNews } from '@/hooks/useRegionNews';
 import { REGIONS } from '@/lib/news/regionConfig';
 import { isDemoMode } from '@/config/newsDataSource';
@@ -67,6 +68,11 @@ export default function NewsPage() {
             <NewsSection key={region.id} region={region} />
           ))}
         </main>
+
+        {/* Paste Link Section */}
+        <div className="mt-8 mb-8">
+          <NewsPasteLinkInAppBrowser />
+        </div>
 
         {/* Footer */}
         <footer className="mt-12 text-center text-sm text-muted-foreground border-t border-border pt-8 pb-8">

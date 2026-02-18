@@ -102,6 +102,10 @@ export function useSubmitTestScore() {
       queryClient.invalidateQueries({ queryKey: ['unlockedDays'] });
       queryClient.invalidateQueries({ queryKey: ['completedDaysCount'] });
       queryClient.invalidateQueries({ queryKey: ['unlockedDaysCount'] });
+      // Invalidate streak and badges after test completion
+      queryClient.invalidateQueries({ queryKey: ['currentStreak'] });
+      queryClient.invalidateQueries({ queryKey: ['lastStreakCompletionDate'] });
+      queryClient.invalidateQueries({ queryKey: ['userBadges'] });
     },
   });
 }

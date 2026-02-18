@@ -1,5 +1,8 @@
 import { detectAndCorrect } from './detectAndCorrect';
 import { MessageAnalysis } from './analyzeUserMessage';
+import { getIdentityResponse } from './persona';
+import { detectLanguage, getHindiResponse } from './languageDetection';
+import { analyzeMessageContext, generateContextAwarePrompt } from './replyStrategy';
 
 export type PersonalityMode = 'friend' | 'teacher' | 'ai';
 
@@ -42,6 +45,24 @@ export function generateTutorReply(
     return 'I appreciate you wanting to practice English, but I\'m here to help with language learning in a positive way. How about we talk about your hobbies, daily activities, or practice describing things around you? What interests you?';
   }
   
+  // Check for Hindi/Hinglish
+  const langDetection = detectLanguage(userMessage);
+  if (langDetection.isHindiOrHinglish) {
+    const hindiResponse = getHindiResponse(lowerMessage);
+    if (hindiResponse) {
+      return hindiResponse;
+    }
+    
+    // Generic Hindi/Hinglish response
+    if (personality === 'friend') {
+      return 'Main samajh gaya! 😊 (I understand!) Let\'s practice in English together. In English, you can say: "I understand" or "I got it". What would you like to talk about in English?';
+    } else if (personality === 'teacher') {
+      return 'Main samajh gaya. (I understand.) For proper English practice, please try expressing your thoughts in English. I will help you with corrections and improvements. What would you like to say in English?';
+    } else {
+      return 'Samajh gaya! (Understood!) Let\'s practice English together. Try saying that in English, and I\'ll help you improve it. What would you like to express?';
+    }
+  }
+  
   let reply = '';
 
   // Handle greetings
@@ -74,15 +95,9 @@ export function generateTutorReply(
       reply = 'I\'m doing great, thank you for asking! How about you? How is your day going?';
     }
   }
-  // Handle questions about the tutor
+  // Handle questions about the tutor - use persona identity
   else if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you')) {
-    if (personality === 'friend') {
-      reply = 'I\'m your buddy here to help you practice English! 🤖 Think of me as your friendly conversation partner!';
-    } else if (personality === 'teacher') {
-      reply = 'I am your English language instructor. My purpose is to guide you through proper English usage and correct any errors you may make.';
-    } else {
-      reply = 'I\'m your Chat Assistant! I\'m here to help you practice English in a fun and friendly way.';
-    }
+    reply = getIdentityResponse(personality);
   }
   // Handle "thank you"
   else if (lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
@@ -94,84 +109,61 @@ export function generateTutorReply(
       reply = 'You\'re welcome! I\'m happy to help you. Do you have any questions?';
     }
   }
-  // Handle questions (contains ?)
-  else if (userMessage.includes('?')) {
-    if (personality === 'friend') {
-      reply = 'Ooh, interesting question! 🤔 Tell me more about what you\'re thinking!';
-    } else if (personality === 'teacher') {
-      reply = 'That is a valid question. Please elaborate on your inquiry so I may provide proper guidance.';
-    } else {
-      reply = 'That\'s an interesting question! Can you tell me more about what you\'re thinking?';
-    }
-  }
-  // Handle short responses
-  else if (userMessage.split(' ').length <= 3) {
-    if (personality === 'friend') {
-      reply = 'Cool! 😎 Can you tell me more about that?';
-    } else if (personality === 'teacher') {
-      reply = 'I see. Please provide more details so we can have a more comprehensive discussion.';
-    } else {
-      reply = 'I see! Can you tell me more about that?';
-    }
-  }
-  // Handle longer messages
-  else if (userMessage.split(' ').length > 10) {
-    if (personality === 'friend') {
-      reply = 'Wow, thanks for sharing all that! 🌟 That\'s really interesting! What else is on your mind?';
-    } else if (personality === 'teacher') {
-      reply = 'Thank you for that detailed response. I appreciate your effort in expressing yourself. What else would you like to discuss?';
-    } else {
-      reply = 'Thank you for sharing that with me! That\'s very interesting. What else would you like to talk about?';
-    }
-  }
-  // Default friendly response
+  // Use context-aware strategy for other messages
   else {
-    if (personality === 'friend') {
-      const responses = [
-        'That sounds cool! 😊 Tell me more!',
-        'I hear you! What do you think about it? 🤔',
-        'Nice! How do you feel about that? 💭',
-        'Interesting! 🌟 Can you explain a bit more?',
-        'I see what you mean! What happened next? 👀',
-      ];
-      reply = responses[Math.floor(Math.random() * responses.length)];
-    } else if (personality === 'teacher') {
-      const responses = [
-        'That is noteworthy. Please elaborate further.',
-        'I understand. What is your perspective on this matter?',
-        'That is acceptable. How do you assess this situation?',
-        'Interesting observation. Can you provide additional details?',
-        'I comprehend your point. What occurred subsequently?',
-      ];
-      reply = responses[Math.floor(Math.random() * responses.length)];
-    } else {
-      const responses = [
-        'That sounds interesting! Tell me more.',
-        'I understand. What do you think about it?',
-        'That\'s nice! How do you feel about that?',
-        'Interesting! Can you explain a bit more?',
-        'I see what you mean. What happened next?',
-      ];
-      reply = responses[Math.floor(Math.random() * responses.length)];
-    }
+    const context = analyzeMessageContext(userMessage);
+    reply = generateContextAwarePrompt(context, personality);
   }
 
-  // Add gentle corrections and tips if provided (only for Friend and AI modes)
-  if (analysis && personality !== 'teacher') {
+  // Add mode-specific corrections and tips
+  if (analysis) {
     const sections: string[] = [];
 
-    // Grammar correction - gentle and concise
-    if (analysis.grammar.hasMistakes && analysis.grammar.correction) {
-      sections.push(`\n\n✏️ Tip: You could say "${analysis.grammar.correction}"`);
-    }
+    if (personality === 'friend') {
+      // Friend mode: gentle, playful corrections
+      if (analysis.grammar.hasMistakes && analysis.grammar.correction) {
+        sections.push(`\n\n✏️ Quick tip: "${analysis.grammar.correction}" sounds more natural! 😊`);
+      }
 
-    // Power answers - only show the first suggestion
-    if (analysis.powerAnswers.length > 0) {
-      const powerUp = analysis.powerAnswers[0];
-      const firstSuggestion = powerUp.suggestions[0];
-      sections.push(
-        `\n\n💪 Try this: Instead of "${powerUp.original}", you could say "${firstSuggestion}"`
-      );
+      if (analysis.powerAnswers.length > 0) {
+        const powerUp = analysis.powerAnswers[0];
+        const firstSuggestion = powerUp.suggestions[0];
+        sections.push(
+          `\n\n💪 Level up: Try "${firstSuggestion}" instead of "${powerUp.original}"!`
+        );
+      }
+    } else if (personality === 'teacher') {
+      // Teacher mode: structured correction + explanation + example
+      if (analysis.grammar.hasMistakes && analysis.grammar.correction) {
+        sections.push(
+          `\n\n📝 Correction: "${analysis.grammar.correction}"\n` +
+          `Explanation: This follows proper English grammar rules and improves clarity.\n` +
+          `Example: Use this structure in similar sentences.`
+        );
+      }
+
+      if (analysis.powerAnswers.length > 0) {
+        const powerUp = analysis.powerAnswers[0];
+        sections.push(
+          `\n\n📚 Vocabulary Enhancement:\n` +
+          `Original: "${powerUp.original}"\n` +
+          `Better alternatives: ${powerUp.suggestions.slice(0, 2).join(', ')}\n` +
+          `Practice: Try using these in your next sentence.`
+        );
+      }
+    } else {
+      // AI mode: balanced feedback
+      if (analysis.grammar.hasMistakes && analysis.grammar.correction) {
+        sections.push(`\n\n✏️ Tip: You could say "${analysis.grammar.correction}"`);
+      }
+
+      if (analysis.powerAnswers.length > 0) {
+        const powerUp = analysis.powerAnswers[0];
+        const firstSuggestion = powerUp.suggestions[0];
+        sections.push(
+          `\n\n💪 Try this: Instead of "${powerUp.original}", you could say "${firstSuggestion}"`
+        );
+      }
     }
 
     reply += sections.join('');

@@ -1,141 +1,116 @@
 {
   "kind": "build_request",
-  "title": "Configure Button 4 as Day-wise 200-Mark Testing System with essay and new passing rules",
-  "projectName": "Pass English Speaking",
-  "priority": "normal",
+  "title": "Fix repetitive Gemini/AI chat replies and add English Learning Companion persona with Hindi/Hinglish support",
+  "projectName": "English Learning Companion",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Day 1 test (Button 4 / route \"/day1-test\") to render a strict but fair test as a clear, scrollable list of questions (not one-question-per-page), where every question includes a visible topic label in the format \"[Topic: …]\" (e.g., \"[Topic: Grammar - Is/Am/Are]\").",
+      "text": "Eliminate the repetitive reply pattern in the AI/Friend/Teacher chat so the assistant does not keep responding with variations of “Cool! Can you tell me more…” for most user messages, especially short messages and questions.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-6",
+          "msg-7"
         ],
         "quotes": [
-          "Design: Use a clear list for questions and a large, clean text area for the Essay.",
-          "Every question must have a label (e.g., '[Topic: Grammar - Is/Am/Are]')."
+          "Fix the Gemini API behavior. The AI is repeating 'Cool! Can you tell me more' for every message.",
+          "Personality Check: Make sure 'Friend Mode' is funny and 'Teacher Mode' is helpful, not repetitive."
         ]
       },
       "acceptanceCriteria": [
-        "The Day 1 test page shows all questions in a list layout with each question preceded by a topic label like \"[Topic: Grammar - Is/Am/Are]\".",
-        "The user can answer questions in-place within the list and submit the test from the bottom of the page."
+        "In Friend Chat, sending multiple short messages (e.g., “Ok”, “Nice”, “Hmm”, “Why?”) results in varied, non-repetitive responses that are not all requests to “tell me more”.",
+        "Teacher mode responses are actionable/helpful (e.g., corrections, suggested phrasing, a clarifying question) rather than generic prompts.",
+        "The exact phrase “Cool! 😎 Can you tell me more about that?” is no longer used as the default catch-all for short messages."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement day-wise question generation for Button 4 such that the test questions for a given day are generated ONLY from the topics taught in Button 3 for that same day (starting with Day 1 content from the existing Day 1 learning hub content). The question set must not include topics that are not taught on that day.",
+      "text": "Update the AI assistant’s system/persona instructions (used by the chat reply generation logic) so the assistant consistently presents itself as an “English Learning Companion” and prioritizes English-learning help (corrections, examples, vocabulary upgrades) over generic conversation filler.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-6",
+          "msg-7"
         ],
         "quotes": [
-          "Generate questions ONLY based on the topics taught in Button 3 (Day-wise)."
+          "Update System Instructions: Tell Gemini it is an 'English Learning Companion'."
         ]
       },
       "acceptanceCriteria": [
-        "For Day 1, questions are generated only from Day 1 learning content topics (e.g., grammar Is/Am/Are and Day 1 vocabulary/essay content), and do not include unrelated topics (e.g., no A/An/The questions if not taught in Day 1 lessons).",
-        "Question generation is driven by day-specific lesson content rather than a hard-coded unrelated question bank."
+        "The assistant’s self-description for “who are you / what are you” aligns with “English Learning Companion” (not generic “AI Friend/Chat Assistant”).",
+        "Across Friend/Teacher/AI modes, replies consistently focus on English learning (e.g., improved sentence suggestions, grammar tips, vocabulary alternatives) when applicable."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add an \"Essay Writing\" section at the end of the Day 1 test with a large, clean text area for the user to type their essay, and include the essay as part of scoring worth exactly 20 marks.",
+      "text": "Improve context awareness in chat replies so responses reference the user’s actual message content and provide a specific, helpful next step (answer, correction, example, or targeted follow-up question).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-6",
+          "msg-7"
         ],
         "quotes": [
-          "Add an 'Essay Writing' box at the end of the test.\nThis section is worth 20 Marks.",
-          "Design: Use a clear list for questions and a large, clean text area for the Essay."
+          "Context Awareness: It must read the user's message and give a specific, helpful answer."
         ]
       },
       "acceptanceCriteria": [
-        "The test page ends with an \"Essay Writing\" section containing a large text area input.",
-        "The final test score calculation includes an essay component worth exactly 20 marks."
+        "When the user asks a direct question (message contains “?”), the assistant attempts a direct helpful response first (or asks a targeted clarifying question tied to the user’s topic), rather than replying with a generic “tell me more” prompt.",
+        "When the user provides a short statement (<= 3 words), the assistant responds with a helpful expansion prompt that uses the user’s topic (e.g., asking for one concrete detail, offering an example sentence), not a generic filler line.",
+        "At least one part of the assistant reply (in all modes) is clearly grounded in the user’s message (e.g., repeats a key noun/verb, proposes a corrected version of what the user wrote, or gives a relevant example)."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update test scoring and pass/fail feedback rules for Button 4: Total Marks must be exactly 200; the passing threshold must be 150/200 to unlock the next day. If the user scores below 50, show exactly: \"Fail! Please review Day [Current Day] stories again.\" If the user scores 150+, show exactly: \"Success! Day [Next Day] is now unlocked.\" All user-facing text must be in English.",
-      "target": "both",
+      "text": "Add Hindi/Hinglish detection in the chat assistant and respond in a mixed Hindi + English style when the user message is Hindi/Hinglish (e.g., “Tum kaun ho”), while still supporting English learning goals.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-6",
+          "msg-7"
         ],
         "quotes": [
-          "Total Marks = 200.\nPassing Criteria: User only needs 150/200 to unlock the next Day.\nFeedback: >    * If the user scores below 50, show: 'Fail! Please review Day [Current Day] stories again.'\nIf the user scores 150+, show: 'Success! Day [Next Day] is now unlocked.'",
-          "Use English for any user-facing text in the build request."
+          "Language Support: If the user speaks in Hindi/Hinglish (like 'Tum kaun ho'), Gemini should respond in a mix of Hindi and English to explain better."
         ]
       },
       "acceptanceCriteria": [
-        "The computed total score is always presented out of 200.",
-        "Submitting a score >= 150 triggers an unlock of the next day in persisted course progress.",
-        "If score < 50, the results UI shows exactly: \"Fail! Please review Day 1 stories again.\" (for Day 1).",
-        "If score >= 150, the results UI shows exactly: \"Success! Day 2 is now unlocked.\" (for Day 1).",
-        "No non-English or emoji content is used in these feedback strings."
+        "If the user message contains Devanagari text and/or common Hinglish patterns (e.g., “Tum kaun ho”, “Mujhe help chahiye”), the assistant responds with a blended Hindi+English explanation (not English-only).",
+        "For the specific example “Tum kaun ho”, the assistant answers who it is in mixed Hindi+English and includes an English-learning element (e.g., giving the English translation and a natural English alternative like “Who are you?” / “Who are you, exactly?”).",
+        "If the user message is clearly English-only, the assistant responds in English (no unnecessary Hindi mixing)."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Update the backend test submission and course progress logic so that passing is based on score >= 150 out of 200 (not perfect score), and so that the unlock behavior works for the current day (starting with Day 1 unlocking Day 2). Ensure existing persisted state is migrated safely if backend state structures change.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "Passing Criteria: User only needs 150/200 to unlock the next Day."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Backend persists the submitted test attempt/score and updates the caller’s course progress to unlock the next day when score >= 150 (for Day 1: unlock Day 2).",
-        "Backend returns a result message suitable for the frontend to display and/or frontend can deterministically display the required messages based on score and day.",
-        "If a state schema change is required, a migration is implemented so existing users do not lose stored progress/test attempts."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Update Button 4 copy and UI text that currently indicates perfect-score rules (e.g., \"Score 200/200 to unlock Day 2\") to reflect the new passing criteria (150/200) and new feedback behavior.",
+      "text": "Ensure personality modes behave distinctly: Friend Mode should be funny/light, Teacher Mode should be helpful/structured, and both must avoid repetitive templates across messages.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-6",
+          "msg-7"
         ],
         "quotes": [
-          "Passing Criteria: User only needs 150/200 to unlock the next Day."
+          "Personality Check: Make sure 'Friend Mode' is funny and 'Teacher Mode' is helpful, not repetitive."
         ]
       },
       "acceptanceCriteria": [
-        "Home page Button 4 description and the Day 1 test page header/description no longer claim 200/200 is required, and instead reflect 150/200 passing rules.",
-        "The results screen no longer shows \"Perfect Score!\" / \"Test Failed\" logic tied to 200/200; it reflects pass/fail based on >=150, <50 messaging, and an appropriate non-pass/non-<50 state."
+        "Friend mode replies include light humor/playfulness without becoming repetitive, while still staying focused on English practice.",
+        "Teacher mode replies follow a consistent helpful structure (e.g., brief answer or correction + short explanation + 1 example), rather than generic conversation fillers.",
+        "Switching between Friend and Teacher for the same user message produces noticeably different tone and structure."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor with all logic in backend/main.mo (generate backend/migration.mo only if needed for state upgrade).",
-    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT (compose existing UI components instead).",
-    "Do not add any third-party authentication (Internet Identity only)."
+    "Use English for all user-facing text added/modified as part of this build request output (the app may still produce mixed Hindi+English replies only when the user uses Hindi/Hinglish).",
+    "Do not modify files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Creating or populating full lesson/test content for days beyond Day 1 (only ensure the system is day-wise and Day 1 complies using existing Day 1 lesson topics).",
-    "Adding real-time features (e.g., WebSockets) or external databases.",
-    "Integrating external LLM APIs for question generation or essay scoring."
+    "Implementing real external Gemini API network calls from the frontend or backend.",
+    "Adding new authentication providers or changing Internet Identity integration.",
+    "Changing backend canister state/schema for this issue."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

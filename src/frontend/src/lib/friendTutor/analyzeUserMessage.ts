@@ -18,6 +18,10 @@ export interface MessageAnalysis {
     original: string;
     suggestions: string[];
   }>;
+  // Extended for context awareness
+  messageLength: number;
+  hasQuestion: boolean;
+  extractedKeywords: string[];
 }
 
 export function analyzeUserMessage(text: string): MessageAnalysis {
@@ -32,6 +36,11 @@ export function analyzeUserMessage(text: string): MessageAnalysis {
   
   // Power answers
   const powerAnswers = detectPowerAnswers(text);
+  
+  // Context signals
+  const messageLength = text.trim().split(/\s+/).length;
+  const hasQuestion = text.includes('?');
+  const extractedKeywords = extractKeywords(text);
 
   return {
     grammar: {
@@ -41,6 +50,9 @@ export function analyzeUserMessage(text: string): MessageAnalysis {
     tone,
     vocabulary,
     powerAnswers,
+    messageLength,
+    hasQuestion,
+    extractedKeywords,
   };
 }
 
@@ -112,4 +124,19 @@ function analyzeVocabulary(text: string): { basicWords: string[]; suggestions: s
   }
   
   return { basicWords, suggestions };
+}
+
+function extractKeywords(text: string): string[] {
+  const commonWords = new Set([
+    'i', 'me', 'my', 'you', 'your', 'the', 'a', 'an', 'is', 'am', 'are', 'was', 'were',
+    'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+    'can', 'could', 'should', 'may', 'might', 'must', 'this', 'that', 'these', 'those',
+  ]);
+  
+  const words = text.toLowerCase()
+    .replace(/[^\w\s]/g, '')
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !commonWords.has(word));
+  
+  return words.slice(0, 3); // Return top 3 keywords
 }

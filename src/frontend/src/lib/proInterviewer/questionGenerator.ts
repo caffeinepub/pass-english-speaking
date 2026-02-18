@@ -11,6 +11,11 @@ export function generateQuestions(
   const { summary } = extraction;
   const combinedText = extraction.text + ' ' + manualNotes;
   
+  // Validate that we have sufficient content
+  if (!combinedText.trim() || combinedText.trim().length < 20) {
+    return [];
+  }
+  
   let panelistIndex = 0;
   const getNextPanelist = () => {
     const panelist = PANELISTS[panelistIndex % PANELISTS.length];
@@ -77,57 +82,38 @@ export function generateQuestions(
   // Achievement-based questions
   if (summary.achievements.length > 0) {
     questions.push({
-      text: `What would you consider your most significant professional achievement, and what did you learn from it?`,
-      category: 'Achievements',
+      text: `You mentioned ${summary.achievements[0]}. Can you elaborate on the challenges you faced and how you overcame them?`,
+      category: 'Achievement',
       panelist: getNextPanelist(),
-      derivedFrom: summary.achievements.slice(0, 2),
+      derivedFrom: summary.achievements.slice(0, 1),
     });
   }
 
   // Keyword-derived questions
-  if (summary.keywords.length >= 3) {
-    const keywords = summary.keywords.slice(0, 3).join(', ');
+  if (summary.keywords.length > 2) {
+    const keyword = summary.keywords[1];
     questions.push({
-      text: `I notice your background includes ${keywords}. How do these areas complement each other in your career?`,
-      category: 'Integration',
+      text: `I see ${keyword} mentioned in your profile. How has this shaped your professional journey?`,
+      category: 'Background',
       panelist: getNextPanelist(),
-      derivedFrom: summary.keywords.slice(0, 3),
+      derivedFrom: [keyword],
     });
   }
 
-  // Generic professional questions if not enough document-derived
-  const genericQuestions = [
-    {
-      text: 'What are your greatest strengths, and how have they contributed to your professional success?',
-      category: 'Self-Assessment',
-    },
-    {
-      text: 'Describe a situation where you faced a significant challenge. How did you overcome it?',
-      category: 'Problem Solving',
-    },
-    {
-      text: 'Where do you see yourself in five years, and how does this position align with your goals?',
-      category: 'Career Goals',
-    },
-    {
-      text: 'How do you handle criticism and feedback from supervisors or colleagues?',
-      category: 'Interpersonal',
-    },
-    {
-      text: 'Can you give an example of a time when you demonstrated leadership?',
-      category: 'Leadership',
-    },
-  ];
-
-  // Add generic questions to reach minimum count
-  const minQuestions = mode === 'daf' ? 10 : 8;
-  let genericIndex = 0;
-  while (questions.length < minQuestions && genericIndex < genericQuestions.length) {
+  // Ensure we have at least some questions
+  if (questions.length === 0) {
+    // If no structured data, create generic content-based questions
     questions.push({
-      ...genericQuestions[genericIndex],
+      text: 'Based on the information you provided, tell us about your background and what brings you here today.',
+      category: 'Introduction',
       panelist: getNextPanelist(),
     });
-    genericIndex++;
+    
+    questions.push({
+      text: 'What do you consider your greatest strength, and how have you demonstrated it in your experiences?',
+      category: 'Personal',
+      panelist: getNextPanelist(),
+    });
   }
 
   return questions;

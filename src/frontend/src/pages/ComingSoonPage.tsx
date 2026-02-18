@@ -1,15 +1,10 @@
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Construction } from 'lucide-react';
 
 export default function ComingSoonPage() {
   const navigate = useNavigate();
-  const { feature } = useParams({ strict: false });
-
-  const featureName = feature
-    ? feature.charAt(0).toUpperCase() + feature.slice(1).replace(/-/g, ' ')
-    : 'This Feature';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex items-center justify-center p-4">
@@ -21,7 +16,7 @@ export default function ComingSoonPage() {
             </div>
             <CardTitle className="text-2xl">Coming Soon</CardTitle>
             <CardDescription className="text-base mt-2">
-              {featureName} is currently under development
+              This feature is currently under development
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">

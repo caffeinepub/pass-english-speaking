@@ -21,7 +21,7 @@ export default function FriendChatPage() {
     {
       id: '1',
       role: 'tutor',
-      text: 'Hi! I\'m your AI Friend. Let\'s practice English together! How are you today?',
+      text: 'Hi! I\'m your English Learning Companion. Let\'s practice English together! How are you today?',
       createdAt: new Date(),
     },
   ]);
@@ -129,10 +129,10 @@ export default function FriendChatPage() {
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-semibold text-white truncate neon-text">
-                AI Friend
+                English Learning Companion
               </h1>
               <p className="text-xs text-purple-200">
-                Your English conversation partner
+                Practice English with helpful feedback
               </p>
             </div>
           </div>

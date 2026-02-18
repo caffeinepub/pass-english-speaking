@@ -1,16 +1,23 @@
 import Map "mo:core/Map";
+import Array "mo:core/Array";
+import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import OutCall "http-outcalls/outcall";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+import Nat "mo:core/Nat";
+
+
 actor {
-  // Types
-  public type UserProfile = { name : Text };
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+
+  public type UserProfile = {
+    name : Text;
+  };
 
   public type TestAttempt = {
     user : Principal;
@@ -39,23 +46,46 @@ actor {
     interviews : [InterviewAnalysis];
   };
 
-  // System State
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
+  // Streak info internal persistent type (var fields)
+  public type StreakInfoPersistent = {
+    var currentStreak : Nat;
+    var lastCompletionDate : Nat;
+  };
 
+  // Streak info public API type (immutable)
+  public type StreakInfo = {
+    currentStreak : Nat;
+    lastCompletionDate : Nat;
+  };
+
+  public type Badge = {
+    name : Text;
+    description : Text;
+    dateAwarded : Nat;
+  };
+
+  public type WordEntry = {
+    word : Text;
+    meaning : Text;
+    savedAt : Nat;
+  };
+
+  // State variables/persistent data
   var userProfiles = Map.empty<Principal, UserProfile>();
   var day1TestAttempts = Map.empty<Principal, TestAttempt>();
   var courseProgress = Map.empty<Principal, CourseProgress>();
   var progressFlags = Map.empty<Principal, Bool>();
   var newsCaches = Map.empty<Text, NewsCache>();
   var progressReports = Map.empty<Principal, ProgressReport>();
+  var dailyStreaks = Map.empty<Principal, StreakInfoPersistent>();
+  var userBadges = Map.empty<Principal, [Badge]>();
+  var wordBanks = Map.empty<Principal, [WordEntry]>();
 
   let oneDay = 24 * 60 * 60 * 1_000_000_000 : Int;
   let usGeneralEndpoint = "https://gnews.io/api/v4/top-headlines?category=general&country=us&lang=en&max=20&apikey=YOUR_API_KEY";
   let indiaSearchEndpoint = "https://gnews.io/api/v4/search?q=india&lang=en&apikey=C2ed972df55f15f5e63ce84cdbb65341";
 
   // ===== User Profile Management =====
-
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     _requireUserRole(caller);
     userProfiles.get(caller);
@@ -72,10 +102,8 @@ actor {
   };
 
   // ===== Test Score Handling =====
-
   public shared ({ caller }) func handleScore(score : Nat) : async Text {
     _requireUserRole(caller);
-
     let attempt : TestAttempt = {
       user = caller;
       score = score;
@@ -107,7 +135,6 @@ actor {
   };
 
   // ===== Test Attempts Queries =====
-
   public query ({ caller }) func getDay1TestAttempts(user : Principal) : async [TestAttempt] {
     _requireSelfOrAdmin(caller, user);
     switch (day1TestAttempts.get(user)) {
@@ -126,7 +153,6 @@ actor {
   };
 
   // ===== Course Progress Functions =====
-
   public query ({ caller }) func getCourseProgress(user : Principal) : async (Nat, Nat) {
     _requireSelfOrAdmin(caller, user);
 
@@ -209,8 +235,165 @@ actor {
     };
   };
 
-  // ===== Admin Functions =====
+  // ===== Streak Functionality =====
+  public shared ({ caller }) func updateStreak(hasCompletedToday : Bool) : async StreakInfo {
+    _requireUserRole(caller);
 
+    let today = 0;
+
+    switch (dailyStreaks.get(caller)) {
+      case (null) {
+        let newStreak = {
+          var currentStreak = if (hasCompletedToday) { 1 } else { 0 };
+          var lastCompletionDate = if (hasCompletedToday) { today } else { 0 };
+        };
+        dailyStreaks.add(caller, newStreak);
+        {
+          currentStreak = newStreak.currentStreak;
+          lastCompletionDate = newStreak.lastCompletionDate;
+        };
+      };
+      case (?existingStreak) {
+        if (hasCompletedToday) {
+          let daysSince = if (existingStreak.lastCompletionDate > today) {
+            0;
+          } else {
+            assert true;
+            today - existingStreak.lastCompletionDate;
+          };
+
+          let newStreakValue = if (existingStreak.lastCompletionDate == today) {
+            existingStreak.currentStreak
+          } else if (daysSince == 1) {
+            existingStreak.currentStreak + 1;
+          } else {
+            1;
+          };
+          existingStreak.currentStreak := newStreakValue;
+          existingStreak.lastCompletionDate := today;
+        };
+        {
+          currentStreak = existingStreak.currentStreak;
+          lastCompletionDate = existingStreak.lastCompletionDate;
+        };
+      };
+    };
+  };
+
+  public query ({ caller }) func getCurrentStreak() : async Nat {
+    _requireUserRole(caller);
+    switch (dailyStreaks.get(caller)) {
+      case (null) { 0 };
+      case (?streak) { streak.currentStreak };
+    };
+  };
+
+  public query ({ caller }) func getLastStreakCompletionDate() : async Nat {
+    _requireUserRole(caller);
+    switch (dailyStreaks.get(caller)) {
+      case (null) { 0 };
+      case (?streak) { streak.lastCompletionDate };
+    };
+  };
+
+  // ===== Badge System =====
+  func _awardBadgesBasedOnStreakInternal(user : Principal, currentStreak : Nat) : [Badge] {
+    let today = 0;
+
+    var badgesToAdd : [Badge] = [];
+
+    let streakMilestones = [
+      (10, "Bronze Medal", "Awarded for achieving a 10-day streak!"),
+      (30, "Silver Medal", "Awarded for sustaining a 30-day streak!"),
+      (60, "UPSC Warrior Certificate", "Awarded for an impressive 60-day learning streak!"),
+    ];
+
+    for ((threshold, name, description) in streakMilestones.vals()) {
+      if (currentStreak >= threshold and not _hasBadgeInternal(user, name)) {
+        let newBadge : Badge = {
+          name;
+          description;
+          dateAwarded = today;
+        };
+        badgesToAdd := badgesToAdd.concat([newBadge]);
+      };
+    };
+
+    if (badgesToAdd.size() > 0) {
+      let existingBadges = switch (userBadges.get(user)) {
+        case (null) { [] };
+        case (?badges) { badges };
+      };
+      userBadges.add(user, existingBadges.concat(badgesToAdd));
+    };
+
+    badgesToAdd;
+  };
+
+  public query ({ caller }) func getUserBadges() : async [Badge] {
+    _requireUserRole(caller);
+    switch (userBadges.get(caller)) {
+      case (null) { [] };
+      case (?badges) { badges };
+    };
+  };
+
+  func _hasBadgeInternal(user : Principal, badgeName : Text) : Bool {
+    switch (userBadges.get(user)) {
+      case (null) { false };
+      case (?badges) {
+        badges.find<Badge>(func(b) { b.name == badgeName }) != null;
+      };
+    };
+  };
+
+  // ===== Word Bank/Dictionary Functionality =====
+  public shared ({ caller }) func saveWord(word : Text, meaning : Text) : async () {
+    _requireUserRole(caller);
+    let today = 0;
+    let newEntry : WordEntry = {
+      word;
+      meaning;
+      savedAt = today;
+    };
+    let existingWords = switch (wordBanks.get(caller)) {
+      case (null) { [] };
+      case (?words) { words };
+    };
+    wordBanks.add(caller, existingWords.concat([newEntry]));
+  };
+
+  public query ({ caller }) func getWordBank() : async [WordEntry] {
+    _requireUserRole(caller);
+    switch (wordBanks.get(caller)) {
+      case (null) { [] };
+      case (?words) { words };
+    };
+  };
+
+  public shared ({ caller }) func removeWord(word : Text) : async () {
+    _requireUserRole(caller);
+
+    let existingWords = switch (wordBanks.get(caller)) {
+      case (null) { [] };
+      case (?words) { words };
+    };
+    let filtered = existingWords.filter(
+      func(entry) { entry.word != word },
+    );
+    wordBanks.add(caller, filtered);
+  };
+
+  // ===== Learning Content Integration =====
+  public shared ({ caller }) func updateStreakAndAward(hasCompletedTestToday : Bool) : async StreakInfo {
+    _requireUserRole(caller);
+
+    let streak = await updateStreak(hasCompletedTestToday);
+    let _ = _awardBadgesBasedOnStreakInternal(caller, streak.currentStreak);
+    streak;
+  };
+
+  // ===== Admin Functions =====
   public shared ({ caller }) func unlockDayForUser(user : Principal) : async () {
     _requireAdmin(caller);
 
@@ -240,7 +423,6 @@ actor {
   };
 
   // ===== News Functions (Public Access) =====
-
   func shouldFetchNews(cache : NewsCache) : Bool {
     Time.now() - cache.lastUpdate > oneDay;
   };
@@ -261,7 +443,7 @@ actor {
       case (null) { await fetchAndCacheNews(endpoint, cacheKey) };
       case (?cache) {
         if (shouldFetchNews(cache)) {
-          await fetchAndCacheNews(cacheKey, endpoint);
+          await fetchAndCacheNews(endpoint, cacheKey);
         } else {
           cache.cachedData;
         };
@@ -269,7 +451,7 @@ actor {
     };
   };
 
-  public shared ({ caller }) func getNews() : async Text {
+  public shared func getNews() : async Text {
     await getCachedOrFetch("us_general", usGeneralEndpoint);
   };
 
@@ -278,7 +460,7 @@ actor {
     await fetchAndCacheNews(usGeneralEndpoint, "us_general");
   };
 
-  public shared ({ caller }) func getIndiaNews() : async Text {
+  public shared func getIndiaNews() : async Text {
     await getCachedOrFetch("india_search", indiaSearchEndpoint);
   };
 
@@ -287,12 +469,11 @@ actor {
     await fetchAndCacheNews(indiaSearchEndpoint, "india_search");
   };
 
-  public query ({ caller }) func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+  public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
     OutCall.transform(input);
   };
 
-  // ===== Progress Report Functions (NEW) =====
-
+  // ===== Progress Report Functions =====
   public shared ({ caller }) func addInterviewAnalysis(question : Text, answer : Text, feedback : Text) : async () {
     _requireUserRole(caller);
 

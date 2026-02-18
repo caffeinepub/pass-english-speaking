@@ -89,10 +89,14 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface http_request_result {
-    status: bigint;
-    body: Uint8Array;
-    headers: Array<http_header>;
+export interface http_header {
+    value: string;
+    name: string;
+}
+export interface WordEntry {
+    meaning: string;
+    word: string;
+    savedAt: bigint;
 }
 export interface TestAttempt {
     completionTime: Time;
@@ -105,9 +109,18 @@ export interface TransformationOutput {
     headers: Array<http_header>;
 }
 export type Time = bigint;
+export interface StreakInfo {
+    lastCompletionDate: bigint;
+    currentStreak: bigint;
+}
 export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
+}
+export interface Badge {
+    name: string;
+    description: string;
+    dateAwarded: bigint;
 }
 export interface InterviewAnalysis {
     question: string;
@@ -118,9 +131,10 @@ export interface InterviewAnalysis {
 export interface UserProfile {
     name: string;
 }
-export interface http_header {
-    value: string;
-    name: string;
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
 }
 export enum UserRole {
     admin = "admin",
@@ -139,24 +153,32 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getCompletedDaysCount(): Promise<bigint>;
     getCourseProgress(user: Principal): Promise<[bigint, bigint]>;
+    getCurrentStreak(): Promise<bigint>;
     getDay1TestAttempts(user: Principal): Promise<Array<TestAttempt>>;
     getIndiaNews(): Promise<string>;
     getInterviewAnalysis(user: Principal): Promise<Array<InterviewAnalysis>>;
+    getLastStreakCompletionDate(): Promise<bigint>;
     getMyProgressReport(): Promise<Array<InterviewAnalysis>>;
     getNews(): Promise<string>;
     getNextLockedDay(user: Principal): Promise<bigint>;
     getUnlockedDaysCount(): Promise<bigint>;
+    getUserBadges(): Promise<Array<Badge>>;
     getUserHighScore(user: Principal): Promise<bigint | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getWordBank(): Promise<Array<WordEntry>>;
     handleScore(score: bigint): Promise<string>;
     hasUserPassedTest(day: bigint): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     isDayLocked(day: bigint): Promise<boolean>;
     isDayUnlocked(user: Principal, day: bigint): Promise<boolean>;
+    removeWord(word: string): Promise<void>;
     resetProgress(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    saveWord(word: string, meaning: string): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
     unlockDayForUser(user: Principal): Promise<void>;
+    updateStreak(hasCompletedToday: boolean): Promise<StreakInfo>;
+    updateStreakAndAward(hasCompletedTestToday: boolean): Promise<StreakInfo>;
 }
 import type { UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -321,6 +343,20 @@ export class Backend implements backendInterface {
             ];
         }
     }
+    async getCurrentStreak(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCurrentStreak();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCurrentStreak();
+            return result;
+        }
+    }
     async getDay1TestAttempts(arg0: Principal): Promise<Array<TestAttempt>> {
         if (this.processError) {
             try {
@@ -360,6 +396,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getInterviewAnalysis(arg0);
+            return result;
+        }
+    }
+    async getLastStreakCompletionDate(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLastStreakCompletionDate();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLastStreakCompletionDate();
             return result;
         }
     }
@@ -419,6 +469,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getUserBadges(): Promise<Array<Badge>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserBadges();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserBadges();
+            return result;
+        }
+    }
     async getUserHighScore(arg0: Principal): Promise<bigint | null> {
         if (this.processError) {
             try {
@@ -445,6 +509,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getWordBank(): Promise<Array<WordEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getWordBank();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getWordBank();
+            return result;
         }
     }
     async handleScore(arg0: bigint): Promise<string> {
@@ -517,6 +595,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async removeWord(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.removeWord(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.removeWord(arg0);
+            return result;
+        }
+    }
     async resetProgress(): Promise<void> {
         if (this.processError) {
             try {
@@ -545,6 +637,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async saveWord(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveWord(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.saveWord(arg0, arg1);
+            return result;
+        }
+    }
     async transform(arg0: TransformationInput): Promise<TransformationOutput> {
         if (this.processError) {
             try {
@@ -570,6 +676,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.unlockDayForUser(arg0);
+            return result;
+        }
+    }
+    async updateStreak(arg0: boolean): Promise<StreakInfo> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateStreak(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateStreak(arg0);
+            return result;
+        }
+    }
+    async updateStreakAndAward(arg0: boolean): Promise<StreakInfo> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateStreakAndAward(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateStreakAndAward(arg0);
             return result;
         }
     }

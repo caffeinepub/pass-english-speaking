@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Upload, FileText, Volume2, AlertCircle, CheckCircle2, Info } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Volume2, AlertCircle, Info, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { speakText, stopSpeaking } from '@/lib/tts/speakText';
@@ -44,6 +44,7 @@ export default function ProAIInterviewerPage() {
   const [interimTranscript, setInterimTranscript] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [sessionReport, setSessionReport] = useState<SessionReport | null>(null);
+  const [submitError, setSubmitError] = useState('');
 
   const { isListening, toggle: toggleListening } = useSpeechToText({
     onTranscript: (transcript, isFinal) => {
@@ -85,6 +86,18 @@ export default function ProAIInterviewerPage() {
           setImageExtractionFailed(true);
           toast.info('Could not extract text from image. Please use manual input below.');
         }
+      } else if (file.type === 'text/plain') {
+        // Read .txt file
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const content = event.target?.result as string;
+          setExtractedText(content || '');
+        };
+        reader.onerror = () => {
+          toast.error('Failed to read text file');
+        };
+        reader.readAsText(file);
+        return;
       }
 
       setExtractedText(text);
@@ -97,9 +110,9 @@ export default function ProAIInterviewerPage() {
   };
 
   const handleStartInterview = () => {
-    const infoToUse = extractedText || manualInfo;
-    if (!infoToUse.trim()) {
-      toast.error('Please upload a document or enter information manually');
+    const infoToUse = (extractedText || manualInfo).trim();
+    if (!infoToUse) {
+      toast.error('Please upload a document or enter information manually to generate content-based questions');
       return;
     }
 
@@ -110,6 +123,12 @@ export default function ProAIInterviewerPage() {
       extractionSuccess: true,
     };
     const generatedQuestions = generateQuestions(extractionResult, manualInfo, 'daf');
+    
+    if (generatedQuestions.length === 0) {
+      toast.error('Could not generate questions from the provided content. Please provide more detailed information.');
+      return;
+    }
+    
     setQuestions(generatedQuestions);
     setStep('review');
   };
@@ -136,8 +155,10 @@ export default function ProAIInterviewerPage() {
   };
 
   const handleSubmitAnswer = () => {
+    setSubmitError('');
+    
     if (!currentAnswer.trim()) {
-      toast.error('Please provide an answer');
+      setSubmitError('Please provide an answer before submitting');
       return;
     }
 
@@ -147,19 +168,39 @@ export default function ProAIInterviewerPage() {
     const feedback = coachAnswer(currentAnswer, currentQuestion);
     const metrics = computeMetrics(currentAnswer);
     
+    // Generate enhanced feedback with logic/clarity metrics
+    const enhancedFeedback = `Logic & Clarity: ${metrics.sentenceCount} sentences, ${metrics.fillerCount} fillers detected. ${feedback.correction} | Pronunciation: ${feedback.pronunciation} | Pro Tip: ${feedback.proTip}`;
+    
     const record: AnswerRecord = {
       question: currentQuestion,
       answer: currentAnswer,
-      feedback,
+      feedback: {
+        ...feedback,
+        correction: enhancedFeedback,
+      },
       metrics,
     };
     
     setAnswerRecords((prev) => [...prev, record]);
 
+    // Save to backend if authenticated
+    if (identity) {
+      addAnalysisMutation.mutate({
+        question: currentQuestion.text,
+        answer: currentAnswer,
+        feedback: enhancedFeedback,
+      }, {
+        onError: (error: any) => {
+          console.error('Failed to save answer analysis:', error);
+        }
+      });
+    }
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setCurrentAnswer('');
       setInterimTranscript('');
+      setSubmitError('');
       setTimeout(() => speakCurrentQuestion(), 500);
     } else {
       generateFinalReport([...answerRecords, record]);
@@ -173,22 +214,10 @@ export default function ProAIInterviewerPage() {
     setSessionReport(report);
     setStep('report');
 
-    // Save to backend if authenticated
     if (identity) {
-      try {
-        // Save each Q&A with feedback
-        for (const record of records) {
-          const feedbackText = `Correction: ${record.feedback.correction} | Pronunciation: ${record.feedback.pronunciation} | Pro Tip: ${record.feedback.proTip}`;
-          await addAnalysisMutation.mutateAsync({
-            question: record.question.text,
-            answer: record.answer,
-            feedback: feedbackText,
-          });
-        }
-        toast.success('Interview performance saved to Progress Report');
-      } catch (error: any) {
-        toast.error('Failed to save interview report: ' + (error.message || 'Unknown error'));
-      }
+      toast.success('Interview performance saved to Progress Report');
+    } else {
+      toast.info('Login required to save interview reports to Progress Report');
     }
   };
 
@@ -204,6 +233,7 @@ export default function ProAIInterviewerPage() {
     setCurrentAnswer('');
     setInterimTranscript('');
     setSessionReport(null);
+    setSubmitError('');
     stopSpeaking();
   };
 
@@ -221,7 +251,7 @@ export default function ProAIInterviewerPage() {
             Back to Home
           </Button>
           <h1 className="text-4xl font-bold text-foreground mb-2">
-            Interview Simulator
+            Personality Interview
           </h1>
           <p className="text-muted-foreground">
             Professional interview practice with voice interaction and critical feedback
@@ -254,19 +284,19 @@ export default function ProAIInterviewerPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="w-6 h-6 text-primary" />
-                Upload Document (Optional)
+                Upload Document
               </CardTitle>
               <CardDescription>
-                Upload your resume/PDF or image, or enter information manually
+                Upload your resume/PDF, image, or text file, or enter information manually
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="file-upload">Upload PDF or Image</Label>
+                <Label htmlFor="file-upload">Upload PDF, Image, or Text File</Label>
                 <Input
                   id="file-upload"
                   type="file"
-                  accept=".pdf,image/*"
+                  accept=".pdf,image/*,.txt,text/plain"
                   onChange={handleFileUpload}
                 />
                 {uploadedFile && (
@@ -387,18 +417,22 @@ export default function ProAIInterviewerPage() {
                     className="flex-1"
                   >
                     <Volume2 className="w-4 h-4 mr-2" />
-                    {isSpeaking ? 'Speaking...' : 'Speak Question'}
+                    {isSpeaking ? 'Speaking...' : 'Hear Question'}
                   </Button>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="answer-input">Your Answer</Label>
+                  <Label htmlFor="answer-text">Your Answer</Label>
                   <Textarea
-                    id="answer-input"
-                    placeholder="Type your answer or use the microphone below..."
+                    id="answer-text"
+                    placeholder="Type your answer here or use the microphone below..."
                     value={currentAnswer}
-                    onChange={(e) => setCurrentAnswer(e.target.value)}
+                    onChange={(e) => {
+                      setCurrentAnswer(e.target.value);
+                      setSubmitError('');
+                    }}
                     rows={6}
+                    className="resize-none"
                   />
                   {interimTranscript && (
                     <p className="text-sm text-muted-foreground italic">
@@ -407,32 +441,28 @@ export default function ProAIInterviewerPage() {
                   )}
                 </div>
 
+                {submitError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{submitError}</AlertDescription>
+                  </Alert>
+                )}
+
                 <Button
                   onClick={handleSubmitAnswer}
-                  disabled={!currentAnswer.trim()}
                   className="w-full"
                   size="lg"
                 >
-                  Submit Answer
+                  <Send className="w-4 h-4 mr-2" />
+                  Send Answer
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Live Speech Bubble */}
-            {isListening && (
-              <Card className="border-2 border-primary bg-primary/5 animate-pulse">
-                <CardContent className="py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                    <p className="text-sm font-medium text-primary">Listening...</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <BottomMicControl
+              isActive={isListening}
+              onToggle={toggleListening}
+            />
           </div>
         )}
 
@@ -440,75 +470,60 @@ export default function ProAIInterviewerPage() {
         {step === 'report' && sessionReport && (
           <Card className="border-2">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="w-6 h-6 text-green-500" />
-                Interview Complete
-              </CardTitle>
+              <CardTitle className="text-2xl">Interview Complete!</CardTitle>
               <CardDescription>
                 Your performance analysis and feedback
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="p-6 bg-primary/5 rounded-lg border-2 border-primary/20">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-muted-foreground mb-2">Overall Score</p>
-                  <p className="text-5xl font-bold text-primary">{sessionReport.finalScore}/10</p>
-                </div>
+              <div className="p-6 bg-primary/10 rounded-lg border-2 border-primary/20">
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Overall Score</p>
+                <p className="text-5xl font-bold text-primary">{sessionReport.finalScore}/10</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Body Language & Tone</h3>
-                  <p className="text-sm text-muted-foreground">{sessionReport.bodyLanguage}</p>
+                  <h3 className="font-semibold text-lg mb-2">Body Language & Voice Tone</h3>
+                  <p className="text-muted-foreground">{sessionReport.bodyLanguage}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Logical Consistency</h3>
-                  <p className="text-sm text-muted-foreground">{sessionReport.logicalConsistency}</p>
+                  <h3 className="font-semibold text-lg mb-2">Logical Consistency</h3>
+                  <p className="text-muted-foreground">{sessionReport.logicalConsistency}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Areas for Improvement</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{sessionReport.areasOfImprovement}</p>
+                  <h3 className="font-semibold text-lg mb-2">Areas for Improvement</h3>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{sessionReport.areasOfImprovement}</p>
                 </div>
               </div>
 
-              {identity && (
-                <Alert>
-                  <CheckCircle2 className="h-4 w-4" />
-                  <AlertDescription>
-                    Your interview performance has been saved to your Progress Report.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {!identity && (
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Login to save your interview performance to Progress Report.
-                  </AlertDescription>
-                </Alert>
-              )}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">Question-by-Question Review</h3>
+                {answerRecords.map((record, idx) => (
+                  <Card key={idx} className="p-4 bg-accent/5">
+                    <div className="space-y-2">
+                      <p className="font-semibold text-sm">Q{idx + 1}: {record.question.text}</p>
+                      <p className="text-sm text-muted-foreground">A: {record.answer}</p>
+                      <div className="pt-2 border-t">
+                        <p className="text-xs font-semibold text-primary mb-1">Feedback:</p>
+                        <p className="text-xs text-muted-foreground">{record.feedback.correction}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
 
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => navigate({ to: '/my-progress' })} className="flex-1">
-                  View Progress
+                <Button variant="outline" onClick={handleReset} className="flex-1">
+                  Start New Interview
                 </Button>
-                <Button onClick={handleReset} className="flex-1">
-                  New Interview
+                <Button onClick={() => navigate({ to: '/my-progress' })} className="flex-1">
+                  View Progress Report
                 </Button>
               </div>
             </CardContent>
           </Card>
-        )}
-
-        {/* Bottom Mic Control */}
-        {step === 'interview' && (
-          <BottomMicControl
-            isActive={isListening}
-            onToggle={toggleListening}
-          />
         )}
       </div>
     </div>

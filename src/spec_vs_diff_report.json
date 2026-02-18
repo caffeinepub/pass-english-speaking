@@ -1,87 +1,56 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T10:17:43.274Z",
-  "summary": "Core Day 1 testing system updates were added (new day-wise test generator, essay scoring utility, frontend Day1TestPage changes, backend score handling with unlock + migration). However, several acceptance-critical UI/feedback requirements are not fully met: the Day 1 test’s per-question topic label format is not evidenced, question generation appears hard-coded rather than derived from Day 1 lesson content, and the required exact pass/fail messages are not shown/returned exactly (backend message differs and frontend result UI uses different copy).",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Render the Day 1 test as a scrollable list where every question includes a visible topic label in the format \"[Topic: …]\".",
-      "reason": "While the generator includes a `topic` field, the provided Day1TestPage diff excerpt does not show any rendering of a topic label, nor the required bracketed format \"[Topic: …]\" for each question.",
-      "evidence": [
-        "frontend/src/pages/Day1TestPage.tsx",
-        "frontend/src/lib/course/dayWiseTestGenerator.ts"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Generate questions day-wise ONLY from topics taught in Button 3 for that day, driven by day-specific lesson content (not an unrelated hard-coded bank).",
-      "reason": "The generator imports `day1LessonContent` but the excerpt shows a large hard-coded question array (e.g., many \"Is/Am/Are\" items) rather than deriving questions from the lesson content structure. Evidence that vocabulary/essay topics are sourced strictly from Button 3 Day 1 content is not shown in the diff summary.",
-      "evidence": [
-        "frontend/src/lib/course/dayWiseTestGenerator.ts"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Use exact pass/fail feedback strings and 200-mark rules: if score < 50 show exactly \"Fail! Please review Day [Current Day] stories again.\"; if score >= 150 show exactly \"Success! Day [Next Day] is now unlocked.\"; total presented out of 200.",
-      "reason": "Backend success message includes extra text: \"Success! Day 2 is now unlocked. Please continue.\" which is not the exact required string. Frontend result UI excerpt shows headings like \"Test Passed\" rather than the exact required messages. The diff excerpt also does not show the UI presenting the score explicitly as \"/200\".",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/pages/Day1TestPage.tsx"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Update Button 4 UI/result copy to remove perfect-score rules and reflect new >=150, <50 messaging and an appropriate middle-state.",
-      "reason": "Home page Button 4 description is updated, but the Day1TestPage result UI excerpt still uses \"Test Passed\" (and likely other non-specified result copy) instead of the required exact strings/behavior described in REQ-4/REQ-6.",
-      "evidence": [
-        "frontend/src/pages/HomePage.tsx",
-        "frontend/src/pages/Day1TestPage.tsx"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-18T13:10:31.939Z",
+  "summary": "The diff implements the requested English Learning Companion persona, adds Hindi/Hinglish detection with mixed-language responses, and introduces context-aware reply strategies to reduce repetitive “tell me more” style replies across modes. However, the diff summary also indicates multiple unrelated News/Router/styling/backend-type changes that were not requested in the BuildRequest.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Broad News Hub / region news behavior changes (region ordering, demo/backend mode toggles, API signature changes, parser behavior changes) unrelated to configuring Button 4 day-wise testing.",
-      "reason": "BuildRequest is specific to Button 4 testing system changes and explicitly lists constraints/non-goals that do not include modifying the news system. The diff summary reports multiple news-related changes beyond the requested scope.",
+      "description": "News Hub and regional news functionality changes (regions config/order, parsing behavior, demo vs backend data source, additional 'Paste Link' section, TTS-enabled news items, query enabling changes).",
+      "reason": "The BuildRequest is exclusively about fixing repetitive chat replies and adding an English Learning Companion persona with Hindi/Hinglish support; it does not request any News feature additions or modifications.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/hooks/useRegionNews.ts",
-        "frontend/src/lib/news/regionConfig.ts",
-        "frontend/src/lib/news/parseNews.ts",
-        "frontend/src/config/newsDataSource.ts",
-        "frontend/src/hooks/useUSNews.ts",
-        "frontend/src/components/news/TopUSHeadlinesSection.tsx"
+        "frontend-file-summaries.txt (summaries for frontend/src/pages/NewsPage.tsx, frontend/src/components/news/NewsSection.tsx, frontend/src/components/news/NewsItemRow.tsx, frontend/src/hooks/useQueries.ts, frontend/src/hooks/useRegionNews.ts, frontend/src/lib/news/regionConfig.ts, frontend/src/lib/news/parseNews.ts, frontend/src/config/newsDataSource.ts, frontend/src/lib/news/demoNewsData.ts, frontend/src/hooks/useUSNews.ts, frontend/src/components/news/TopUSHeadlinesSection.tsx)"
       ]
     },
     {
-      "description": "AI Friend chat feature enhancements (offline tutor replies, personality mode switcher, inline grammar corrections) not requested.",
-      "reason": "BuildRequest is limited to Button 4 day-wise testing, scoring, unlock rules, and related copy; it does not request chat feature upgrades.",
+      "description": "Router/navigation/homepage adjustments unrelated to chat (route path fixes, additional route definitions, navigation buttons).",
+      "reason": "Not requested; BuildRequest scope is the chat assistant behavior/persona only.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/pages/FriendChatPage.tsx",
-        "frontend/src/lib/friendChat/types.ts"
+        "frontend-file-summaries.txt (summaries for frontend/src/App.tsx, frontend/src/pages/HomePage.tsx)"
       ]
     },
     {
-      "description": "Global styling/theme expansion (glassmorphism/neon theme, Tailwind tokens/animations) not requested.",
-      "reason": "BuildRequest does not request a redesign or new theme; these changes are outside the Button 4 testing requirements.",
+      "description": "Global styling/theme changes (fonts, OKLCH color system, glassmorphism utilities, neon effects, premium badge/streak styling; Tailwind config changes).",
+      "reason": "Not requested; BuildRequest does not ask for styling/theme updates.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/index.css",
-        "frontend/tailwind.config.js"
+        "frontend-file-summaries.txt (summaries for frontend/src/index.css, frontend/tailwind.config.js)"
+      ]
+    },
+    {
+      "description": "Backend canister TypeScript definition changes for news methods (parameter changes to getNews/forceRefreshNews).",
+      "reason": "Not requested; BuildRequest explicitly focuses on frontend chat behavior and includes constraints/non-goals unrelated to news backend typing changes.",
+      "evidence": [
+        "frontend-file-summaries.txt (summary for frontend/src/backend.d.ts)"
+      ]
+    },
+    {
+      "description": "Daily reminder banner / in-app notifications and an 'OpenAI request blocker' initialization in the main app.",
+      "reason": "Not requested by the BuildRequest; outside chat persona/reply behavior scope.",
+      "evidence": [
+        "frontend-file-summaries.txt (summary for frontend/src/App.tsx)"
       ]
     }
   ],
   "confidence": 0.72,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/lib/course/dayWiseTestGenerator.ts",
-    "frontend/src/lib/course/essayScoring.ts",
-    "frontend/src/pages/Day1TestPage.tsx",
-    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/lib/friendTutor/analyzeUserMessage.ts",
+    "frontend/src/lib/friendTutor/generatePowerTutorReply.ts",
+    "frontend/src/lib/friendTutor/generateTutorReply.ts",
+    "frontend/src/lib/friendTutor/languageDetection.ts",
+    "frontend/src/lib/friendTutor/persona.ts",
+    "frontend/src/lib/friendTutor/replyStrategy.ts",
+    "frontend/src/pages/FriendChatPage.tsx",
     "project_state.json"
   ]
 }

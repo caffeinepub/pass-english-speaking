@@ -9,6 +9,8 @@ import { useGetCompletedDaysCount, useGetUnlockedDaysCount } from '@/hooks/useCo
 import { useGetInterviewReports } from '@/hooks/useInterviewReports';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
 import { MistakeTracker } from '@/components/progress/MistakeTracker';
+import { DailyStreakCard } from '@/components/progress/DailyStreakCard';
+import { BadgeGallery } from '@/components/progress/BadgeGallery';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function MyProgressPage() {
@@ -42,6 +44,14 @@ export default function MyProgressPage() {
             Track your 60-day English learning journey
           </p>
         </header>
+
+        {/* Streak and Badges Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <DailyStreakCard />
+          <div className="lg:col-span-2">
+            <BadgeGallery />
+          </div>
+        </div>
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -120,7 +130,7 @@ export default function MyProgressPage() {
               Interview Reports
             </CardTitle>
             <CardDescription>
-              Your saved interview performance analyses
+              Your saved Personality Interview performance analyses with logic and clarity metrics
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -157,14 +167,14 @@ export default function MyProgressPage() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  No interview reports yet. Complete an interview session to see your performance analysis here.
+                  No interview reports yet. Complete a Personality Interview session to see your performance analysis here.
                 </AlertDescription>
               </Alert>
             )}
 
             {identity && !loadingReports && !reportsError && interviewReports.length > 0 && (
               <div className="space-y-4">
-                {interviewReports.slice(-5).reverse().map((report, idx) => (
+                {interviewReports.slice(-10).reverse().map((report, idx) => (
                   <Card key={idx} className="p-4 bg-accent/5">
                     <div className="space-y-3">
                       <div>
@@ -175,15 +185,15 @@ export default function MyProgressPage() {
                         <p className="text-sm text-muted-foreground mb-2">A: {report.answer}</p>
                       </div>
                       <div className="pt-2 border-t">
-                        <p className="text-xs font-semibold text-primary mb-1">Feedback:</p>
-                        <p className="text-xs text-muted-foreground">{report.feedback}</p>
+                        <p className="text-xs font-semibold text-primary mb-1">Analysis & Feedback:</p>
+                        <p className="text-xs text-muted-foreground whitespace-pre-wrap">{report.feedback}</p>
                       </div>
                     </div>
                   </Card>
                 ))}
-                {interviewReports.length > 5 && (
+                {interviewReports.length > 10 && (
                   <p className="text-xs text-center text-muted-foreground">
-                    Showing most recent 5 of {interviewReports.length} reports
+                    Showing most recent 10 of {interviewReports.length} reports
                   </p>
                 )}
               </div>

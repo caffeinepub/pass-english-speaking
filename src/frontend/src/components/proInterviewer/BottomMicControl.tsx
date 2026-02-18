@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Upload } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 
 interface BottomMicControlProps {
   isActive: boolean;
@@ -23,10 +23,7 @@ export function BottomMicControl({ isActive, onToggle }: BottomMicControlProps) 
             {isActive ? (
               <MicOff className="w-8 h-8 text-white" />
             ) : (
-              <>
-                <Mic className="w-8 h-8 text-white" />
-                <Upload className="w-4 h-4 text-white absolute -top-1 -right-1" />
-              </>
+              <Mic className="w-8 h-8 text-white" />
             )}
           </div>
           {isActive && (

@@ -1,103 +1,134 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Day-wise 200-Mark Gate (Day 1) list-based test with essay + updated passing rules",
+  "title": "English Learning Companion: non-repetitive, context-aware chat with Hindi/Hinglish support",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Render Day 1 test as a strict but fair, scrollable list of in-place questions with visible topic labels.",
+      "summary": "Remove repetitive fallback chat templates and ensure short messages/questions trigger varied, useful replies instead of generic “tell me more” prompts.",
       "acceptanceCriteria": [
-        "The Day 1 test page shows all questions in a list layout with each question preceded by a topic label like \"[Topic: Grammar - Is/Am/Are]\".",
-        "The user can answer questions in-place within the list and submit the test from the bottom of the page."
+        "In Friend Chat, sending multiple short messages (e.g., “Ok”, “Nice”, “Hmm”, “Why?”) results in varied, non-repetitive responses that are not all requests to “tell me more”.",
+        "Teacher mode responses are actionable/helpful (e.g., corrections, suggested phrasing, a clarifying question) rather than generic prompts.",
+        "The exact phrase “Cool! 😎 Can you tell me more about that?” is no longer used as the default catch-all for short messages."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Day1TestPage.tsx",
+          "path": "frontend/src/lib/friendTutor/generateTutorReply.ts",
           "operation": "modify",
-          "description": "Replace the current one-question-per-page flow with a scrollable list layout that renders all generated questions at once, each preceded by a visible label formatted exactly like \"[Topic: …]\". Keep answers editable in-place and provide a single submit action at the bottom. Use existing shadcn-ui components (e.g., Card, Button, RadioGroup, Label) to compose the UI; verify the component's usage instructions before implementing."
+          "description": "Replace generic question/short-message fallback templates with context-aware reply strategies (e.g., direct attempt at answering questions, topic-grounded follow-up prompts, and structured teacher responses) and remove the hardcoded repetitive phrase used for short messages."
+        },
+        {
+          "path": "frontend/src/pages/FriendChatPage.tsx",
+          "operation": "modify",
+          "description": "Update chat reply selection so different personality modes produce different generators/behaviors (reducing repetition across messages) and adjust the initial tutor message copy to avoid reinforcing repetitive patterns."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Generate Button 4 Day 1 test questions only from that day’s Button 3 lesson topics (Day 1 learning hub content).",
+      "summary": "Update chat persona instructions so the assistant consistently identifies as an English Learning Companion and prioritizes English-learning help across modes.",
       "acceptanceCriteria": [
-        "For Day 1, questions are generated only from Day 1 learning content topics (e.g., grammar Is/Am/Are and Day 1 vocabulary/essay content), and do not include unrelated topics (e.g., no A/An/The questions if not taught in Day 1 lessons).",
-        "Question generation is driven by day-specific lesson content rather than a hard-coded unrelated question bank."
+        "The assistant’s self-description for “who are you / what are you” aligns with “English Learning Companion” (not generic “AI Friend/Chat Assistant”).",
+        "Across Friend/Teacher/AI modes, replies consistently focus on English learning (e.g., improved sentence suggestions, grammar tips, vocabulary alternatives) when applicable."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/course/dayWiseTestGenerator.ts",
+          "path": "frontend/src/lib/friendTutor/persona.ts",
           "operation": "create",
-          "description": "Create a day-wise test generator that derives Day 1 questions strictly from frontend/src/lib/course/day1LessonContent.ts topics (Grammar: Is/Am/Are; Day 1 vocabulary words; Day 1 essay topic). Ensure the generated question objects include a topic string used for the \"[Topic: …]\" label and that the generated set totals 180 non-essay marks (to combine with the 20-mark essay for a 200-mark test)."
+          "description": "Add centralized persona/system-style instruction constants for the “English Learning Companion”, including per-mode tone guidance (Friend vs Teacher vs AI) that prioritizes English-learning outcomes over filler conversation."
         },
         {
-          "path": "frontend/src/pages/Day1TestPage.tsx",
+          "path": "frontend/src/lib/friendTutor/generateTutorReply.ts",
           "operation": "modify",
-          "description": "Switch Day 1 test data source from the existing hard-coded day1TestQuestions bank to the new day-wise generator so Day 1 includes only Day 1-taught topics. Ensure no A/An/The or other untaught topics appear. Use existing shadcn-ui components for rendering; verify the component's usage instructions before implementing."
+          "description": "Use the new English Learning Companion persona guidance for self-identity replies (e.g., “who are you”) and for mode-specific prioritization (corrections, examples, vocabulary upgrades) rather than generic chat-assistant phrasing."
         },
         {
-          "path": "frontend/src/lib/course/day1TestQuestions.ts",
+          "path": "frontend/src/lib/friendTutor/generatePowerTutorReply.ts",
           "operation": "modify",
-          "description": "Remove or clearly de-scope any Day 1 questions that cover untaught topics (e.g., A/An/The) so the repository no longer contains a misleading Day 1 test bank that violates day-wise rules. If this file remains for reference, align it strictly to Day 1 taught topics or make it an internal-only helper used by the day-wise generator."
+          "description": "Align Power/AI-mode identity text and coaching style with the “English Learning Companion” persona and ensure responses consistently include English-learning help when applicable."
+        },
+        {
+          "path": "frontend/src/pages/FriendChatPage.tsx",
+          "operation": "modify",
+          "description": "Update visible labels/intro text in the Friend Chat page so the assistant is presented as an English Learning Companion (user-facing UI text stays English)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add an Essay Writing section at the end of the Day 1 test with a large text area and score it as exactly 20 marks.",
+      "summary": "Improve context awareness so replies reference the user’s message and provide a specific helpful next step (answer/correction/example/targeted follow-up).",
       "acceptanceCriteria": [
-        "The test page ends with an \"Essay Writing\" section containing a large text area input.",
-        "The final test score calculation includes an essay component worth exactly 20 marks."
+        "When the user asks a direct question (message contains “?”), the assistant attempts a direct helpful response first (or asks a targeted clarifying question tied to the user’s topic), rather than replying with a generic “tell me more” prompt.",
+        "When the user provides a short statement (<= 3 words), the assistant responds with a helpful expansion prompt that uses the user’s topic (e.g., asking for one concrete detail, offering an example sentence), not a generic filler line.",
+        "At least one part of the assistant reply (in all modes) is clearly grounded in the user’s message (e.g., repeats a key noun/verb, proposes a corrected version of what the user wrote, or gives a relevant example)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/course/essayScoring.ts",
+          "path": "frontend/src/lib/friendTutor/replyStrategy.ts",
           "operation": "create",
-          "description": "Implement a deterministic, on-device essay scoring helper that produces an integer score from 0 to 20 (exactly) using local checks (e.g., grammar/error heuristics based on existing utilities) and returns a breakdown suitable for UI display if needed. No external API/LLM calls."
+          "description": "Add lightweight local helpers for context grounding (e.g., extracting a simple topic keyword/phrase from the user message, detecting whether it’s a direct question, and choosing an appropriate next-step action such as answer/correction/example/targeted follow-up)."
         },
         {
-          "path": "frontend/src/pages/Day1TestPage.tsx",
+          "path": "frontend/src/lib/friendTutor/generateTutorReply.ts",
           "operation": "modify",
-          "description": "Append an \"Essay Writing\" section after the last question with a large, clean text area input. Include the essay score (0–20) as a fixed 20-mark component of the final 200 mark total. Compose UI using existing components where available (e.g., Card, Label, Button, and a Textarea component if present); verify the component's usage instructions before implementing."
+          "description": "Integrate the new context-grounding helpers to ensure every reply includes at least one message-grounded element (topic echo, corrected rewrite, or relevant example) and that questions are handled with a direct attempt or targeted clarification."
+        },
+        {
+          "path": "frontend/src/lib/friendTutor/analyzeUserMessage.ts",
+          "operation": "modify",
+          "description": "Extend local analysis to expose minimal signals needed for context-aware replies (e.g., question/short-message flags or a basic extracted topic) so reply generation can reliably ground responses in the user’s content."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Update total scoring to exactly 200 and apply new pass/fail feedback rules (pass >=150; special fail message for <50) with English-only UI text.",
+      "summary": "Detect Hindi/Hinglish input and respond in a blended Hindi+English style while still supporting English learning goals.",
       "acceptanceCriteria": [
-        "The computed total score is always presented out of 200.",
-        "Submitting a score >= 150 triggers an unlock of the next day in persisted course progress.",
-        "If score < 50, the results UI shows exactly: \"Fail! Please review Day 1 stories again.\" (for Day 1).",
-        "If score >= 150, the results UI shows exactly: \"Success! Day 2 is now unlocked.\" (for Day 1).",
-        "No non-English or emoji content is used in these feedback strings."
+        "If the user message contains Devanagari text and/or common Hinglish patterns (e.g., “Tum kaun ho”, “Mujhe help chahiye”), the assistant responds with a blended Hindi+English explanation (not English-only).",
+        "For the specific example “Tum kaun ho”, the assistant answers who it is in mixed Hindi+English and includes an English-learning element (e.g., giving the English translation and a natural English alternative like “Who are you?” / “Who are you, exactly?”).",
+        "If the user message is clearly English-only, the assistant responds in English (no unnecessary Hindi mixing)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Day1TestPage.tsx",
+          "path": "frontend/src/lib/friendTutor/languageDetection.ts",
+          "operation": "create",
+          "description": "Add local Hindi/Hinglish detection utilities (e.g., Devanagari detection plus common romanized Hindi patterns) to decide when the assistant should use a blended Hindi+English teaching style."
+        },
+        {
+          "path": "frontend/src/lib/friendTutor/generateTutorReply.ts",
           "operation": "modify",
-          "description": "Update scoring so the final computed score is always out of 200 (180 marks from generated questions + exactly 20 from the essay). Update results UI logic: if total score < 50, display exactly \"Fail! Please review Day 1 stories again.\"; if total score >= 150, display exactly \"Success! Day 2 is now unlocked.\"; otherwise show an English-only neutral message indicating the user did not unlock the next day yet. Remove emoji and perfect-score-only logic, and ensure the submitted score sent via useSubmitTestScore() is the computed 0–200 total."
+          "description": "Incorporate Hindi/Hinglish detection to switch response style to mixed Hindi+English only when triggered, including a dedicated handling for “Tum kaun ho” that provides identity + English translation + a natural English alternative."
+        },
+        {
+          "path": "frontend/src/lib/friendTutor/generatePowerTutorReply.ts",
+          "operation": "modify",
+          "description": "Apply the same Hindi/Hinglish detection behavior in Power/AI-mode replies so language switching remains consistent across modes when the user writes in Hindi/Hinglish."
         }
       ]
     },
     {
-      "id": "REQ-6",
-      "summary": "Update Button 4 UI copy to reflect new passing criteria (150/200) and updated feedback behavior.",
+      "id": "REQ-5",
+      "summary": "Make Friend vs Teacher personality modes clearly distinct in tone and structure while avoiding repetitive templates across messages.",
       "acceptanceCriteria": [
-        "Home page Button 4 description and the Day 1 test page header/description no longer claim 200/200 is required, and instead reflect 150/200 passing rules.",
-        "The results screen no longer shows \"Perfect Score!\" / \"Test Failed\" logic tied to 200/200; it reflects pass/fail based on >=150, <50 messaging, and an appropriate non-pass/non-<50 state."
+        "Friend mode replies include light humor/playfulness without becoming repetitive, while still staying focused on English practice.",
+        "Teacher mode replies follow a consistent helpful structure (e.g., brief answer or correction + short explanation + 1 example), rather than generic conversation fillers.",
+        "Switching between Friend and Teacher for the same user message produces noticeably different tone and structure."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/HomePage.tsx",
+          "path": "frontend/src/lib/friendTutor/persona.ts",
           "operation": "modify",
-          "description": "Update the Button 4 (\"The 200-Mark Gate\") description copy to reflect the new passing criteria: score 150/200 (not 200/200) to unlock the next day. Ensure English-only wording and no emoji."
+          "description": "Define distinct per-mode style rules: Friend mode (light, playful humor + quick practice prompt) vs Teacher mode (structured correction/explanation/example) while keeping the shared “English Learning Companion” identity."
         },
         {
-          "path": "frontend/src/pages/Day1TestPage.tsx",
+          "path": "frontend/src/lib/friendTutor/generateTutorReply.ts",
           "operation": "modify",
-          "description": "Update the Day 1 test header/description and results headings so they no longer imply a perfect-score requirement. Ensure displayed guidance reflects pass >= 150/200, the <50 fail instruction message rule, and English-only user-facing text."
+          "description": "Refactor mode handling so Friend mode produces playful, varied practice-focused replies and Teacher mode produces a consistent structured teaching response (correction/suggestion + short explanation + example + targeted question), minimizing reuse of the same templates across turns."
+        },
+        {
+          "path": "frontend/src/pages/FriendChatPage.tsx",
+          "operation": "modify",
+          "description": "Ensure mode switching in the UI results in clearly different reply behavior for the same input (Friend vs Teacher), while keeping all UI strings added/modified in English."
         }
       ]
     }

@@ -21,7 +21,7 @@ export default function HomePage() {
       label: 'AI Friend',
       icon: MessageCircle,
       description: 'Voice/text chat interface for casual English conversation',
-      onClick: () => navigate({ to: '/chat-with-friend' }),
+      onClick: () => navigate({ to: '/friend-chat' }),
       gradient: 'from-emerald-500 to-teal-500',
     },
     {
@@ -29,7 +29,7 @@ export default function HomePage() {
       label: '60-Day Course',
       icon: BookOpen,
       description: 'The Daily Classroom - Grammar, Vocabulary, and Essay Topics',
-      onClick: () => navigate({ to: '/day1-learn' }),
+      onClick: () => navigate({ to: '/day1-learning' }),
       gradient: 'from-orange-500 to-amber-500',
     },
     {
@@ -50,7 +50,7 @@ export default function HomePage() {
     },
     {
       id: 'interview',
-      label: 'Interview',
+      label: 'Personality Interview',
       icon: Briefcase,
       description: 'Professional AI-powered interview simulator with voice interaction',
       onClick: () => navigate({ to: '/pro-ai-interviewer' }),

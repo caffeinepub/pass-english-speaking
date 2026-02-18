@@ -26,6 +26,16 @@ export const InterviewAnalysis = IDL.Record({
   'answer' : IDL.Text,
   'timestamp' : Time,
 });
+export const Badge = IDL.Record({
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+  'dateAwarded' : IDL.Nat,
+});
+export const WordEntry = IDL.Record({
+  'meaning' : IDL.Text,
+  'word' : IDL.Text,
+  'savedAt' : IDL.Nat,
+});
 export const http_header = IDL.Record({
   'value' : IDL.Text,
   'name' : IDL.Text,
@@ -44,6 +54,10 @@ export const TransformationOutput = IDL.Record({
   'body' : IDL.Vec(IDL.Nat8),
   'headers' : IDL.Vec(http_header),
 });
+export const StreakInfo = IDL.Record({
+  'lastCompletionDate' : IDL.Nat,
+  'currentStreak' : IDL.Nat,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -61,6 +75,7 @@ export const idlService = IDL.Service({
       [IDL.Nat, IDL.Nat],
       ['query'],
     ),
+  'getCurrentStreak' : IDL.Func([], [IDL.Nat], ['query']),
   'getDay1TestAttempts' : IDL.Func(
       [IDL.Principal],
       [IDL.Vec(TestAttempt)],
@@ -72,29 +87,36 @@ export const idlService = IDL.Service({
       [IDL.Vec(InterviewAnalysis)],
       ['query'],
     ),
+  'getLastStreakCompletionDate' : IDL.Func([], [IDL.Nat], ['query']),
   'getMyProgressReport' : IDL.Func([], [IDL.Vec(InterviewAnalysis)], ['query']),
   'getNews' : IDL.Func([], [IDL.Text], []),
   'getNextLockedDay' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
   'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
+  'getUserBadges' : IDL.Func([], [IDL.Vec(Badge)], ['query']),
   'getUserHighScore' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'getWordBank' : IDL.Func([], [IDL.Vec(WordEntry)], ['query']),
   'handleScore' : IDL.Func([IDL.Nat], [IDL.Text], []),
   'hasUserPassedTest' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isDayLocked' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
   'isDayUnlocked' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], ['query']),
+  'removeWord' : IDL.Func([IDL.Text], [], []),
   'resetProgress' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'saveWord' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'transform' : IDL.Func(
       [TransformationInput],
       [TransformationOutput],
       ['query'],
     ),
   'unlockDayForUser' : IDL.Func([IDL.Principal], [], []),
+  'updateStreak' : IDL.Func([IDL.Bool], [StreakInfo], []),
+  'updateStreakAndAward' : IDL.Func([IDL.Bool], [StreakInfo], []),
 });
 
 export const idlInitArgs = [];
@@ -118,6 +140,16 @@ export const idlFactory = ({ IDL }) => {
     'answer' : IDL.Text,
     'timestamp' : Time,
   });
+  const Badge = IDL.Record({
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'dateAwarded' : IDL.Nat,
+  });
+  const WordEntry = IDL.Record({
+    'meaning' : IDL.Text,
+    'word' : IDL.Text,
+    'savedAt' : IDL.Nat,
+  });
   const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const http_request_result = IDL.Record({
     'status' : IDL.Nat,
@@ -132,6 +164,10 @@ export const idlFactory = ({ IDL }) => {
     'status' : IDL.Nat,
     'body' : IDL.Vec(IDL.Nat8),
     'headers' : IDL.Vec(http_header),
+  });
+  const StreakInfo = IDL.Record({
+    'lastCompletionDate' : IDL.Nat,
+    'currentStreak' : IDL.Nat,
   });
   
   return IDL.Service({
@@ -150,6 +186,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat, IDL.Nat],
         ['query'],
       ),
+    'getCurrentStreak' : IDL.Func([], [IDL.Nat], ['query']),
     'getDay1TestAttempts' : IDL.Func(
         [IDL.Principal],
         [IDL.Vec(TestAttempt)],
@@ -161,6 +198,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(InterviewAnalysis)],
         ['query'],
       ),
+    'getLastStreakCompletionDate' : IDL.Func([], [IDL.Nat], ['query']),
     'getMyProgressReport' : IDL.Func(
         [],
         [IDL.Vec(InterviewAnalysis)],
@@ -169,6 +207,7 @@ export const idlFactory = ({ IDL }) => {
     'getNews' : IDL.Func([], [IDL.Text], []),
     'getNextLockedDay' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'getUnlockedDaysCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'getUserBadges' : IDL.Func([], [IDL.Vec(Badge)], ['query']),
     'getUserHighScore' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(IDL.Nat)],
@@ -179,19 +218,24 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'getWordBank' : IDL.Func([], [IDL.Vec(WordEntry)], ['query']),
     'handleScore' : IDL.Func([IDL.Nat], [IDL.Text], []),
     'hasUserPassedTest' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isDayLocked' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
     'isDayUnlocked' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], ['query']),
+    'removeWord' : IDL.Func([IDL.Text], [], []),
     'resetProgress' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'saveWord' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'transform' : IDL.Func(
         [TransformationInput],
         [TransformationOutput],
         ['query'],
       ),
     'unlockDayForUser' : IDL.Func([IDL.Principal], [], []),
+    'updateStreak' : IDL.Func([IDL.Bool], [StreakInfo], []),
+    'updateStreakAndAward' : IDL.Func([IDL.Bool], [StreakInfo], []),
   });
 };
 

@@ -1,48 +1,55 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Configure Button 4 as a strict but fair Testing System with day-wise topic-based question generation, labeled questions, an essay section, scoring/passing rules to unlock next day, and pass/fail feedback messaging.",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "summary": "Adjust Gemini-based assistant to behave as an English Learning Companion with improved context awareness, Hindi/Hinglish support, and distinct Friend/Teacher modes while fixing repetitive responses.",
+  "architectural_notes": [
+    "Define/maintain system prompt: 'English Learning Companion'.",
+    "Support mode-specific prompting/response style (Friend vs Teacher) to avoid repetitive templates.",
+    "Add language detection (Hindi/Hinglish vs English) and choose response language mix accordingly.",
+    "Add response-quality guardrails to prevent repeating the same generic line across turns."
+  ],
+  "known_issues": [
+    "Gemini assistant is repeating the phrase 'Cool! Can you tell me more' for every message."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-day-1-test-button-4-route-day1-test-to-render-a-strict-but-fair-test-as-a-clear-scrollable-list-of-questions-not-one-question-per-page-where-every-question-includes-a-visible-topic-label-in-the-format-topic-e-g-topic-grammar-is-am-are",
-      "title": "Update the Day 1 test (Button 4 / route \"/day1-test\") to render a strict but fair test as a clear, scrollable list of questions (not one-question-per-page), where every question includes a visible topic label in the format \"[Topic: …]\" (e.g., \"[Topic: Grammar - Is/Am/Are]\").",
+      "id": "feature-eliminate-the-repetitive-reply-pattern-in-the-ai-friend-teacher-chat-so-the-assistant-does-not-keep-responding-with-variations-of-cool-can-you-tell-me-more-for-most-user-messages-especially-short-messages-and-questions",
+      "title": "Eliminate the repetitive reply pattern in the AI/Friend/Teacher chat so the assistant does not keep responding with variations of “Cool! Can you tell me more…” for most user messages, especially short messages and questions.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-day-wise-question-generation-for-button-4-such-that-the-test-questions-for-a-given-day-are-generated-only-from-the-topics-taught-in-button-3-for-that-same-day-starting-with-day-1-content-from-the-existing-day-1-learning-hub-content-the-question-set-must-not-include-topics-that-are-not-taught-on-that-day",
-      "title": "Implement day-wise question generation for Button 4 such that the test questions for a given day are generated ONLY from the topics taught in Button 3 for that same day (starting with Day 1 content from the existing Day 1 learning hub content). The question set must not include topics that are not taught on that day.",
+      "id": "feature-update-the-ai-assistant-s-system-persona-instructions-used-by-the-chat-reply-generation-logic-so-the-assistant-consistently-presents-itself-as-an-english-learning-companion-and-prioritizes-english-learning-help-corrections-examples-vocabulary-upgrades-over-generic-conversation-filler",
+      "title": "Update the AI assistant’s system/persona instructions (used by the chat reply generation logic) so the assistant consistently presents itself as an “English Learning Companion” and prioritizes English-learning help (corrections, examples, vocabulary upgrades) over generic conversation filler.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-an-essay-writing-section-at-the-end-of-the-day-1-test-with-a-large-clean-text-area-for-the-user-to-type-their-essay-and-include-the-essay-as-part-of-scoring-worth-exactly-20-marks",
-      "title": "Add an \"Essay Writing\" section at the end of the Day 1 test with a large, clean text area for the user to type their essay, and include the essay as part of scoring worth exactly 20 marks.",
+      "id": "feature-improve-context-awareness-in-chat-replies-so-responses-reference-the-user-s-actual-message-content-and-provide-a-specific-helpful-next-step-answer-correction-example-or-targeted-follow-up-question",
+      "title": "Improve context awareness in chat replies so responses reference the user’s actual message content and provide a specific, helpful next step (answer, correction, example, or targeted follow-up question).",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-test-scoring-and-pass-fail-feedback-rules-for-button-4-total-marks-must-be-exactly-200-the-passing-threshold-must-be-150-200-to-unlock-the-next-day-if-the-user-scores-below-50-show-exactly-fail-please-review-day-current-day-stories-again-if-the-user-scores-150-show-exactly-success-day-next-day-is-now-unlocked-all-user-facing-text-must-be-in-english",
-      "title": "Update test scoring and pass/fail feedback rules for Button 4: Total Marks must be exactly 200; the passing threshold must be 150/200 to unlock the next day. If the user scores below 50, show exactly: \"Fail! Please review Day [Current Day] stories again.\" If the user scores 150+, show exactly: \"Success! Day [Next Day] is now unlocked.\" All user-facing text must be in English.",
+      "id": "feature-add-hindi-hinglish-detection-in-the-chat-assistant-and-respond-in-a-mixed-hindi-english-style-when-the-user-message-is-hindi-hinglish-e-g-tum-kaun-ho-while-still-supporting-english-learning-goals",
+      "title": "Add Hindi/Hinglish detection in the chat assistant and respond in a mixed Hindi + English style when the user message is Hindi/Hinglish (e.g., “Tum kaun ho”), while still supporting English learning goals.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-button-4-copy-and-ui-text-that-currently-indicates-perfect-score-rules-e-g-score-200-200-to-unlock-day-2-to-reflect-the-new-passing-criteria-150-200-and-new-feedback-behavior",
-      "title": "Update Button 4 copy and UI text that currently indicates perfect-score rules (e.g., \"Score 200/200 to unlock Day 2\") to reflect the new passing criteria (150/200) and new feedback behavior.",
+      "id": "feature-ensure-personality-modes-behave-distinctly-friend-mode-should-be-funny-light-teacher-mode-should-be-helpful-structured-and-both-must-avoid-repetitive-templates-across-messages",
+      "title": "Ensure personality modes behave distinctly: Friend Mode should be funny/light, Teacher Mode should be helpful/structured, and both must avoid repetitive templates across messages.",
       "reqIds": [
-        "REQ-6"
+        "REQ-5"
       ],
       "version": 1
     }
@@ -50,20 +57,36 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Configure Button 4 Testing System: day-wise topic-based questions from Button 3 topics, labeled questions, essay box (20 marks), total 200 marks with 150+ to unlock next day, feedback messages for <50 and >=150, and clear UI layout.",
+      "summary": "Fix Gemini API/assistant repetitive response loop (e.g., always replying 'Cool! Can you tell me more')",
       "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-6",
-      "summary": "Update the backend test submission and course progress logic so that passing is based on score >= 150 out of 200 (not perfect score), and so that the unlock behavior works for the current day (starting with Day 1 unlocking Day 2). Ensure existing persisted state is migrated safely if backend state structures change.",
-      "reqIds": [
-        "REQ-5"
-      ],
+      "id": "AR-2",
+      "summary": "Update system instructions to define the assistant as an 'English Learning Companion'",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Improve context awareness so responses are specific and helpful based on the user's message",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add Hindi/Hinglish detection and respond in mixed Hindi+English when user uses Hindi/Hinglish",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Ensure personality modes behave correctly: Friend Mode is funny; Teacher Mode is helpful and non-repetitive",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Pass English Speaking",
+  "projectName": "English Learning Companion",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

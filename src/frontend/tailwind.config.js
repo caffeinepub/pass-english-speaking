@@ -3,14 +3,10 @@ export default {
   darkMode: ['class'],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    container: {
-      center: true,
-      padding: '2rem',
-      screens: {
-        '2xl': '1400px',
-      },
-    },
     extend: {
+      fontFamily: {
+        sans: ['Poppins', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -53,9 +49,22 @@ export default {
           5: 'hsl(var(--chart-5))',
         },
         neon: {
-          cyan: 'oklch(75% 0.15 195)',
-          purple: 'oklch(65% 0.20 290)',
-          pink: 'oklch(70% 0.18 340)',
+          blue: 'oklch(65% 0.25 250)',
+          purple: 'oklch(60% 0.28 290)',
+          pink: 'oklch(70% 0.24 340)',
+          cyan: 'oklch(75% 0.20 200)',
+        },
+        gold: {
+          start: 'var(--gold-start)',
+          end: 'var(--gold-end)',
+        },
+        silver: {
+          start: 'var(--silver-start)',
+          end: 'var(--silver-end)',
+        },
+        bronze: {
+          start: 'var(--bronze-start)',
+          end: 'var(--bronze-end)',
         },
       },
       borderRadius: {
@@ -63,27 +72,16 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-      fontFamily: {
-        sans: ['Poppins', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
-      },
       boxShadow: {
-        'neon-cyan': '0 0 15px rgba(6, 182, 212, 0.6), 0 0 30px rgba(6, 182, 212, 0.4)',
-        'neon-purple': '0 0 15px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)',
-        'neon-pink': '0 0 15px rgba(236, 72, 153, 0.6), 0 0 30px rgba(236, 72, 153, 0.4)',
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        glass: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+        'glass-lg': '0 12px 48px 0 rgba(31, 38, 135, 0.2)',
+        neon: '0 0 20px currentColor, 0 0 40px currentColor',
+        'neon-lg': '0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor',
       },
       keyframes: {
-        'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
-        },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
-        },
         wave: {
-          '0%, 100%': { transform: 'scaleY(0.5)' },
-          '50%': { transform: 'scaleY(1.5)' },
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
         },
         'pulse-slow': {
           '0%, 100%': { opacity: '1' },
@@ -91,32 +89,31 @@ export default {
         },
         'bounce-subtle': {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-4px)' },
+          '50%': { transform: 'translateY(-5px)' },
         },
         shake: {
           '0%, 100%': { transform: 'translateX(0)' },
-          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-10px)' },
-          '20%, 40%, 60%, 80%': { transform: 'translateX(10px)' },
+          '25%': { transform: 'translateX(-5px)' },
+          '75%': { transform: 'translateX(5px)' },
         },
         'pulse-neon': {
-          '0%, 100%': { 
-            boxShadow: '0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 15px rgba(239, 68, 68, 0.3)' 
-          },
-          '50%': { 
-            boxShadow: '0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(239, 68, 68, 0.5)' 
-          },
+          '0%, 100%': { filter: 'drop-shadow(0 0 5px currentColor)' },
+          '50%': { filter: 'drop-shadow(0 0 20px currentColor)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
         },
       },
       animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
-        wave: 'wave 1s ease-in-out infinite',
-        'pulse-slow': 'pulse-slow 2s ease-in-out infinite',
-        'bounce-subtle': 'bounce-subtle 1s ease-in-out infinite',
-        shake: 'shake 0.6s ease-in-out',
-        'pulse-neon': 'pulse-neon 1.5s ease-in-out infinite',
+        wave: 'wave 2s ease-in-out infinite',
+        'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
+        'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite',
+        shake: 'shake 0.5s ease-in-out',
+        'pulse-neon': 'pulse-neon 2s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography'), require('@tailwindcss/container-queries')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 };
