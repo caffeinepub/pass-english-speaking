@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Newspaper, BookOpen, Mic, GraduationCap } from 'lucide-react';
+import { TopUSHeadlinesSection } from '@/components/news/TopUSHeadlinesSection';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -49,6 +50,11 @@ export default function HomePage() {
             Your journey to English fluency starts here
           </p>
         </header>
+
+        {/* US Headlines Section */}
+        <section className="mb-8">
+          <TopUSHeadlinesSection />
+        </section>
 
         {/* Main buttons grid */}
         <main className="space-y-4">

@@ -22,7 +22,6 @@ interface NewsItem {
 }
 
 const LAST_UPDATED_KEY = 'news_last_updated';
-const ISRAEL_VERIFIED_KEY = 'news_israel_verified';
 
 function getLastUpdated(regionId: RegionId): Date | null {
   try {
@@ -41,33 +40,14 @@ function setLastUpdated(regionId: RegionId, date: Date) {
   }
 }
 
-function getIsraelVerified(): boolean {
-  try {
-    const stored = localStorage.getItem(ISRAEL_VERIFIED_KEY);
-    return stored === 'true';
-  } catch {
-    return false;
-  }
-}
-
-function setIsraelVerified(verified: boolean) {
-  try {
-    localStorage.setItem(ISRAEL_VERIFIED_KEY, verified.toString());
-  } catch {
-    // Ignore storage errors
-  }
-}
-
 export function useRegionNewsData(regionId: RegionId) {
   const [lastUpdated, setLastUpdatedState] = useState<Date | null>(() => getLastUpdated(regionId));
-  const [israelVerified, setIsraelVerifiedState] = useState<boolean>(() => getIsraelVerified());
 
-  // In demo mode, bypass Israel verification and enable all regions
+  // In demo mode, bypass all verification and enable all regions
   const inDemoMode = isDemoMode();
 
-  // Determine if this region should be enabled
-  const isIsrael = regionId === 'israel';
-  const shouldEnable = inDemoMode || isIsrael || israelVerified;
+  // All regions are always enabled (no gating)
+  const shouldEnable = true;
 
   const backendRegionId = BACKEND_REGION_MAP[regionId];
   const query = useRegionNewsQuery(backendRegionId, shouldEnable);
@@ -80,12 +60,16 @@ export function useRegionNewsData(regionId: RegionId) {
     // Use demo data directly
     parsedData = getDemoNewsForRegion(regionId);
   } else {
-    // Parse backend data
-    const parseResult = query.data 
-      ? parseNewsFromGNews(query.data) 
-      : { parsedData: [], error: null };
-    parsedData = parseResult.parsedData;
-    parseError = parseResult.error;
+    // Parse backend data if available
+    if (query.data && query.data.trim() !== '') {
+      const result = parseNewsFromGNews(query.data);
+      parsedData = result.parsedData;
+      parseError = result.error;
+    } else {
+      // Empty response means no data available for this region
+      parsedData = [];
+      parseError = null;
+    }
   }
 
   // Update last updated timestamp when data changes
@@ -94,22 +78,12 @@ export function useRegionNewsData(regionId: RegionId) {
       // In demo mode, set a static timestamp
       const demoDate = new Date('2026-02-17T12:00:00Z');
       setLastUpdatedState(demoDate);
-    } else if (query.data && query.dataUpdatedAt) {
+    } else if (query.data && query.data.trim() !== '' && query.dataUpdatedAt) {
       const updatedDate = new Date(query.dataUpdatedAt);
       setLastUpdated(regionId, updatedDate);
       setLastUpdatedState(updatedDate);
     }
   }, [query.data, query.dataUpdatedAt, regionId, inDemoMode]);
-
-  // Verify Israel success: if Israel has data with at least one item and no errors
-  useEffect(() => {
-    if (!inDemoMode && isIsrael && parsedData && parsedData.length > 0 && !parseError && !query.error) {
-      if (!israelVerified) {
-        setIsraelVerified(true);
-        setIsraelVerifiedState(true);
-      }
-    }
-  }, [isIsrael, parsedData, parseError, query.error, israelVerified, inDemoMode]);
 
   // Combine query error with parse error (not applicable in demo mode)
   const combinedError = inDemoMode ? null : (query.error || parseError);
@@ -120,7 +94,6 @@ export function useRegionNewsData(regionId: RegionId) {
     error: combinedError,
     lastUpdated,
     isEnabled: shouldEnable,
-    israelVerified: inDemoMode ? true : israelVerified,
   };
 }
 
@@ -139,12 +112,8 @@ export function useRegionNews() {
     
     setIsRefetching(true);
     try {
-      // Force refresh all regions on the backend
-      // Pass empty string for apiKey as backend uses integrations
-      const regions = ['israel', 'uae', 'india', 'west_bengal'];
-      await Promise.all(
-        regions.map(region => actor.forceRefreshNews(region, ''))
-      );
+      // Refresh India news (the only region with backend support currently)
+      await actor.forceRefreshIndiaNews();
       
       // Invalidate and refetch all news queries
       await queryClient.invalidateQueries({ queryKey: ['news'] });

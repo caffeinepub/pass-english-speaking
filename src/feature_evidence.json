@@ -1,4 +1,85 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-remove-the-israel-first-gating-so-that-all-supported-regions-india-dubai-west-bengal-israel-can-load-news-independently-without-requiring-israel-news-to-load-successfully-first",
+      "featureTitle": "Remove the Israel-first gating so that all supported regions (India, Dubai, West Bengal, Israel) can load news independently without requiring Israel news to load successfully first.",
+      "files": [
+        "frontend/src/components/news/NewsSection.tsx",
+        "frontend/src/hooks/useRegionNews.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-set-india-as-the-primary-default-news-region-in-the-news-page-ui-by-ordering-india-first-among-regions-shown",
+      "featureTitle": "Set India as the primary/default news region in the News page UI by ordering India first among regions shown.",
+      "files": [
+        "frontend/src/lib/news/regionConfig.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-frontend-region-news-query-pipeline-so-that-when-not-in-demo-mode-region-sections-fetch-their-region-data-from-the-backend-parse-the-gnews-response-and-display-results-for-each-region-independently",
+      "featureTitle": "Update the frontend region-news query pipeline so that, when not in demo mode, region sections fetch their region data from the backend, parse the GNews response, and display results for each region independently.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useRegionNews.ts",
+        "frontend/src/lib/news/parseNews.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-adjust-per-region-failure-behavior-so-that-if-one-region-fails-to-load-network-error-backend-error-parse-error-or-empty-response-that-region-shows-an-empty-state-while-other-regions-continue-to-load-and-render-successfully",
+      "featureTitle": "Adjust per-region failure behavior so that if one region fails to load (network error, backend error, parse error, or empty response), that region shows an empty state while other regions continue to load and render successfully.",
+      "files": [
+        "frontend/src/components/news/NewsSection.tsx",
+        "frontend/src/hooks/useRegionNews.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

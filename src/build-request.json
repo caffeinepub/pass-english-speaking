@@ -1,21 +1,110 @@
 {
   "kind": "build_request",
-  "title": "Confirm News demo mode and API key security posture",
+  "title": "Fix regional news loading (remove Israel gating), set India default, and add per-region empty-state handling",
   "projectName": "Pass English Speaking",
-  "priority": "normal",
-  "requirements": [],
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Remove the Israel-first gating so that all supported regions (India, Dubai, West Bengal, Israel) can load news independently without requiring Israel news to load successfully first.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Unlock Regions: Remove the condition that Israel news must load first. All regions (India, Dubai, West Bengal) should load independently."
+        ]
+      },
+      "acceptanceCriteria": [
+        "On the /news page, each region begins loading immediately and independently (no disabled/locked state tied to Israel).",
+        "No UI messaging remains that implies other regions are gated by Israel loading success.",
+        "Refreshing news does not require Israel to succeed for other regions to show results."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Set India as the primary/default news region in the News page UI by ordering India first among regions shown.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Default Screen: Set India as the primary news region using my API key: C2ed972df55f15f5e63ce84cdbb65341."
+        ]
+      },
+      "acceptanceCriteria": [
+        "India appears as the first region section in the /news page list.",
+        "Other regions (Dubai, West Bengal, Israel) still appear on the page after India."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement backend support to fetch and cache India top headlines using the exact GNews endpoint provided by the user, and expose it via a region-specific backend method that the frontend can call without embedding the API key in the client.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Update Endpoint: For India news, use this URL: https://gnews.io/api/v4/top-headlines?category=general&lang=en&country=in&apikey=C2ed972df55f15f5e63ce84cdbb65341."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend provides a callable method to fetch India news data (raw JSON text) from https://gnews.io/api/v4/top-headlines?category=general&lang=en&country=in&apikey=C2ed972df55f15f5e63ce84cdbb65341.",
+        "Backend caches India news results similarly to existing caching behavior (so repeated calls don’t always outcall).",
+        "Frontend does not contain the API key string in source code for fetching India news."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the frontend region-news query pipeline so that, when not in demo mode, region sections fetch their region data from the backend, parse the GNews response, and display results for each region independently.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "All regions (India, Dubai, West Bengal) should load independently.",
+          "Update Endpoint: For India news, use this URL: https://gnews.io/api/v4/top-headlines?category=general&lang=en&country=in&apikey=C2ed972df55f15f5e63ce84cdbb65341."
+        ]
+      },
+      "acceptanceCriteria": [
+        "With NEWS_DATA_SOURCE set to 'backend', the India region displays parsed headlines when the backend returns a valid GNews response.",
+        "Dubai, West Bengal, and Israel sections do not remain permanently empty solely due to frontend stubs returning empty strings (the frontend must call the backend for region data).",
+        "Each region’s loading spinner, success display, and empty-state display operate per-region (one region’s state changes do not block others)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Adjust per-region failure behavior so that if one region fails to load (network error, backend error, parse error, or empty response), that region shows an empty state while other regions continue to load and render successfully.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Error Handling: If one region (like Israel) fails, show an empty state for that region only, but let other regions load successfully."
+        ]
+      },
+      "acceptanceCriteria": [
+        "If one region’s fetch fails, only that region shows an empty-state message (and other regions continue to show loading/success normally).",
+        "A failing Israel request does not prevent India/Dubai/West Bengal from showing news.",
+        "If a region returns no articles, that region shows an empty-state message and other regions remain unaffected."
+      ]
+    }
+  ],
   "constraints": [
-    "Frontend must not request, store, or log any external news API keys; user-facing UI must not prompt for API keys.",
-    "Demo/placeholder News data must remain the default data source until explicitly switched via centralized frontend configuration.",
-    "Keep architecture modular so real news API integration can be enabled later via secure backend settings/integrations (no frontend-provided keys).",
-    "Respect Internet Computer single-actor backend architecture (all Motoko logic in backend/main.mo); only add backend/migration.mo if state migration is required.",
-    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose instead).",
-    "All user-facing text must be in English."
+    "Do not edit files under frontend/src/components/ui (Shadcn components are read-only and must be composed).",
+    "Do not modify immutable frontend hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Backend must remain a single-actor Motoko architecture (all logic in backend/main.mo).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Implementing or enabling real external news fetching in the UI right now (demo/placeholder only).",
-    "Adding any UI screens or prompts for entering API keys.",
-    "Introducing any external databases or third-party auth providers beyond Internet Identity."
+    "Do not add third-party authentication providers (only Internet Identity is supported).",
+    "Do not add WebSockets or real-time streaming.",
+    "Do not introduce external databases or non-Motoko backend services."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,48 +1,47 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T15:08:37.893Z",
-  "summary": "The BuildRequest contains constraints about keeping News in demo mode and ensuring no frontend API key handling, but the only change is to `project_state.json`, adding/updating a project summary and feature list describing a mobile app UI, News regions content, and even \"GNews-backed\" refresh behavior. No concrete implementation evidence is present, but the modified state file introduces multiple unrequested features and requirements metadata not present in the BuildRequest.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-18T01:47:42.655Z",
+  "summary": "India is reordered first in the region config and frontend gating appears removed (all regions enabled). Per-region loading/error/empty UI states are implemented. However, backend India fetching does not use the exact endpoint specified (it uses a different URL pattern and an Authorization header), and the frontend still does not call the backend for Dubai/West Bengal/Israel (returns empty strings), so non-India regions can remain empty due to stubs.",
+  "missing_requirements": [
     {
-      "description": "Mobile app UI scope (\"Pass English Speaking\" home screen with 4 main buttons) added to project summary/state.",
-      "reason": "BuildRequest is about confirming demo mode and API key security posture; it does not request implementing or defining a mobile app home screen UI.",
+      "id": "REQ-3",
+      "requirement": "Implement backend support to fetch and cache India top headlines using the exact GNews endpoint provided (including apikey in the URL) and expose it via a region-specific backend method.",
+      "reason": "Backend adds getIndiaNews and caching, but the India endpoint does not match the required exact URL (it omits category=general, uses max=20, and does not include the apikey query param). Instead it sends an Authorization header with a different key string.",
       "evidence": [
-        "project_state.json"
+        "backend/main.mo"
       ]
     },
     {
-      "description": "News demo screen specification with 4 regions (Israel, Dubai, India, West Bengal) and 10 sample items per region recorded as an existing feature set.",
-      "reason": "BuildRequest does not request adding these UI/content requirements; it only constrains demo data to remain the default and forbids API key prompts/handling.",
+      "id": "REQ-4",
+      "requirement": "When not in demo mode and NEWS_DATA_SOURCE is 'backend', region sections (India, Dubai, West Bengal, Israel) fetch their region data from the backend (not frontend stubs), parse the GNews response, and display results independently.",
+      "reason": "Only India calls a backend method (actor.getIndiaNews). For other regions the query function returns an empty string with a comment indicating backend doesn't support them yet, which can leave Dubai/West Bengal/Israel empty due to frontend stubs.",
       "evidence": [
-        "project_state.json"
-      ]
-    },
-    {
-      "description": "Daily auto-update/refresh semantics for news (refresh at least once every 24 hours per region) and manual refresh behavior recorded as existing features.",
-      "reason": "Not requested in the BuildRequest; additionally, the BuildRequest explicitly states non-goal of enabling real external news fetching in the UI right now.",
-      "evidence": [
-        "project_state.json"
-      ]
-    },
-    {
-      "description": "References to \"GNews-backed regions\" and preserving auto-refresh semantics for them.",
-      "reason": "BuildRequest emphasizes demo/placeholder as default and avoiding real external fetching in the UI; mentioning a specific external news backend behavior is outside the stated request.",
-      "evidence": [
-        "project_state.json"
-      ]
-    },
-    {
-      "description": "Introduction of REQ-1/REQ-2/REQ-3/REQ-5/REQ-6/REQ-7 requirement IDs and associated features in project state.",
-      "reason": "BuildRequest explicitly lists \"Requirements: none\"; adding requirement IDs/features is not requested.",
-      "evidence": [
-        "project_state.json"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useRegionNews.ts"
       ]
     }
   ],
-  "confidence": 0.68,
+  "hallucinated_features": [
+    {
+      "description": "Added a migration module that filters persisted newsCaches down to only the \"us_general\" key.",
+      "reason": "No migration behavior or cache filtering requirement was requested; the BuildRequest focuses on removing Israel gating, India default ordering, India backend fetch/caching, and per-region empty-state handling.",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.74,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/components/news/NewsSection.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useRegionNews.ts",
+    "frontend/src/lib/news/parseNews.ts",
+    "frontend/src/lib/news/regionConfig.ts",
     "project_state.json"
   ]
 }

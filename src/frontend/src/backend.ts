@@ -108,37 +108,67 @@ export interface http_request_result {
     headers: Array<http_header>;
 }
 export interface backendInterface {
-    forceRefreshNews(region: string, apiKey: string): Promise<string>;
-    getNews(region: string, apiKey: string): Promise<string>;
+    forceRefreshIndiaNews(): Promise<string>;
+    forceRefreshNews(): Promise<string>;
+    getIndiaNews(): Promise<string>;
+    getNews(): Promise<string>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async forceRefreshNews(arg0: string, arg1: string): Promise<string> {
+    async forceRefreshIndiaNews(): Promise<string> {
         if (this.processError) {
             try {
-                const result = await this.actor.forceRefreshNews(arg0, arg1);
+                const result = await this.actor.forceRefreshIndiaNews();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.forceRefreshNews(arg0, arg1);
+            const result = await this.actor.forceRefreshIndiaNews();
             return result;
         }
     }
-    async getNews(arg0: string, arg1: string): Promise<string> {
+    async forceRefreshNews(): Promise<string> {
         if (this.processError) {
             try {
-                const result = await this.actor.getNews(arg0, arg1);
+                const result = await this.actor.forceRefreshNews();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getNews(arg0, arg1);
+            const result = await this.actor.forceRefreshNews();
+            return result;
+        }
+    }
+    async getIndiaNews(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getIndiaNews();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getIndiaNews();
+            return result;
+        }
+    }
+    async getNews(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getNews();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getNews();
             return result;
         }
     }

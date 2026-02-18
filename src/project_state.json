@@ -1,135 +1,45 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 11,
-  "summary": "Mobile app “Pass English Speaking” with a clean, beginner-friendly home screen featuring 4 main buttons; Button 1 (News) shows a demo/placeholder News screen with 4 regions (Israel, Dubai, India, West Bengal), each listing 10 sample text-only news items clearly marked as demo content, with the intent to later replace demo data with real API integration.",
+  "projectStateVersion": 3,
+  "summary": "News app that fetches and displays regional headlines from the GNews API, with independent region loading and per-region error handling.",
   "architectural_notes": [
-    "News content must be text-only (no audio, no speaking tasks).",
-    "News fetching should use the saved GNews API key from integrations (do not paste/expose the API key in code or UI).",
-    "Implement fetch enablement in a staged way: Israel first, then Dubai/UAE, India, West Bengal after success.",
-    "On fetch failure, display/return a clear error message to the user.",
-    "For now, the News screen should support a demo/placeholder data mode with 4 regions and 10 sample items each, clearly marked as demo content; keep the design modular so it can be replaced by real API-backed fetching later.",
-    "Do not request, store, or expose any API keys in prompts; real API integration must be added later via secure settings/integrations."
+    "Load each region's feed independently (no cross-region blocking).",
+    "Isolate failures per region; render empty-state per region without impacting others."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "News app stuck due to region loading dependency (Israel feed must load before other regions enable)."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-create-a-beginner-friendly-home-screen-for-the-app-pass-english-speaking-with-4-large-clearly-labeled-buttons-arranged-for-easy-mobile-use-tap-targets-spacing-readable-typography",
-      "title": "Create a beginner-friendly home screen for the app \"Pass English Speaking\" with 4 large, clearly labeled buttons arranged for easy mobile use (tap targets, spacing, readable typography).",
+      "id": "feature-remove-the-israel-first-gating-so-that-all-supported-regions-india-dubai-west-bengal-israel-can-load-news-independently-without-requiring-israel-news-to-load-successfully-first",
+      "title": "Remove the Israel-first gating so that all supported regions (India, Dubai, West Bengal, Israel) can load news independently without requiring Israel news to load successfully first.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-navigation-so-that-tapping-the-news-button-opens-a-news-screen",
-      "title": "Implement navigation so that tapping the \"News\" button opens a News screen.",
+      "id": "feature-set-india-as-the-primary-default-news-region-in-the-news-page-ui-by-ordering-india-first-among-regions-shown",
+      "title": "Set India as the primary/default news region in the News page UI by ordering India first among regions shown.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-on-the-news-screen-show-4-clearly-separated-sections-titled-israel-dubai-india-and-west-bengal-each-section-must-list-the-top-10-news-items-with-1-headline-and-2-short-preview-text-text-only",
-      "title": "On the News screen, show 4 clearly separated sections titled: \"Israel\", \"Dubai\", \"India\", and \"West Bengal\"; each section must list the top 10 news items with (1) headline and (2) short preview text, text-only.",
+      "id": "feature-update-the-frontend-region-news-query-pipeline-so-that-when-not-in-demo-mode-region-sections-fetch-their-region-data-from-the-backend-parse-the-gnews-response-and-display-results-for-each-region-independently",
+      "title": "Update the frontend region-news query pipeline so that, when not in demo mode, region sections fetch their region data from the backend, parse the GNews response, and display results for each region independently.",
       "reqIds": [
-        "REQ-3"
+        "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-daily-auto-update-behavior-the-app-must-refresh-cached-news-at-least-once-every-24-hours-per-region-and-serve-up-to-date-results-on-the-next-user-visit-open-while-also-allowing-manual-refresh-from-the-news-screen",
-      "title": "Implement daily auto-update behavior: the app must refresh cached news at least once every 24 hours per region and serve up-to-date results on the next user visit/open, while also allowing manual refresh from the News screen.",
+      "id": "feature-adjust-per-region-failure-behavior-so-that-if-one-region-fails-to-load-network-error-backend-error-parse-error-or-empty-response-that-region-shows-an-empty-state-while-other-regions-continue-to-load-and-render-successfully",
+      "title": "Adjust per-region failure behavior so that if one region fails to load (network error, backend error, parse error, or empty response), that region shows an empty state while other regions continue to load and render successfully.",
       "reqIds": [
         "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-the-other-3-home-screen-buttons-are-present-and-usable-in-the-ui-even-if-their-features-are-not-yet-defined-show-a-clear-coming-soon-screen-state-when-they-are-tapped-no-additional-functionality-beyond-this-placeholder",
-      "title": "Ensure the other 3 home screen buttons are present and usable in the UI even if their features are not yet defined; show a clear \"Coming soon\" screen/state when they are tapped (no additional functionality beyond this placeholder).",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-coherent-clean-visual-theme-suitable-for-beginners-consistent-spacing-typography-and-contrast-using-a-distinct-style-avoid-blue-purple-by-default-and-keep-it-consistent-across-home-and-news-screens",
-      "title": "Apply a coherent, clean visual theme suitable for beginners (consistent spacing, typography, and contrast) using a distinct style (avoid blue/purple by default), and keep it consistent across Home and News screens.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-preserve-and-enforce-daily-auto-refresh-semantics-for-the-gnews-backed-regions-refresh-cached-news-at-least-once-every-24-hours-per-region-and-serve-cached-results-between-refreshes-while-still-allowing-the-existing-manual-refresh-on-the-news-screen-to-force-refetch",
-      "title": "Preserve and enforce daily auto-refresh semantics for the GNews-backed regions: refresh cached news at least once every 24 hours per region and serve cached results between refreshes, while still allowing the existing manual refresh on the News screen to force refetch.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-frontend-data-fetching-parsing-so-the-news-screen-s-four-sections-israel-dubai-india-west-bengal-display-the-gnews-derived-top-10-items-headline-short-preview-for-the-correct-region-remove-any-incorrect-internal-mapping-between-regions-and-unrelated-backend-endpoints-also-surface-fetch-errors-to-the-user-as-an-english-error-message",
-      "title": "Update the frontend data fetching/parsing so the News screen’s four sections (Israel, Dubai, India, West Bengal) display the GNews-derived top 10 items (headline + short preview) for the correct region (remove any incorrect internal mapping between regions and unrelated backend endpoints). Also surface fetch errors to the user as an English error message.",
-      "reqIds": [
-        "REQ-11"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-use-the-saved-gnews-api-key-from-integrations-for-all-gnews-requests-and-do-not-require-the-frontend-to-provide-store-or-log-the-api-key",
-      "title": "Use the saved GNews API key from integrations for all GNews requests, and do not require the frontend to provide, store, or log the API key.",
-      "reqIds": [
-        "REQ-12"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-frontend-news-queries-and-refresh-behavior-to-call-backend-news-methods-without-supplying-an-api-key-and-keep-the-four-news-sections-correctly-mapped-israel-israel-dubai-uae-uae-india-india-west-bengal-west-bengal",
-      "title": "Update frontend news queries and refresh behavior to call backend news methods without supplying an API key, and keep the four News sections correctly mapped: Israel -> israel, Dubai (UAE) -> uae, India -> india, West Bengal -> west_bengal.",
-      "reqIds": [
-        "REQ-15"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-staged-enablement-so-israel-is-the-first-region-to-be-verified-and-only-after-israel-fetching-is-confirmed-working-should-the-other-regions-dubai-uae-india-west-bengal-be-enabled-for-display-fetching",
-      "title": "Implement staged enablement so Israel is the first region to be verified, and only after Israel fetching is confirmed working should the other regions (Dubai/UAE, India, West Bengal) be enabled for display/fetching.",
-      "reqIds": [
-        "REQ-16"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-frontend-only-demo-news-data-source-that-provides-placeholder-content-for-the-news-screen-4-regions-israel-dubai-india-west-bengal-with-exactly-10-sample-news-items-per-region-headline-short-preview-text-text-only",
-      "title": "Add a frontend-only “demo news” data source that provides placeholder content for the News screen: 4 regions (Israel, Dubai, India, West Bengal) with exactly 10 sample news items per region (headline + short preview text, text-only).",
-      "reqIds": [
-        "REQ-17"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-clearly-mark-the-news-screen-content-as-demo-placeholder-content-in-english-including-an-always-visible-label-notice-indicating-the-content-is-demo",
-      "title": "Clearly mark the News screen content as demo/placeholder content in English, including an always-visible label/notice indicating the content is demo.",
-      "reqIds": [
-        "REQ-18"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-a-simple-centralized-toggle-config-in-the-frontend-to-switch-between-demo-placeholder-data-and-the-existing-backend-driven-news-fetching-so-the-demo-data-can-later-be-replaced-by-real-api-integration-without-refactoring-the-ui-components",
-      "title": "Implement a simple, centralized toggle/config in the frontend to switch between demo placeholder data and the existing backend-driven news fetching, so the demo data can later be replaced by real API integration without refactoring the UI components.",
-      "reqIds": [
-        "REQ-19"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-demo-mode-bypasses-any-staged-enablement-gating-that-would-hide-non-israel-regions-so-all-four-regions-always-display-in-demo-mode",
-      "title": "Ensure demo mode bypasses any staged-enablement gating that would hide non-Israel regions, so all four regions always display in demo mode.",
-      "reqIds": [
-        "REQ-20"
       ],
       "version": 1
     }
@@ -137,76 +47,37 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Create mobile app named “Pass English Speaking” with clean, simple UI and 4 large home-screen buttons (beginner-friendly layout)",
+      "summary": "Connect GNews top-headlines API to a News list view showing title, description, and image; open article url in a new browser tab on click",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Implement News button: display 4 sections (Israel, Dubai, India, West Bengal) each showing top 10 real-time news headlines with short preview text; text-only",
+      "summary": "Remove gating dependency so regions (India, Dubai, West Bengal, Israel) load independently (do not require Israel to load first)",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Auto-update news daily for all regions/sections",
+      "summary": "Set India as the default/primary news region and use GNews top-headlines endpoint with country=in for the main screen",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement per-region error handling: if one region fails or returns no news, show an empty state only for that region while others still load",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-7",
-      "summary": "Add backend support to fetch and serve \"real-time\" news for Israel, Dubai, India, and West Bengal from a single external news source via HTTPS, returning for each region the top 10 items with headline + short preview text.",
+      "summary": "Implement backend support to fetch and cache India top headlines using the exact GNews endpoint provided by the user, and expose it via a region-specific backend method that the frontend can call without embedding the API key in the client.",
       "reqIds": [
-        "REQ-4"
+        "REQ-3"
       ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Use saved GNews API key from integrations to fetch top 10 English headlines (start with Israel; if successful, enable Dubai/UAE, India, and West Bengal), auto-refresh daily, and surface an error message if fetching fails.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Update the backend to fetch news from the GNews API (using the already-saved GNews API key from integrations; do not hardcode or log the key) and return the top 10 English headlines for Israel.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "After Israel fetching works via GNews, enable the same GNews-based fetching behavior for Dubai (UAE), India, and West Bengal, keeping per-region caching and top-10 English results.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-12",
-      "summary": "Update backend GNews fetching so that each supported region returns the top 10 English items (headline + preview) using the correct GNews endpoints, including correcting the West Bengal query string.",
-      "reqIds": [
-        "REQ-13"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-13",
-      "summary": "Preserve daily auto-refresh semantics on the backend (per region cache invalidates at least every 24 hours) while continuing to allow manual refresh from the News screen to force a refetch.",
-      "reqIds": [
-        "REQ-14"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-14",
-      "summary": "Implement News screen using placeholder/demo data for now: 4 regions (Israel, Dubai, India, West Bengal) each with 10 sample text-only items, clearly labeled as demo content; structure it so it can later be swapped to real API integration.",
-      "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
   "projectName": "Pass English Speaking",
   "clarification_mode": "instant",
   "clarification_rounds": 0

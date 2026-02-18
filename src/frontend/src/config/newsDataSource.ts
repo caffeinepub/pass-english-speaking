@@ -9,7 +9,7 @@
 export type NewsDataSource = 'demo' | 'backend';
 
 // Change this constant to switch between demo and backend data
-export const NEWS_DATA_SOURCE: NewsDataSource = 'demo';
+export const NEWS_DATA_SOURCE: NewsDataSource = 'backend';
 
 export function isDemoMode(): boolean {
   return NEWS_DATA_SOURCE === 'demo';

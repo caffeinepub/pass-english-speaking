@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Confirm the News feature remains in demo mode by default and ensure the frontend never requests, stores, or logs any external news API keys, while keeping the system modular for a future secure backend-enabled integration.
+**Goal:** Fix the /news page so each supported region loads news independently (no Israel gating), India is shown first by default, and each region has its own loading/empty-state behavior.
 
 **Planned changes:**
-- Ensure the frontend uses demo/placeholder News data as the default source controlled by a centralized frontend configuration toggle (no UI for switching).
-- Remove/avoid any frontend API-key handling: no prompts, storage, or logging of external news API keys in the UI/client code.
-- Refactor News-related code (as needed) to keep a modular boundary so real news fetching can be enabled later via secure backend settings/integrations (without frontend-provided keys), respecting the single-actor Motoko backend structure.
+- Remove the Israel-first gating/locking behavior so India, Dubai, West Bengal, and Israel regions load immediately and independently on /news.
+- Reorder the News page regions so India appears first, followed by Dubai, West Bengal, and Israel.
+- Add backend support to fetch and cache India top headlines using the provided GNews endpoint, exposing a backend method so the API key is not embedded in the frontend.
+- Update the frontend region-news fetching pipeline (when NEWS_DATA_SOURCE is set to `backend`) so each region calls the backend, parses the GNews response, and renders results per region.
+- Implement per-region error/empty handling so a failure or empty response in one region shows an empty state for that region only, without blocking other regions.
 
-**User-visible outcome:** The News section continues to show demo/placeholder content with no API key prompts, and the app maintains a secure posture where keys are not handled in the frontend.
+**User-visible outcome:** On the /news page, India appears first and all regions load and render independently; if a specific region fails or has no articles, only that region shows an empty-state message while other regions still display their news.

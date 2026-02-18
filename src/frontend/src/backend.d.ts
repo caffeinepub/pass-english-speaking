@@ -26,7 +26,9 @@ export interface http_request_result {
     headers: Array<http_header>;
 }
 export interface backendInterface {
-    forceRefreshNews(region: string, apiKey: string): Promise<string>;
-    getNews(region: string, apiKey: string): Promise<string>;
+    forceRefreshIndiaNews(): Promise<string>;
+    forceRefreshNews(): Promise<string>;
+    getIndiaNews(): Promise<string>;
+    getNews(): Promise<string>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
 }

@@ -28,8 +28,10 @@ export const TransformationOutput = IDL.Record({
 });
 
 export const idlService = IDL.Service({
-  'forceRefreshNews' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
-  'getNews' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+  'forceRefreshIndiaNews' : IDL.Func([], [IDL.Text], []),
+  'forceRefreshNews' : IDL.Func([], [IDL.Text], []),
+  'getIndiaNews' : IDL.Func([], [IDL.Text], []),
+  'getNews' : IDL.Func([], [IDL.Text], []),
   'transform' : IDL.Func(
       [TransformationInput],
       [TransformationOutput],
@@ -57,8 +59,10 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
-    'forceRefreshNews' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
-    'getNews' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+    'forceRefreshIndiaNews' : IDL.Func([], [IDL.Text], []),
+    'forceRefreshNews' : IDL.Func([], [IDL.Text], []),
+    'getIndiaNews' : IDL.Func([], [IDL.Text], []),
+    'getNews' : IDL.Func([], [IDL.Text], []),
     'transform' : IDL.Func(
         [TransformationInput],
         [TransformationOutput],

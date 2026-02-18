@@ -6,9 +6,9 @@ export interface Region {
 
 export const REGIONS: Region[] = [
   {
-    id: 'israel',
-    name: 'Israel',
-    flag: '🇮🇱',
+    id: 'india',
+    name: 'India',
+    flag: '🇮🇳',
   },
   {
     id: 'dubai',
@@ -16,13 +16,13 @@ export const REGIONS: Region[] = [
     flag: '🇦🇪',
   },
   {
-    id: 'india',
-    name: 'India',
-    flag: '🇮🇳',
-  },
-  {
     id: 'westbengal',
     name: 'West Bengal',
     flag: '🏛️',
+  },
+  {
+    id: 'israel',
+    name: 'Israel',
+    flag: '🇮🇱',
   },
 ];

@@ -26,8 +26,10 @@ export interface http_request_result {
   'headers' : Array<http_header>,
 }
 export interface _SERVICE {
-  'forceRefreshNews' : ActorMethod<[string, string], string>,
-  'getNews' : ActorMethod<[string, string], string>,
+  'forceRefreshIndiaNews' : ActorMethod<[], string>,
+  'forceRefreshNews' : ActorMethod<[], string>,
+  'getIndiaNews' : ActorMethod<[], string>,
+  'getNews' : ActorMethod<[], string>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
 }
 export declare const idlService: IDL.ServiceClass;

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Clock, Lock } from 'lucide-react';
+import { Clock, Info } from 'lucide-react';
 import { NewsItemRow } from './NewsItemRow';
 import { useRegionNewsData } from '@/hooks/useRegionNews';
 import type { Region } from '@/lib/news/regionConfig';
@@ -14,11 +14,9 @@ interface NewsSectionProps {
 }
 
 export function NewsSection({ region }: NewsSectionProps) {
-  const { data, isLoading, error, lastUpdated, isEnabled, israelVerified } = useRegionNewsData(region.id);
+  const { data, isLoading, error, lastUpdated } = useRegionNewsData(region.id);
 
-  // In demo mode, never show gated state
   const inDemoMode = isDemoMode();
-  const isGated = !inDemoMode && !isEnabled && region.id !== 'israel';
 
   return (
     <Card className="border-2">
@@ -42,16 +40,7 @@ export function NewsSection({ region }: NewsSectionProps) {
       </CardHeader>
       <Separator />
       <CardContent className="pt-4">
-        {isGated && (
-          <Alert>
-            <Lock className="h-4 w-4" />
-            <AlertDescription>
-              This region will be enabled once Israel news loads successfully.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {!isGated && isLoading && (
+        {isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="space-y-2">
@@ -62,26 +51,25 @@ export function NewsSection({ region }: NewsSectionProps) {
           </div>
         )}
 
-        {!isGated && error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+        {error && (
+          <Alert>
+            <Info className="h-4 w-4" />
             <AlertDescription>
-              {error instanceof Error 
-                ? error.message 
-                : `Failed to load news for ${region.name}. Please try again later.`}
+              No news available for {region.name} at the moment. Please check back later.
             </AlertDescription>
           </Alert>
         )}
 
-        {!isGated && !isLoading && !error && data && data.length === 0 && (
+        {!isLoading && !error && data && data.length === 0 && (
           <Alert>
+            <Info className="h-4 w-4" />
             <AlertDescription>
               No news available for {region.name} at the moment.
             </AlertDescription>
           </Alert>
         )}
 
-        {!isGated && !isLoading && !error && data && data.length > 0 && (
+        {!isLoading && !error && data && data.length > 0 && (
           <div className="space-y-4">
             {data.map((item, index) => (
               <NewsItemRow key={index} item={item} index={index} />

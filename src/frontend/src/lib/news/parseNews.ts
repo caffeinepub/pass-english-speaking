@@ -15,6 +15,14 @@ interface GNewsResponse {
 }
 
 export function parseNewsFromGNews(jsonText: string): { parsedData: NewsItem[]; error: Error | null } {
+  // Handle empty or whitespace-only responses gracefully
+  if (!jsonText || jsonText.trim() === '') {
+    return {
+      parsedData: [],
+      error: null,
+    };
+  }
+
   try {
     // Try to parse as JSON
     const data: GNewsResponse = JSON.parse(jsonText);
@@ -27,11 +35,19 @@ export function parseNewsFromGNews(jsonText: string): { parsedData: NewsItem[]; 
       };
     }
 
-    // Check if articles exist
+    // Check if articles exist - treat empty array as valid (no error)
     if (!data.articles || !Array.isArray(data.articles)) {
       return {
         parsedData: [],
-        error: new Error('No articles found in response'),
+        error: null, // Empty is valid, not an error
+      };
+    }
+
+    // If articles array is empty, return empty result (no error)
+    if (data.articles.length === 0) {
+      return {
+        parsedData: [],
+        error: null,
       };
     }
 

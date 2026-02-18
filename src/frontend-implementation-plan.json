@@ -1,6 +1,95 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Confirm News demo mode and API key security posture",
-  "requirements": []
+  "title": "Fix independent regional news loading, India default ordering, and per-region empty states",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Remove Israel-first gating so every region loads independently without lock messaging.",
+      "acceptanceCriteria": [
+        "On the /news page, each region begins loading immediately and independently (no disabled/locked state tied to Israel).",
+        "No UI messaging remains that implies other regions are gated by Israel loading success.",
+        "Refreshing news does not require Israel to succeed for other regions to show results."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useRegionNews.ts",
+          "operation": "modify",
+          "description": "Remove Israel verification/localStorage gating and ensure each region is always enabled for fetching when not in demo mode (no dependency on Israel success)."
+        },
+        {
+          "path": "frontend/src/components/news/NewsSection.tsx",
+          "operation": "modify",
+          "description": "Remove the gated/locked UI state (Lock icon + message) so sections never appear locked based on Israel; ensure each region renders based only on its own loading/data state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Make India the first/default region displayed on the News page by reordering regions.",
+      "acceptanceCriteria": [
+        "India appears as the first region section in the /news page list.",
+        "Other regions (Dubai, West Bengal, Israel) still appear on the page after India."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/news/regionConfig.ts",
+          "operation": "modify",
+          "description": "Reorder the exported REGIONS array so India is first, followed by Dubai, West Bengal, and Israel (or the exact remaining order required), without changing region IDs."
+        },
+        {
+          "path": "frontend/src/pages/NewsPage.tsx",
+          "operation": "modify",
+          "description": "Confirm the page renders regions using the REGIONS order (no extra sorting that could override India-first ordering)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Update region news fetching to call backend methods (non-demo), parse GNews JSON, and render independent per-region results.",
+      "acceptanceCriteria": [
+        "With NEWS_DATA_SOURCE set to 'backend', the India region displays parsed headlines when the backend returns a valid GNews response.",
+        "Dubai, West Bengal, and Israel sections do not remain permanently empty solely due to frontend stubs returning empty strings (the frontend must call the backend for region data).",
+        "Each region’s loading spinner, success display, and empty-state display operate per-region (one region’s state changes do not block others)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Implement real region query behavior when NEWS_DATA_SOURCE is 'backend': call backend actor methods instead of returning an empty string (use getIndiaNews for India; use getNews for other regions until/if dedicated methods exist), maintaining per-region query keys for independent loading/caching."
+        },
+        {
+          "path": "frontend/src/hooks/useRegionNews.ts",
+          "operation": "modify",
+          "description": "When not in demo mode, parse each region’s returned JSON text via parseNewsFromGNews and return parsed items + parse errors per region (instead of hardcoded empty arrays), while preserving independent region state."
+        },
+        {
+          "path": "frontend/src/lib/news/parseNews.ts",
+          "operation": "modify",
+          "description": "Harden parsing behavior for backend-returned values relevant to regional fetching (e.g., gracefully treat empty/whitespace responses as empty-state without throwing) so regions don’t fail due to non-JSON empty responses."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Ensure per-region failures show an empty state only for that region while others continue loading/rendering.",
+      "acceptanceCriteria": [
+        "If one region’s fetch fails, only that region shows an empty-state message (and other regions continue to show loading/success normally).",
+        "A failing Israel request does not prevent India/Dubai/West Bengal from showing news.",
+        "If a region returns no articles, that region shows an empty-state message and other regions remain unaffected."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useRegionNews.ts",
+          "operation": "modify",
+          "description": "Adjust the region hook contract to support per-region empty-state on failures (network/backend/parse errors) without propagating a global failure that could block other regions’ queries."
+        },
+        {
+          "path": "frontend/src/components/news/NewsSection.tsx",
+          "operation": "modify",
+          "description": "Change error rendering so a region with an error shows an English empty-state message (non-destructive) rather than a blocking error UI, and ensure other regions are unaffected and continue to display their own loading/success/empty states."
+        }
+      ]
+    }
+  ]
 }
